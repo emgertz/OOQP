@@ -1,0 +1,293 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>OOQP - A package for solving convex quadratic programming problems.</title>
+<link rev="made" href="mailto:lab@cs.wisc.edu" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#obtaining_ooqp">OBTAINING OOQP</a></li>
+	<li><a href="#getting_started">GETTING STARTED</a></li>
+	<li><a href="#problem_formulations_supported_in_the_ooqp_distribution">PROBLEM FORMULATIONS SUPPORTED IN THE OOQP DISTRIBUTION</a></li>
+	<li><a href="#command_line_executables">COMMAND LINE EXECUTABLES</a></li>
+	<li><a href="#use_with_matlab">USE WITH MATLAB</a></li>
+	<li><a href="#use_with_ampl">USE WITH AMPL</a></li>
+	<li><a href="#examples">EXAMPLES</a></li>
+	<li><a href="#contents_of_the_distribution">CONTENTS OF THE DISTRIBUTION</a></li>
+	<li><a href="#credits">CREDITS</a></li>
+</ul>
+<!-- INDEX END -->
+
+<hr />
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>OOQP - A package for solving convex quadratic programming problems.</p>
+This page is part of the <A HREF=../index.html> OOQP documentation </A>.<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<p>This directory contains OOQP, a package for solving convex quadratic
+programming problems (QP). These are optimization problems in which the
+objective function is a convex quadratic function and the constraints
+are linear functions of a vector of real variables. They have the
+following general form:</p>
+<pre>
+    minimize (1/2) * x' * Q * x + c' * x
+    subject to                     A * x  = b
+                                   C * x &gt;= d</pre>
+<p>where Q is a symmetric positive semidefinite n by n matrix, x is a
+n-vector of variables, A and C are matrices of dimensions m_a by n
+and m_c by n, respectively, and c, b, and d are vectors of appropriate
+dimensions.</p>
+<p>Many QPs that arise in practice are highly structured. That is, the
+matrices that define them have properties that can be exploited in
+designing efficient solution techniques. In addition to the wide
+variations in problem structure, there is wide divergence in the ways
+in which the problem data and variables for a QP can be stored on a
+computer. This distribution of OOQP contains code for the
+implementation of solvers for a number of QP formulations, including a
+formulation for general QPs in which the Hessian and constraint
+matrices are sparse. The code in the distribution also provides a
+framework and examples for users who wish to implement solvers that
+are tailored to their own specific structured QPs and their specific
+computational environments.</p>
+<p>
+</p>
+<hr />
+<h1><a name="obtaining_ooqp">OBTAINING OOQP</a></h1>
+<p>Visit <a href="http://www.cs.wisc.edu/~swright/ooqp">http://www.cs.wisc.edu/~swright/ooqp</a> to obtain the latest
+version of OOQP.</p>
+<p>
+</p>
+<hr />
+<h1><a name="getting_started">GETTING STARTED</a></h1>
+<p>The file <a href=".././distribution-docs/INSTALL.html">INSTALL</a>, included in this directory, is the
+installation guide for the OOQP package.</p>
+<p>Further documentation is available in the doc/ directory. For an index
+of the available documentation, point your favorite html viewer
+(e.g. Netscape) at the file doc/index.html. On many systems, this can
+be done by entering a string of the following form into the location
+window on the browser:</p>
+<pre>
+    <a href="file:/full/path/OOQP/doc/index.html">file:/full/path/OOQP/doc/index.html</a></pre>
+<p>The OOQP Users Guide, which contains a more complete description of
+OOQP and its capabilities, can be found at doc/ooqp-userguide.pdf.
+This file is in PDF format, which may be read by such programs as
+Adobe Acrobat Reader.  If your browser contains a PDF plug-in, you may
+simply click on the link ``Users Guide'' from the doc/index.html file to
+display the Guide.</p>
+<p>Those wishing to use the OOQP framework to develop customized QP
+solvers should first read the Users Guide, and then browse through the
+reference manual, which is presented as a collection of web pages in
+the directory doc/reference_manual, also available as a link from
+doc/index.html</p>
+<p>
+</p>
+<hr />
+<h1><a name="problem_formulations_supported_in_the_ooqp_distribution">PROBLEM FORMULATIONS SUPPORTED IN THE OOQP DISTRIBUTION</a></h1>
+<p>The OOQP distribution contains a solver for general sparse QPs,
+together a number of modules for solving certain structured
+QPs. Documentation for these modules can be found in the
+doc/formulations directory. The modules are as follows.</p>
+<dl>
+<dt><strong><a name="item_qpgen">QpGen</a></strong><br />
+</dt>
+<dd>
+This module solves general convex quadratic programs with sparse
+data. This problem is discussed at length in the Users Guide.
+</dd>
+<p></p>
+<dt><strong><a name="item_qpbound_7cqpbound"><a href=".././formulations/QpBound.html">QpBound</a></a></strong><br />
+</dt>
+<dd>
+This module solves bound-constrained quadratic programs, in which the
+ only constraints are bounds on the variables. The formulation is as
+follows.
+</dd>
+<dd>
+<pre>
+    minimize   (1/2) * x' * Q * x + c' * x
+    subject to                      l &lt;= x &lt;= u</pre>
+</dd>
+<dd>
+<p>See <a href=".././formulations/QpBound.html">the QpBound manpage</a> for more information.</p>
+</dd>
+<p></p>
+<dt><strong><a name="item_svm_7csvm"><a href=".././formulations/Svm.html">Svm</a></a></strong><br />
+</dt>
+<dd>
+This module creates a support vector machine classifier for solving
+the pattern classification problem in machine learning. See the <a href=".././formulations/Svm.html">the Svm manpage</a>
+for more information.
+</dd>
+<p></p>
+<dt><strong><a name="item_huber_7chuber"><a href=".././formulations/Huber.html">Huber</a></a></strong><br />
+</dt>
+<dd>
+Solves the Huber regression problem. See <a href=".././formulations/Huber.html">the Huber manpage</a>.
+</dd>
+<p></p></dl>
+<p>
+</p>
+<hr />
+<h1><a name="command_line_executables">COMMAND LINE EXECUTABLES</a></h1>
+<p>The installation process will generate a number of command-line
+executables. A typical executable will be named</p>
+<pre>
+     formulation-linag-solver.exe</pre>
+<p>Where the strings ``formulation'', ``linalg'' and ``solver'' will be
+replaced by appropriate values.  The ``formulation'' string will be one
+of the problem formulations given in the preceding section, expressed
+in lowercase characters: qpgen, qpbound, svm, or huber. The ``solver''
+string indicates the optimization algorithm used to solve the QP. It
+will have one of the following values:</p>
+<dl>
+<dt><strong><a name="item_mehrotra">mehrotra</a></strong><br />
+</dt>
+<dd>
+Mehrotra's predictor-corrector algorithm
+</dd>
+<p></p>
+<dt><strong><a name="item_gondzio">gondzio</a></strong><br />
+</dt>
+<dd>
+Mehrotra's algorithm with Gondzio's higher-order corrections
+</dd>
+<p></p></dl>
+<p>The ``linalg'' string is meant to represent how the linear algebra
+operations are performed. Typical values are ``sparse'', ``dense'' and
+``petsc''. In some cases, the string will more specific, also referring
+to the linear solver used to solve linear equations, for instance
+``sparse-ma57.'' The linalg string does not appear in the names of the
+executables ``svm-gondzio.exe'' and ``huber-gondzio.exe'', for which we
+felt it would be redundant. (In these formulations, dense matrices are
+used to represent the larger, structured matrices that appear in the
+QP formulation.)</p>
+<p>Not all combinations of formulations, algorithms, and linear algebra
+packages are supported or provided. See the <a href=".././distribution-docs/INSTALL.html">INSTALL</a> file
+for information on how to build all supported executables.  A users
+guide for executables based on the QpGen formulation may be found in
+doc/ooqp-userguide.pdf. For other executables, see the man page of
+their respective formulation in doc/formulations.</p>
+<p>
+</p>
+<hr />
+<h1><a name="use_with_matlab">USE WITH MATLAB</a></h1>
+<p>Some QP solvers supplied with OOQP may be invoked within the Matlab
+environment. Installation instructions, in addition to the general
+instructions found in <a href=".././distribution-docs/INSTALL.html">INSTALL</a>, have been supplied in the
+<a href=".././distribution-docs/README_Matlab.html">README_Matlab</a> file. Once the Matlab interface has
+been properly installed, documentation is available from within
+Matlab, as described in the README_Matlab file.</p>
+<p>
+</p>
+<hr />
+<h1><a name="use_with_ampl">USE WITH AMPL</a></h1>
+<p>A solver for the QpGen formulation may be invoked from within
+Ampl. Use of this solver is documented in the OOQP Users Guide.</p>
+<p>
+</p>
+<hr />
+<h1><a name="examples">EXAMPLES</a></h1>
+<p>The examples/ directory contains sample data and example programs
+demonstrating the use of OOQP. See the
+<a href=".././examples/README.html">examples/README</a> file for information on the
+contents of the examples directory.</p>
+<p>The src/QpExample directory contains an implementation of the
+formulation discussed extensively in the OOQP Users Guide. These files
+can be modified in the manner described in the Users Guide to create a
+specialized QP solver.</p>
+<p>
+</p>
+<hr />
+<h1><a name="contents_of_the_distribution">CONTENTS OF THE DISTRIBUTION</a></h1>
+<p>The OOQP distribution contains the following top-level subdirectories:</p>
+<dl>
+<dt><strong><a name="item_config_2f">config/</a></strong><br />
+</dt>
+<dd>
+Helper files for configuring OOQP. This is part of the GNU Autoconf
+system and is of no interest to most users.
+</dd>
+<p></p>
+<dt><strong><a name="item_doc_2f">doc/</a></strong><br />
+</dt>
+<dd>
+Documentation for the distribution. Point a browser at doc/index.html
+to see the available documentation.
+</dd>
+<p></p>
+<dt><strong><a name="item_doc_2dsrc_2f">doc-src/</a></strong><br />
+</dt>
+<dd>
+Files use to create the documentation for the distribution. These are
+of no interest to most users.
+</dd>
+<p></p>
+<dt><strong><a name="item_examples_2f">examples/</a></strong><br />
+</dt>
+<dd>
+Example problems and programs. See <a href=".././examples/README.html">examples/README</a>.
+</dd>
+<p></p>
+<dt><strong><a name="item_extras_2f">extras/</a></strong><br />
+</dt>
+<dd>
+Additional files that may help users work with OOQP and external
+packages.  For instance, the makefiles that we used to generate the
+MA27 libraries are located in subdirectories of this directory.
+</dd>
+<p></p>
+<dt><strong><a name="item_include_2f">include/</a></strong><br />
+</dt>
+<dd>
+Header files for OOQP. The header files are copied from src/ into this
+directory as part of the installation process.
+</dd>
+<p></p>
+<dt><strong><a name="item_lib_2f">lib/</a></strong><br />
+</dt>
+<dd>
+Compiled libraries for OOQP (once you compile them).
+</dd>
+<p></p>
+<dt><strong><a name="item_src_2f">src/</a></strong><br />
+</dt>
+<dd>
+Source files for the OOQP distribution.
+</dd>
+<p></p></dl>
+<p>
+</p>
+<hr />
+<h1><a name="credits">CREDITS</a></h1>
+<p>OOQP is maintained by:</p>
+<dl>
+<dt><strong><a name="item_e_2e_michael_gertz">E. Michael Gertz</a></strong><br />
+</dt>
+<dd>
+Mathematics and Computer Science Division, 
+Argonne National Laboratory. 
+<a href="http://www.mcs.anl.gov/~gertz/">http://www.mcs.anl.gov/~gertz/</a>
+</dd>
+<p></p>
+<dt><strong><a name="item_stephen_wright">Stephen Wright</a></strong><br />
+</dt>
+<dd>
+Computer Sciences Department, University of Wisconsin, Madison.
+<a href="http://www.cs.wisc.edu/~swright/">http://www.cs.wisc.edu/~swright/</a>
+</dd>
+<p></p></dl>
+Back to the <A HREF=../index.html> Documentation Roadmap </A>.
+</body>
+
+</html>

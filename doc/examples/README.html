@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>examples/README - Documentation of the examples provided with the 
+  OOQP distribution</title>
+<link rev="made" href="mailto:lab@cs.wisc.edu" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#src_qpexample">src/QpExample</a></li>
+	<li><a href="#examples_svm">examples/Svm</a></li>
+	<li><a href="#examples_huber">examples/Huber</a></li>
+	<li><a href="#examples_qpbound">examples/QpBound</a></li>
+	<li><a href="#examples_qpgen">examples/QpGen</a></li>
+	<ul>
+
+		<li><a href="#examples_qpgen_ampl">examples/QpGen/ampl</a></li>
+		<li><a href="#examples_qpgen_cinterface">examples/QpGen/cinterface</a></li>
+		<li><a href="#example_qpgen_cplusplus">example/QpGen/cplusplus</a></li>
+		<li><a href="#examples_qpgen_random">examples/QpGen/random</a></li>
+		<li><a href="#examples_qpgen_sampleqps">examples/QpGen/sample-qps</a></li>
+	</ul>
+
+	<li><a href="#fin">FIN</a></li>
+</ul>
+<!-- INDEX END -->
+
+<hr />
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>examples/README - Documentation of the examples provided with the 
+  OOQP distribution</p>
+This page is part of the <A HREF=../index.html> OOQP documentation </A>.<p>
+</p>
+<hr />
+<h1><a name="src_qpexample">src/QpExample</a></h1>
+<p>This is the example of how OOQP can be customized to accommodate a new
+problem formulation. This particular QP formulation is outlined in the
+Users Guide doc/ooqp-userguide.pdf.</p>
+<p>The QpExample formulation is created within the OOQP src/ directory
+because this is where we suggest users create any new QP
+formulations. To build the QpExample, type
+</p>
+<pre>
+
+    make qpexample-dense-gondzio.exe</pre>
+<p>within the top level OOQP directory. The
+<strong>qpexample-dense-gondzio.exe</strong> program will solve a randomly generated
+problem.</p>
+<p>
+</p>
+<hr />
+<h1><a name="examples_svm">examples/Svm</a></h1>
+<p>Sample data files for use with the <strong>svm-gondzio.exe</strong> program. See
+<a href=".././formulations/Svm.html">the Svm manpage</a> for more information.</p>
+<p>
+</p>
+<hr />
+<h1><a name="examples_huber">examples/Huber</a></h1>
+<p>Sample data files for use with the <strong>huber-gondzio.exe</strong> program. See
+<a href=".././formulations/Huber.html">the Huber manpage</a> for more information.</p>
+<p>
+</p>
+<hr />
+<h1><a name="examples_qpbound">examples/QpBound</a></h1>
+<p>Sample data files for the <strong>qpbound-dense-gondzio.exe</strong> and
+<strong>qpbound-petsc-mehrotra.exe</strong> programs. See <a href=".././formulations/QpBound.html">the QpBound manpage</a> for more
+information.</p>
+<p>
+</p>
+<hr />
+<h1><a name="examples_qpgen">examples/QpGen</a></h1>
+<p>Sample data and programs for use with the default program
+formulation. Several subdirectory of this directory contain source code for
+building programs that link against the OOQP libraries. These programs
+are intended to be sample code for the interfaces described in
+Section 2 of the OOQP User Guide.</p>
+You may read the <A HREF=../ooqp-userguide.pdf> OOQP User Guide </A> online.<p>The makefiles accompanying the sample programs are not under the
+control of OOQP's <strong>configure</strong> script because they are designed to be
+stand-alone examples of how users might write simple
+makefiles. Therefore, it is likely that users will need to edit these
+files before building the sample programs, for instance to set the
+<code>CXX</code> variable to the name of the appropriate C++ compiler.  Users
+who are unsure of the appropriate values for the makefile variables
+should look to the <em>GNUmakefile</em> in the OOQP directory for
+guidance. The values set in <em>GNUmakefile</em> were determined by
+<strong>configure</strong> to be appropriate for this system.</p>
+<p>
+</p>
+<h2><a name="examples_qpgen_ampl">examples/QpGen/ampl</a></h2>
+<p>Contains model and data files for use with the AMPL modeling
+language.  These files are described in the OOQP User Guide.</p>
+<p>
+</p>
+<h2><a name="examples_qpgen_cinterface">examples/QpGen/cinterface</a></h2>
+<p>Contains code to build the programs <strong>example.exe</strong> and <strong>mps.exe</strong>
+that demonstrate invoking the OOQP solver as a C routine.</p>
+<p>Neither program takes any arguments.  The <strong>example.exe</strong> program
+contains all the data to define a simple QP. The <strong>mps.exe</strong> program
+reads the problem given in <em>examples/QpGen/sample-qps/Example.qps</em>.</p>
+<p>
+</p>
+<h2><a name="example_qpgen_cplusplus">example/QpGen/cplusplus</a></h2>
+<p>Contains code to build the program <strong>cxx_example.exe</strong> that
+demonstrates invoking the OOQP solver from C++ code. This program
+takes no arguments; it contains all the data to define a simple QP.</p>
+<p>
+</p>
+<h2><a name="examples_qpgen_random">examples/QpGen/random</a></h2>
+<p>Code to generate the <strong>qpgen-sparse-random.exe</strong> program, which solves
+randomly generated sparse QPs. This program may be invoked as follows,</p>
+<p><strong>qpgen-sparse-random.exe</strong> n my mz</p>
+<p>where <code>n</code> is the number of primal variables, <code>my</code> is the number of
+equality constraints, and <code>mz</code> is the number of inequality
+constraints.</p>
+<p>
+</p>
+<h2><a name="examples_qpgen_sampleqps">examples/QpGen/sample-qps</a></h2>
+<p>Contains one or more sample QPs in QPS format.</p>
+<p>
+</p>
+<hr />
+<h1><a name="fin">FIN</a></h1>
+Back to the <A HREF=../index.html> Documentation Roadmap </A>.
+</body>
+
+</html>

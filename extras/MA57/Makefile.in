@@ -1,0 +1,10 @@
+F77      = @F77@
+FC       = @F77@
+FFLAGS   = @FFLAGS@
+
+OBJS = FD05AD.o  MC34AD.o  MC41AD.o  MC47.o  MC49.o  ma57.o 
+
+libMA57.a:  $(OBJS) Makefile
+	ar ru $@ $(OBJS)
+
+$(OBJS) : Makefile

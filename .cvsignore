@@ -1,0 +1,4 @@
+GNUmakefile PetscMakefile *.exe config.log config.cache config.status
+*.mex* *.m ooqp-ampl README INSTALL README_Matlab Templates.DB COPYRIGHT
+*.ilk *.pdb README_Windows
+

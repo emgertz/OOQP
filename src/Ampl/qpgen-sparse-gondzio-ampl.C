@@ -9,6 +9,8 @@
 #include "cQpGenSparse.h"
 #include "Status.h"
 
+enum { kMinimize = 0, kMaximize = 1 } ;
+
 void doubleLexSort( int first[], int n, int second[], double data[] );
 void new_qpgen_variables( double ** x, int nx, double ** gamma, double ** phi,
 			  double ** y, int my,
@@ -47,6 +49,12 @@ static keyword keywds[] = {      /* must be in alphabetical order */
   KW((char *) "print_level",    L_val, &lprintLevel,  
 	 (char *) "Amount of output" )
 };
+
+void negate(double * x, int nx)
+{
+  for (int i = 0;  i < nx;  i++)
+    x[i] = -x[i];
+}
 
 int main( int /* argc */, char *argv[])
 {
@@ -99,7 +107,8 @@ int main( int /* argc */, char *argv[])
   }
   // read the stub file( evidently the read routine closes the file
   // when it is done ). 
-  qp_read( nl, 0 ); 
+  qp_read( nl, 0 );
+
   // Now read the quadratic Hessian. This will print an error message and
   // quit if the objective is not quadratic (or linear).
   fint *irow, *kcol;
@@ -136,7 +145,6 @@ int main( int /* argc */, char *argv[])
 		  &irowC, nnzC,  &jcolC,  &dC,
 		  &clow,  mz,    &iclow,  &cupp, &icupp,
 		  &ierr );
-
   if( ierr != 0 ) {
     fprintf( Stderr, "Couldn't allocate enough memory\n" );
     exit( 1 );
@@ -169,6 +177,11 @@ int main( int /* argc */, char *argv[])
     exit( 1 );
   }
 
+  if (objtype[0] == kMaximize) {
+    negate(c, nx);
+    negate(dQ, nnzQ);
+  }
+
   double objectiveValue;
   qpsolvesp( c, nx,  irowQ,  nnzQ,   jcolQ,  dQ,
 	     xlow,   ixlow,  xupp,   ixupp,
@@ -181,6 +194,10 @@ int main( int /* argc */, char *argv[])
 	     &objectiveValue,
 	     (int) lprintLevel,
 	     &ierr );
+
+  if (objtype[0] == kMaximize)
+    objectiveValue = -objectiveValue;
+
   objectiveValue += objectiveConstant;
 
   freeQpGenSparse( &c, 

@@ -12,6 +12,4 @@ endif
 OOQPAMPLOBJ = $(AMPLHOOKDIR)/qpgen-sparse-gondzio-ampl.o \
 	      $(CQPGENSPARSEOBJ) \
 	      $(libooqpgondzio_STATIC) $(libooqpgensparse_STATIC) \
-	      $(libooqpsparse_STATIC) $(libooqpbase_STATIC) \
-	      $(AMPLHOOKDIR)/funcadd0.o
-
+	      $(libooqpsparse_STATIC) $(libooqpbase_STATIC)

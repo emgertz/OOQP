@@ -4,7 +4,7 @@ ifeq ($(AMPL_ENABLED),ampl_enabled)
 
 ooqp-ampl : $(OOQPAMPLOBJ)
 	$(CXX) -o $@ $(CXXFLAGS) $(LDFLAGS) $(OOQPAMPLOBJ) \
-	$(AMPL_SOLVERS)/amplsolver.a $(LIBS) $(MA27LIB) $(BLAS) $(FLIBS)
+	$(AMPL_SOLVERS)/amplsolver.a $(LIBS) $(MA27LIB) $(BLAS) $(FLIBS) -ldl
 
 all_ampl: ooqp-ampl
 install: install_ampl

@@ -16,11 +16,11 @@ endif
 
 $(AMPLHOOKDIR)/Makefile.inc: $(AMPLHOOKDIR)/Makefile.inc.in \
 				$(AMPLHOOKDIR)/config.status
-	cd $(AMPLHOOKDIR); config.status
+	cd $(AMPLHOOKDIR); ./config.status
 
 $(AMPLHOOKDIR)/MakefileTargets.inc: $(AMPLHOOKDIR)/MakefileTargets.inc.in \
 				$(AMPLHOOKDIR)/config.status
-	 cd $(AMPLHOOKDIR); config.status
+	 cd $(AMPLHOOKDIR); ./config.status
 
 veryclean: ampl-veryclean
 ampl-veryclean:

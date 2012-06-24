@@ -8,8 +8,10 @@
 #include "GondzioSolver.h"
 #include "QpGenSparseMa27.h"
 
-#include <iostream.h>
+#include <iostream>
 #include <string.h>
+
+using namespace std;
 
 const int nx   = 2;
 double    c[]  = { 1.5,  -2 };

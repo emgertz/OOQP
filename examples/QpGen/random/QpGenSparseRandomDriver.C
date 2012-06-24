@@ -8,12 +8,14 @@
 #include "QpGenVars.h"
 #include "GondzioSolver.h"
 #include <string.h>
-#include <iostream.h>
+#include <iostream>
 // #include "MpsReader.h"
 
 #include <stdlib.h>
 #include "QpGenSparseMa27.h"
 #include "SimpleVector.h"
+
+using namespace std;
 
 // void QPDataPrint(QPData *prob);
 extern int DenseStorageInstances;

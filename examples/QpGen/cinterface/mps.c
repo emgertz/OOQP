@@ -3,6 +3,7 @@
  * (C) 2001 University of Chicago. See Copyright Notification in OOQP */
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "cMpsReader.h"
 #include "cQpGenSparse.h"

@@ -219,7 +219,7 @@ int main( int /* argc */, char *argv[])
 
     char buff[64];
     snprintf( buff, 64, "OOQP completed sucessfully.  "
-	      "Objective value: %14.8g.\n", objectiveValue );
+	      "Objective value: %14.8g.", objectiveValue );
     
     write_sol( buff, x, mults, &oi );
     delete [] mults;

@@ -100,11 +100,12 @@ PREREQUISITES
     compiler, or are having difficulty compiling OOQP using their FORTRAN
     compiler obtain F2C (see the "USING F2C" section below.)
 
-    We remark that the GNU C++ and FORTRAN compilers build OOQP correctly.
+    We remark that the GNU C++ and FORTRAN (gfortran) compilers build OOQP
+    correctly.
 
   A UNIX-like environment
     You may compile OOQP under any operating system you wish, but the
-    installing instructions in the current file require the use of
+    installation instructions in the current file require the use of
     UNIX-style system utilities. For instructions on how to build OOQP under
     Microsoft Windows, see the README_Windows file.
 
@@ -140,11 +141,11 @@ PREREQUISITES
 
     A Fortran reference implementation of the BLAS may be found at
     http://www.netlib.org/blas/index.html, but it is preferable to use a
-    machine-optimized library if one is available. For Linux users, one such
-    version may be found at http://www.cs.utk.edu/~ghenry/distrib/.
-    Information about obtaining optimized versions of the BLAS for other
-    architectures may be found on the Netlib page
-    http://www.netlib.org/blas/index.html
+    machine-optimized library if one is available. Most Linux distributions
+    have a prepackaged version of BLAS that may be installed using the
+    distribution's package manager. Information about obtaining optimized
+    versions of the BLAS for other architectures may be found on the Netlib
+    page http://www.netlib.org/blas/index.html
 
     The configure script will first test whether your compiler suite can
     find the BLAS library in a standard system location. If unsuccessful, it
@@ -174,32 +175,20 @@ PREREQUISITES
     version of the OOQP solver outperforms the MA27 version in general, but
     performance of the MA27 version is also acceptable.
 
-    MA27 is available free for noncommercial use. Detailed conditions of use
-    are given at the time of registration.
-
     To obtain MA27, go to
 
       http://hsl.rl.ac.uk/archive/hslarchive.html
 
-    and click on "Registration Form" and fill out the online form. In the
-    box labelled "Package(s) Required", enter "MA27". In the box labelled
-    "Brief Description of Likely Applications" type the phrase "MA27 for use
-    with OOQP" (no quotes, one line, left justified, no extra lines, no
-    extra comments). If you register for use with OOQP, then we will be able
-    to be more helpful if you have trouble obtaining or building MA27 (we
-    cannot offer such help to unregistered users.)
-
-    You will be mailed a user name and password that allows you to download
-    MA27 source from the HSL Archive. You will need the double precision
-    versions of the MA27, FD05, ID05 and ZA02 packages, which you should
-    save to files named ma27.f, fd05.f id05.f and za02.f respectively. The
-    FD05, ID05 and ZA02 packages are machine-dependent. Most users will want
-    to download the default version of these packages (generic IEEE or
-    generic Unix), but read the options carefully to see if a version
-    specific to your hardware or OS is available. Contact the maintainers of
-    the HSL archive if you cannot determine which version of these packages
-    is appropriate to your system. We note that the default version of these
-    packages is appropriate for users running Linux on Intel hardware.
+    You will need the double precision versions of the MA27, FD05, ID05 and
+    ZA02 packages, which you should save to files named ma27.f, fd05.f
+    id05.f and za02.f respectively. The FD05, ID05 and ZA02 packages are
+    machine-dependent. Most users will want to download the default version
+    of these packages (generic IEEE or generic Unix), but read the options
+    carefully to see if a version specific to your hardware or OS is
+    available. Contact the maintainers of the HSL archive if you cannot
+    determine which version of these packages is appropriate to your system.
+    We note that the default version of these packages is appropriate for
+    users running Linux on Intel hardware.
 
     Move the downloaded FORTRAN (.f) files to the
 
@@ -222,12 +211,12 @@ PREREQUISITES
     VARIABLES AND configure" for information on how to do so.
 
     The procedure for MA57 is similar, once you have obtained (and licensed)
-    a copy of the MA57 source from the HSL2000 collection. See
+    a copy of the MA57 source from the HSL collection. See
 
-      http://www.cse.clrc.ac.uk/Activity/HSL
+         http://www.hsl.rl.ac.uk/
 
-    for details on obtaining MA57 and other HSL2000 codes. Once you have
-    obtained MA27, unpack the files into
+    for details on obtaining MA57 and other HSL codes. Once you have
+    obtained MA57, unpack the files into
 
             extras/MA57
 

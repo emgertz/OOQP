@@ -11,7 +11,7 @@ THE BOTTOM LINE
     to build OOQP. If you wish to install the package in a more permanent
     location, you may then type
 
-       make install 
+       make install
 
     Support for external packages such as Ampl, Matlab and PETSc is not
     built automatically. See the appropriate sections below for instructions
@@ -151,7 +151,7 @@ PREREQUISITES
     will search for the file in the following location in the OOQP
     distribution:
 
-            extras/blas/libblas.a.  
+            extras/blas/libblas.a.
 
     Therefore, one option is to move an appropriate libblas.a file manually
     to this location.
@@ -203,13 +203,13 @@ PREREQUISITES
 
     Move the downloaded FORTRAN (.f) files to the
 
-            extras/MA27/ 
+            extras/MA27/
 
     subdirectory of the OOQP distribution directory. From within this
     directory, type
 
          ./configure
-         make 
+         make
 
     to generate the file "libMA27.a".
 
@@ -229,7 +229,7 @@ PREREQUISITES
     for details on obtaining MA57 and other HSL2000 codes. Once you have
     obtained MA27, unpack the files into
 
-            extras/MA57 
+            extras/MA57
 
     and follow the procedure outlined above for MA27.
 

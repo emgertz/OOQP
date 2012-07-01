@@ -219,13 +219,13 @@ This page is part of the <A HREF=../index.html> OOQP documentation </A>.
 
 <h2 id="Ampl">Ampl</h2>
 
-<p>OOQP may be invoked to solve convex QPs from within the modeling language Ampl. To use the OOQP Ampl interface, you must install the Ampl solver library and library headers. The source for this library, and pre-built versions for some platforms, may be downloaded from the OOQP page http://www.cs.wisc.edu/~swright/ooqp . Alternatively, you may download the source for the official site http://www.ampl.com/cm/cs/what/ampl/hooking.html</p>
+<p>OOQP may be invoked to solve convex QPs from within the modeling language Ampl. To use the OOQP Ampl interface, you must install the Ampl solver library and library headers. There are links to the required code on the official site http://www.ampl.com/hooking.html. The code may also be found at the Netlib repository at the URL http://www.netlib.org/ampl/solvers/.</p>
 
-<p>Unpack the source or binary archive into extras/ampl/solvers. If the library isn&#39;t already built, compile the amplsolvers.a library as instructed in the documentation accompanying the source. Rerun the configure script in the OOQP distribution, and type.</p>
+<p>The Ampl solvers source distribution contains a README that describes how to build the Ampl solvers library. These instructions have changed from time to time, so we are unable to give specific instructions here. Follow the directions in README and build the library. Find the directory containing the file amplsolvers.a. Set the environment variable AMPL_SOLVERS to the full path of the directory containing amplsolvers.a. See <a href="#ENVIRONMENT-VARIABLES-AND-configure">&quot;ENVIRONMENT VARIABLES AND configure&quot;</a> for information on how to do so.</p>
 
-<pre><code>    make ooqp-ampl</code></pre>
+<p>Once AMPL_SOLVERS has been set, and other prerequisites for OOQP have been satisfied (see <a href="#PREREQUISITES">&quot;PREREQUISITES&quot;</a>), run ./configure in the OOQP source directory and then type</p>
 
-<p>You may install the library and library headers in a location other than extra/ampl/solvers. If configure is unable to determine the location of these files, you will need to set the AMPL_SOLVERS environment variable. See <a href="#ENVIRONMENT-VARIABLES-AND-configure">&quot;ENVIRONMENT VARIABLES AND configure&quot;</a> for information on how to do so.</p>
+<pre><code>     make ooqp-ampl</code></pre>
 
 <h2 id="Matlab">Matlab</h2>
 

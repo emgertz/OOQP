@@ -11,7 +11,6 @@ POD2TEXT    := $(shell if [ -x pod2txt ];\
 	 		fi)
 DOXYGEN     = doxygen
 OOQPUSERGUIDE = $(DOC)/ooqp-userguide.$(DVI)
-OOQPPAPER     = $(DOC)/ooqp-paper.$(DVI)
 
 MODULES = Svm Huber QpBound QpGen
 MODULEHTML  = $(patsubst %,$(DOC)/formulations/%.html,$(MODULES))
@@ -29,19 +28,8 @@ OOQPUSERGUIDESECTIONS = ooqp-userguide/ooqp1intro.tex \
 	ooqp-userguide/ooqp7newlinalg.tex ooqp-userguide/ooqp-userguide.tex
 
 all: most reference_manual
-most: $(OOQPPAPER) $(OOQPUSERGUIDE)  $(MODULEHTML) $(DISTDOCS) \
+most: $(OOQPUSERGUIDE)  $(MODULEHTML) $(DISTDOCS) \
 	$(EXAMPLES_README)
-
-$(OOQPPAPER) : ooqp-paper/ooqp-paper.$(DVI)
-	cp -f $< $@
-
-ooqp-paper/ooqp-paper.$(DVI) : ooqp-paper/ooqp-paper.tex \
-		ooqp-userguide/refs.bib
-	cd ooqp-paper; \
-	$(LATEX)  ooqp-paper; \
-	$(BIBTEX) ooqp-paper; \
-	$(LATEX)  ooqp-paper; \
-	$(LATEX)  ooqp-paper
 
 $(OOQPUSERGUIDE) : ooqp-userguide/ooqp-userguide.$(DVI)
 	cp -f $< $@
@@ -80,17 +68,12 @@ $(DOC)/%.html: %.pod
 		 --htmlroot .. --infile $< --outfile $@
 
 # clean - clean up by removing intermediate files created by the build
-clean: ooqp-userguide-clean ooqp-paper-clean
-	rm -f *~
+clean: ooqp-userguide-clean
+	rm -f *~ doxygen_errors
 
 # clean the ooqp-userguide directory
 ooqp-userguide-clean:
 	cd ooqp-userguide; \
-	rm -f *.aux *.log *.dvi *.bbl *.blg *.toc *.pdf *~
-
-# clean the ooqp-paper directory
-ooqp-paper-clean:
-	cd ooqp-paper; \
 	rm -f *.aux *.log *.dvi *.bbl *.blg *.toc *.pdf *~
 
 # veryclean - (Possibly) clean more

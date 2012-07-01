@@ -1713,23 +1713,11 @@ fi
 
 if test "$with_ampl" = yes; then
     if test -z "$AMPL_SOLVERS"; then
-	AMPL_SOLVERS=extras/ampl/solvers
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether the AMPL library (amplsolver.a) exists" >&5
-$as_echo_n "checking whether the AMPL library (amplsolver.a) exists... " >&6; }
-	if test -f ../../$AMPL_SOLVERS/amplsolver.a; then
-	    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-	else
-	    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-	    with_ampl=no
-	    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: The AMPL_SOLVERS environment variable is not set," >&5
-$as_echo "$as_me: WARNING: The AMPL_SOLVERS environment variable is not set," >&2;}
-	    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: and the Ampl library is not in extras/ampl/solvers." >&5
-$as_echo "$as_me: WARNING: and the Ampl library is not in extras/ampl/solvers." >&2;}
-	    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: I do not know where to find the Ampl library. " >&5
+        with_ampl=no
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: The AMPL_SOLVERS environment variable is not set." >&5
+$as_echo "$as_me: WARNING: The AMPL_SOLVERS environment variable is not set." >&2;}
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: I do not know where to find the Ampl library. " >&5
 $as_echo "$as_me: WARNING: I do not know where to find the Ampl library. " >&2;}
-	fi
    else
 
 	AMPLLIBS="${AMPL_SOLVERS}/amplsolver.a"

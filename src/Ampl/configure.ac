@@ -11,17 +11,9 @@ AC_ARG_WITH(ampl, [--with-ampl: support for the Ampl modeling language],,
 
 if test "$with_ampl" = yes; then
     if test -z "$AMPL_SOLVERS"; then
-	AMPL_SOLVERS=extras/ampl/solvers
-	AC_MSG_CHECKING(whether the AMPL library (amplsolver.a) exists)
-	if test -f ../../$AMPL_SOLVERS/amplsolver.a; then
-	    AC_MSG_RESULT(yes)
-	else
-	    AC_MSG_RESULT(no)
-	    with_ampl=no
-	    AC_MSG_WARN( [The AMPL_SOLVERS environment variable is not set,])
-	    AC_MSG_WARN([and the Ampl library is not in extras/ampl/solvers.])
-	    AC_MSG_WARN( [I do not know where to find the Ampl library.] )
-	fi
+        with_ampl=no
+	AC_MSG_WARN( [The AMPL_SOLVERS environment variable is not set.])
+	AC_MSG_WARN( [I do not know where to find the Ampl library.] )
    else
 	dnl AMPL_SOLVERS is set. Do AMPL_SOLVERS and AMPL_OS 
 	dnl combine to give a valid location

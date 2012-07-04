@@ -282,7 +282,7 @@ INTERFACES TO EXTERNAL PACKAGES
     from time to time, so we are unable to give specific instructions here.
     Follow the directions in README and build the library. Find the
     directory containing the file amplsolvers.a. Set the environment
-    variable AMPL_SOLVERS to the full path of the directory containg
+    variable AMPL_SOLVERS to the full path of the directory containing
     amplsolvers.a. See "ENVIRONMENT VARIABLES AND configure" for information
     on how to do so.
 

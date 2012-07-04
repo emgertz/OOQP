@@ -11,7 +11,7 @@ src/QpExample
     because this is where we suggest users create any new QP formulations.
     To build the QpExample, type
 
-        make qpexample-dense-gondzio.exe 
+        make qpexample-dense-gondzio.exe
 
     within the top level OOQP directory. The qpexample-dense-gondzio.exe
     program will solve a randomly generated problem.

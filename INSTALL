@@ -30,42 +30,36 @@ ENVIRONMENT VARIABLES AND configure
     The configure script attempts to determine properties of your system and
     compilers automatically. Occasionally, it will be unable to resolve some
     aspect of your environment satisfactorily; for example, the locations of
-    certain external packages. In these cases, the script will report an
-    error. You will need to set certain environment variables (and possibly
-    obtain some additional software) before re-running configure.
+    certain external packages. You will need to set certain environment
+    variables (and possibly obtain some additional software) before running
+    configure.
 
-    To take one important example, consider the BLAS library, which is
-    required for a successful build. If configure cannot determine the
-    location of the BLAS automatically, you will need to set the LIBBLAS
-    environment variable to the location of the BLAS library on your system.
-    For most shells, a script of the following form will suffice:
+    To take one important example, consider the BLAS library. which is
+    required for a successful build. By default, configure assumes the BLAS
+    library may be accessed as -lblas. If this is not the case, you must set
+    the BLAS environment variable to the name of the library as you want it
+    to appear on the link line. To make this example concrete, suppose that
+    your version of BLAS at the path extra/blas/libblas.a. For most shells,
+    commands of the following form will suffice to set the BLAS environment
+    variable:
 
-        LIBBLAS=/some/directory/libblas.a
+        BLAS=extras/blas/libblas.a
         export LIBBLAS
 
-    (Of course, /some/directory/libblas.a should be replaced by an actual
-    path to libblas.a.) For the csh shell, and its derivatives, the form of
-    the command is as follows.
+    (Of course, extras/blas/libblas.a should be replaced with the value
+    appropriate to your system) For the csh shell, and its derivatives, the
+    form of the command is as follows.
 
-        setenv LIBBLAS /some/directory/libblas.a
+        setenv LIBBLAS extras/blas/libblas.a
 
     The use of spaces is significant in these examples - particularly the
     absence of spaces surrounding the = sign in the first example. If you
     are uncertain which shell you are using it is safe to simply try both
     these commands; one should work.
 
-    For libraries, the value of the environment variable does not need to be
-    a file name, but may instead be the name of the library as you want it
-    to appear on the link line. For example, the setting
-
-         LIBBLAS=-lsunperf
-
-    is appropriate on some systems. (In this particular case, however,
-    configure will find the sunperf library automatically).
-
-    Once LIBBLAS and other variables of interest are set appropriately, one
-    may run the configure script by going to the OOQP directory and typing
-    the following:
+    Once BLAS and other variables of interest are set appropriately, one may
+    run the configure script by going to the OOQP directory and typing the
+    following:
 
          ./configure
 
@@ -147,20 +141,13 @@ PREREQUISITES
     versions of the BLAS for other architectures may be found on the Netlib
     page http://www.netlib.org/blas/index.html
 
-    The configure script will first test whether your compiler suite can
-    find the BLAS library in a standard system location. If unsuccessful, it
-    will search for the file in the following location in the OOQP
-    distribution:
+    The ./configure script uses "-lblas" as the default name of the BLAS
+    library. If this is not the appropriate value for your system, you will
+    need to set the BLAS environment variable to the correct name. See
+    "ENVIRONMENT VARIABLES AND configure" for information on how to do so.
 
-            extras/blas/libblas.a.
-
-    Therefore, one option is to move an appropriate libblas.a file manually
-    to this location.
-
-    If the configure script fails to find a BLAS library in the locations
-    above, you will need to set the LIBBLAS environment variable explicitly
-    to point to it. See "ENVIRONMENT VARIABLES AND configure" for
-    information on how to do so.
+    We note that "-framework vecLib" is the appropriate version of BLAS
+    preinstalled on many versions of MacOS.
 
   MA27 or MA57
     MA27 and MA57 are codes for solving sparse symmetric indefinite linear
@@ -202,13 +189,10 @@ PREREQUISITES
 
     to generate the file "libMA27.a".
 
-    The configure script will look for libMA27.a in this directory
-    extras/MA27.
-
     If MA27 is already installed on your system, of if you wish to install
     MA27 in a different location, you may need to set the LIBMA27
-    environment variable to point to this library. See "ENVIRONMENT
-    VARIABLES AND configure" for information on how to do so.
+    environment variable to point to the library. See "ENVIRONMENT VARIABLES
+    AND configure" for information on how to do so.
 
     The procedure for MA57 is similar, once you have obtained (and licensed)
     a copy of the MA57 source from the HSL collection. See

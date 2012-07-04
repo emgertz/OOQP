@@ -43,7 +43,14 @@ if test "$with_fortran" != "yes"; then
 	FLIBS=libf2c.a
     fi
 else
-    dnl The user has a fortran compiler
+    dnl If FC is set, but F77 is not, assume that FC points to the F77
+    dnl compiler.
+    if test -z "$F77"; then
+	if test -n "$FC"; then
+	    F77="$FC"
+	    export F77
+	fi
+    fi
 
     dnl Optimize, unless told otherwise
     if test -z "$FFLAGS"; then FFLAGS=-O; fi

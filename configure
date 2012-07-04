@@ -3436,6 +3436,12 @@ if test "$with_fortran" != "yes"; then
 	FLIBS=libf2c.a
     fi
 else
+            if test -z "$F77"; then
+	if test -n "$FC"; then
+	    F77="$FC"
+	    export F77
+	fi
+    fi
 
         if test -z "$FFLAGS"; then FFLAGS=-O; fi
     ac_ext=f

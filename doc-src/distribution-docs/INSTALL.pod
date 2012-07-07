@@ -322,19 +322,6 @@ by the PETSc build system, and are not under the control of the OOQP
 build system. We have decided to conform to the PETSc build system as
 much as possible when building this interface.
 
-=head2 TAO
-
-TAO is the Toolkit for Advanced Optimization, a software package for
-optimization developed at Argonne National Laboratory. The TAO home
-page is http://www.mcs.anl.gov/tao/
-
-OOQP may be invoked as a solver from within TAO. This interface is
-maintained jointly by the TAO and OOQP developers, and is distributed
-with TAO, rather than with OOQP. The current version of this interface
-uses PETSc to perform its underlying linear algebra operations.
-Before you build the OOQP-TAO interface, you must build the OOQP-PETSc
-interface as described above.
-
 =head1 USING F2C
 
 F2C is a FORTRAN to C translator that may be obtained from

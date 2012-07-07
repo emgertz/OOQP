@@ -31,7 +31,6 @@
       <li><a href="#Ampl">Ampl</a></li>
       <li><a href="#Matlab">Matlab</a></li>
       <li><a href="#PETSc">PETSc</a></li>
-      <li><a href="#TAO">TAO</a></li>
     </ul>
   </li>
   <li><a href="#USING-F2C">USING F2C</a></li>
@@ -228,12 +227,6 @@ This page is part of the <A HREF=../index.html> OOQP documentation </A>.
 <pre><code>     make -f PetscMakefile all_petsc</code></pre>
 
 <p>As part of the PETSc installation process you will set certain environment variables, such as PETSC_DIR and BOPT. These must remain set while building the OOQP-PETSc interface. These variables are used by the PETSc build system, and are not under the control of the OOQP build system. We have decided to conform to the PETSc build system as much as possible when building this interface.</p>
-
-<h2 id="TAO">TAO</h2>
-
-<p>TAO is the Toolkit for Advanced Optimization, a software package for optimization developed at Argonne National Laboratory. The TAO home page is http://www.mcs.anl.gov/tao/</p>
-
-<p>OOQP may be invoked as a solver from within TAO. This interface is maintained jointly by the TAO and OOQP developers, and is distributed with TAO, rather than with OOQP. The current version of this interface uses PETSc to perform its underlying linear algebra operations. Before you build the OOQP-TAO interface, you must build the OOQP-PETSc interface as described above.</p>
 
 <h1 id="USING-F2C">USING F2C</h1>
 

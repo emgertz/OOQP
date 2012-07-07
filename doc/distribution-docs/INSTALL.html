@@ -103,9 +103,9 @@ This page is part of the <A HREF=../index.html> OOQP documentation </A>.
 
 <p>OOQP is written in standard C++, using only constructs that modern compilers stably support. Any sufficiently recent C++ compiler should work with OOQP.</p>
 
-<p>OOQP uses a number of routines from the BLAS and LAPACK FORTRAN 77 libraries. C++ code that calls these routines adheres to typical intra-language calling conventions that work for a number of compiler suites. We recommend that those users who do not have a FORTRAN 77 compiler, or are having difficulty compiling OOQP using their FORTRAN compiler obtain F2C (see the <a href="#USING-F2C">&quot;USING F2C&quot;</a> section below.)</p>
+<p>OOQP uses a number of routines from the BLAS and LAPACK FORTRAN 77 libraries. C++ code that calls these routines adheres to typical intra-language calling conventions that work for a number of compiler suites. We remark that the GNU C++ and FORTRAN (gfortran) compilers build OOQP correctly. The GNU compilers are available on a wide variety of platforms, and in particular any GNU Linux distribution should have installable packages for these compilers.</p>
 
-<p>We remark that the GNU C++ and FORTRAN (gfortran) compilers build OOQP correctly.</p>
+<p>We users cannot obtain a FORTRAN 77 compiler, or are having difficulty compiling OOQP using their FORTRAN compiler may try to compile OOQP using F2C (see the <a href="#USING-F2C">&quot;USING F2C&quot;</a> section below.)</p>
 
 <h2 id="A-UNIX-like-environment">A UNIX-like environment</h2>
 
@@ -131,7 +131,7 @@ This page is part of the <A HREF=../index.html> OOQP documentation </A>.
 
 <p>The BLAS (Basic Linear Algebra Subproblems) is a collection of routines that perform common linear-algebra operations used in scientific computing. Because these operations are so fundamental, a great deal of effort has gone into ensuring that they are implemented correctly and efficiently on various architectures. The BLAS may already be installed on your machine. If not, you must obtain a version and install it.</p>
 
-<p>A Fortran reference implementation of the BLAS may be found at http://www.netlib.org/blas/index.html, but it is preferable to use a machine-optimized library if one is available. Most Linux distributions have a prepackaged version of BLAS that may be installed using the distribution&#39;s package manager. Information about obtaining optimized versions of the BLAS for other architectures may be found on the Netlib page http://www.netlib.org/blas/index.html</p>
+<p>A Fortran reference implementation of the BLAS may be found at http://www.netlib.org/blas/index.html, but it is preferable to use a machine-optimized library if one is available. Most GNU Linux distributions have a prepackaged version of BLAS that may be installed using the distribution&#39;s package manager. Information about obtaining optimized versions of the BLAS for other architectures may be found on the Netlib page http://www.netlib.org/blas/index.html</p>
 
 <p>The ./configure script uses &quot;-lblas&quot; as the default name of the BLAS library. If this is not the appropriate value for your system, you will need to set the BLAS environment variable to the correct name. See <a href="#ENVIRONMENT-VARIABLES-AND-configure">&quot;ENVIRONMENT VARIABLES AND configure&quot;</a> for information on how to do so.</p>
 
@@ -149,7 +149,7 @@ This page is part of the <A HREF=../index.html> OOQP documentation </A>.
 
 <pre><code>  http://hsl.rl.ac.uk/archive/hslarchive.html</code></pre>
 
-<p>You will need the double precision versions of the MA27, FD05, ID05 and ZA02 packages, which you should save to files named ma27.f, fd05.f id05.f and za02.f respectively. The FD05, ID05 and ZA02 packages are machine-dependent. Most users will want to download the default version of these packages (generic IEEE or generic Unix), but read the options carefully to see if a version specific to your hardware or OS is available. Contact the maintainers of the HSL archive if you cannot determine which version of these packages is appropriate to your system. We note that the default version of these packages is appropriate for users running Linux on Intel hardware.</p>
+<p>You will need the double precision versions of the MA27, FD05, ID05 and ZA02 packages, which you should save to files named ma27.f, fd05.f id05.f and za02.f respectively. The FD05, ID05 and ZA02 packages are machine-dependent. Most users will want to download the default version of these packages (generic IEEE or generic Unix), but read the options carefully to see if a version specific to your hardware or OS is available. Contact the maintainers of the HSL archive if you cannot determine which version of these packages is appropriate to your system. We note that the default version of these packages is appropriate for users running GNU Linux on Intel hardware.</p>
 
 <p>Move the downloaded FORTRAN (.f) files to the</p>
 

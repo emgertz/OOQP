@@ -99,12 +99,14 @@ should work with OOQP.
 OOQP uses a number of routines from the BLAS and LAPACK FORTRAN 77
 libraries. C++ code that calls these routines adheres to typical
 intra-language calling conventions that work for a number of compiler
-suites. We recommend that those users who do not have a FORTRAN 77
-compiler, or are having difficulty compiling OOQP using their FORTRAN
-compiler obtain F2C (see the L<"USING F2C"> section below.)
+suites. We remark that the GNU C++ and FORTRAN (gfortran) compilers
+build OOQP correctly. The GNU compilers are available on a wide
+variety of platforms, and in particular any GNU Linux distribution
+should have installable packages for these compilers.
 
-We remark that the GNU C++ and FORTRAN (gfortran) compilers build OOQP
-correctly.
+We users cannot obtain a FORTRAN 77 compiler, or are having difficulty
+compiling OOQP using their FORTRAN compiler may try to compile OOQP
+using F2C (see the L<"USING F2C"> section below.)
 
 =head2 A UNIX-like environment
 
@@ -149,7 +151,7 @@ version and install it.
 
 A Fortran reference implementation of the BLAS may be found at
 http://www.netlib.org/blas/index.html, but it is preferable to use a
-machine-optimized library if one is available. Most Linux
+machine-optimized library if one is available. Most GNU Linux
 distributions have a prepackaged version of BLAS that may be installed
 using the distribution's package manager.  Information about obtaining
 optimized versions of the BLAS for other architectures may be found on
@@ -192,7 +194,7 @@ options carefully to see if a version specific to your hardware or OS
 is available. Contact the maintainers of the HSL archive if you cannot
 determine which version of these packages is appropriate to your
 system. We note that the default version of these packages is
-appropriate for users running Linux on Intel hardware.
+appropriate for users running GNU Linux on Intel hardware.
 
 Move the downloaded FORTRAN (.f) files to the
 

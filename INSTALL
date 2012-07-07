@@ -349,14 +349,6 @@ PERFORMANCE TUNING
     the quality of the BLAS library can affect performance greatly, so use
     an optimized version where possible.
 
-    We have found the following flags useful on the following systems:
-
-    Linux (gcc version 2.95.3)
-        Set FFLAGS, CFLAGS and CXXFLAGS to "-funroll-loops -O3 -mcpu=i586"
-
-    Solaris (SunPro compilers)
-        Set FFLAGS, CFLAGS and CXXFLAGS to "-fast"
-
 INSTALLATION LOCATION
     After building the executables and libraries, you may use them directly
     from within the current directory. Optionally, you may install them in a
@@ -392,21 +384,4 @@ INSTALLATION LOCATION
 
     *   The OOQP documentation will be installed in
         $PREFIX/share/doc/packages/ooqp.
-
-TROUBLESHOOTING
-  The configure script did not complete successfully.
-    This could occur because your system does not have the environment
-    needed to build OOQP. (For instance, your FORTRAN compiler cannot create
-    executables.) It could also be a bug in the configure script. If you
-    suspect the latter, please contact the OOQP developers.
-
-  The program "make" terminates immediately without building OOQP.
-    If typing "make" results in
-
-            make: Fatal error: No arguments to build
-
-    or some similar message, then the version of make that you are using is
-    probably not GNU make. Try typing "gmake" instead. If this also fails,
-    it is likely that GNU make is not installed on your system. See
-    PREREQUISITES for more information.
 

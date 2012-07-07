@@ -36,12 +36,6 @@
   <li><a href="#USING-F2C">USING F2C</a></li>
   <li><a href="#PERFORMANCE-TUNING">PERFORMANCE TUNING</a></li>
   <li><a href="#INSTALLATION-LOCATION">INSTALLATION LOCATION</a></li>
-  <li><a href="#TROUBLESHOOTING">TROUBLESHOOTING</a>
-    <ul>
-      <li><a href="#The-configure-script-did-not-complete-successfully.">The configure script did not complete successfully.</a></li>
-      <li><a href="#The-program-make-terminates-immediately-without-building-OOQP.">The program &quot;make&quot; terminates immediately without building OOQP.</a></li>
-    </ul>
-  </li>
 </ul>
 
 <h1 id="NAME">NAME</h1>
@@ -265,24 +259,6 @@ This page is part of the <A HREF=../index.html> OOQP documentation </A>.
 
 <p>The libraries and executables will be built using those flags. Of particular importance are the flags used to compile <a>MA27 or MA57</a>. Also, the quality of the <a>BLAS</a> library can affect performance greatly, so use an optimized version where possible.</p>
 
-<p>We have found the following flags useful on the following systems:</p>
-
-<dl>
-
-<dt id="Linux-gcc-version-2.95.3-">Linux (gcc version 2.95.3)</dt>
-<dd>
-
-<p>Set FFLAGS, CFLAGS and CXXFLAGS to <code>-funroll-loops -O3 -mcpu=i586</code></p>
-
-</dd>
-<dt id="Solaris-SunPro-compilers-">Solaris (SunPro compilers)</dt>
-<dd>
-
-<p>Set FFLAGS, CFLAGS and CXXFLAGS to <code>-fast</code></p>
-
-</dd>
-</dl>
-
 <h1 id="INSTALLATION-LOCATION">INSTALLATION LOCATION</h1>
 
 <p>After building the executables and libraries, you may use them directly from within the current directory. Optionally, you may install them in a more permanent location. If you type</p>
@@ -315,20 +291,6 @@ This page is part of the <A HREF=../index.html> OOQP documentation </A>.
 
 </li>
 </ul>
-
-<h1 id="TROUBLESHOOTING">TROUBLESHOOTING</h1>
-
-<h2 id="The-configure-script-did-not-complete-successfully.">The configure script did not complete successfully.</h2>
-
-<p>This could occur because your system does not have the environment needed to build OOQP. (For instance, your FORTRAN compiler cannot create executables.) It could also be a bug in the configure script. If you suspect the latter, please contact the OOQP developers.</p>
-
-<h2 id="The-program-make-terminates-immediately-without-building-OOQP.">The program &quot;make&quot; terminates immediately without building OOQP.</h2>
-
-<p>If typing &quot;make&quot; results in</p>
-
-<pre><code>        make: Fatal error: No arguments to build</code></pre>
-
-<p>or some similar message, then the version of make that you are using is probably not GNU make. Try typing &quot;gmake&quot; instead. If this also fails, it is likely that GNU make is not installed on your system. See PREREQUISITES for more information.</p>
 
 
 

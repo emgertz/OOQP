@@ -386,20 +386,6 @@ L<MA27 or MA57|ma27 or ma57>. Also, the quality of the L<BLAS|blas> library can
 affect performance greatly, so use an optimized version where
 possible.
 
-We have found the following flags useful on the following systems:
-
-=over 4
-
-=item  Linux (gcc version 2.95.3)
-
-Set FFLAGS, CFLAGS and CXXFLAGS to C<-funroll-loops -O3 -mcpu=i586>
-
-=item Solaris (SunPro compilers)
-
-Set FFLAGS, CFLAGS and CXXFLAGS to C<-fast>
-
-=back
-
 =head1 INSTALLATION LOCATION
 
 After building the executables and libraries, you may use them
@@ -448,26 +434,6 @@ The OOQP documentation will be installed in
 $PREFIX/share/doc/packages/ooqp.
 
 =back
-
-=head1 TROUBLESHOOTING
-
-=head2 The configure script did not complete successfully.
-
-This could occur because your system does not have the environment
-needed to build OOQP. (For instance, your FORTRAN compiler cannot
-create executables.)  It could also be a bug in the configure
-script. If you suspect the latter, please contact the OOQP developers.
-
-=head2 The program "make" terminates immediately without building OOQP.
-
-If typing "make" results in
-
-        make: Fatal error: No arguments to build
-
-or some similar message, then the version of make that you are using
-is probably not GNU make. Try typing "gmake" instead. If this also
-fails, it is likely that GNU make is not installed on your system. See
-PREREQUISITES for more information.
 
 =for html
 Back to the <A HREF=../index.html> Documentation Roadmap </A>.

@@ -33,7 +33,7 @@ int main( int argc, char *argv[] )
   } else {
     cout << endl 
 	 << " Erroneous calling sequence; should be " << endl 
-	 << " qpgen-dense-mehrotra.exe n my mz " << endl
+	 << " qpgen-sparse-mehrotra.exe n my mz " << endl
 	 << " where n  = # primal variables, " << endl
 	 << "       my = # equality constraints, " << endl
 	 << "       mz = # inequality constraints " << endl << endl;

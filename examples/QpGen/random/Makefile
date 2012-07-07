@@ -7,9 +7,9 @@ CXX      = c++
 CXXFLAGS =-O
 CPPFLAGS = -I$(OOQPINCLUDEDIR)
 LDFLAGS  =-L$(OOQPLIBDIR)
-BLAS     = $(OOQP)/extras/blas/libblas.a
+BLAS     = -lblas
 MA27LIB  = $(OOQP)/extras/MA27/libMA27.a
-FLIBS    = -lg2c
+FLIBS    = -lgfortran
 LIBS     = -looqpgondzio -looqpgensparse -looqpsparse -looqpbase \
 		$(BLAS) $(MA27LIB) $(FLIBS)
 

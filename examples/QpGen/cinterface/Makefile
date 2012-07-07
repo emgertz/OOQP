@@ -11,9 +11,9 @@ CFLAGS   =-O
 CXXFLAGS =-O 
 CPPFLAGS =-I$(OOQPINCLUDEDIR)
 LDFLAGS  =-L$(OOQPLIBDIR)
-BLAS     = $(OOQP)/extras/blas/libblas.a
+BLAS     = -lblas
 MA27LIB  = $(OOQP)/extras/MA27/libMA27.a
-FLIBS    = -lg2c
+FLIBS    = -lgfortran
 SPARSE_LIBS     = -looqpgensparse -looqpsparse  -looqpgondzio -looqpbase \
                 $(BLAS) $(MA27LIB) $(FLIBS)
 DENSE_LIBS     = -looqpgendense -looqpdense  -looqpgondzio -looqpbase \

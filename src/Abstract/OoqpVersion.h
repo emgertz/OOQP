@@ -7,9 +7,9 @@
 
 #define OOQPVERSIONMAJOR 0
 #define OOQPVERSIONMINOR 99
-#define OOQPVERSIONPATCHLEVEL 22
+#define OOQPVERSIONPATCHLEVEL 23
 
-#define OOQPVERSIONDATE "March 9, 2008"
+#define OOQPVERSIONDATE "August 4, 2012"
 
 #ifdef __cplusplus
 extern "C"

@@ -628,13 +628,24 @@ void SparseStorage::mult( double beta,  double y[], int incy,
 {
   int i, j, k;
   double temp;
-  for( i = 0; i < m; i++ ) {
-    temp = 0;
-    for( k = krowM[i]; k < krowM[i+1]; k++ ) {
-      j = jcolM[k];
-      temp += M[k] * x[j * incx];
+  if (incx == 1) {
+    for( i = 0; i < m; i++ ) {
+      temp = 0;
+      for( k = krowM[i]; k < krowM[i+1]; k++ ) {
+	j = jcolM[k];
+	temp += M[k] * x[j];
+      }
+      y[i * incy] = beta * y[i * incy] + alpha * temp;
     }
-    y[i * incy] = beta * y[i * incy] + alpha * temp;
+  } else {
+    for( i = 0; i < m; i++ ) {
+      temp = 0;
+      for( k = krowM[i]; k < krowM[i+1]; k++ ) {
+	j = jcolM[k];
+	temp += M[k] * x[j * incx];
+      }
+      y[i * incy] = beta * y[i * incy] + alpha * temp;
+    }
   }
 }
 
@@ -645,10 +656,21 @@ void SparseStorage::transMult( double beta,  double y[], int incy,
   for( j = 0; j < n; j++ ) {
     y[j * incy] *= beta;
   }
-  for( i = 0; i < m; i++ ) {
-    for( k = krowM[i]; k < krowM[i+1]; k++ ) {
-      j = jcolM[k];
-      y[j * incy] += alpha * M[k] * x[i * incx];
+  if (incy == 1) {
+    for( i = 0; i < m; i++ ) {
+      double axi = alpha * x[i * incx];
+      for( k = krowM[i]; k < krowM[i+1]; k++ ) {
+	j = jcolM[k];
+	y[j] += M[k] * axi;
+      }
+    }
+  } else {
+    for( i = 0; i < m; i++ ) {
+      double axi = alpha * x[i * incx];
+      for( k = krowM[i]; k < krowM[i+1]; k++ ) {
+	j = jcolM[k];
+	y[j * incy] += M[k] * axi;
+      }
     }
   }
 }

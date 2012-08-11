@@ -11,7 +11,9 @@
 
 enum { kMinimize = 0, kMaximize = 1 } ;
 
-void doubleLexSort( int first[], int n, int second[], double data[] );
+template <typename SC>
+void doubleLexSort( int first[], int n, int second[], SC data[] );
+
 void new_qpgen_variables( double ** x, int nx, double ** gamma, double ** phi,
 			  double ** y, int my,
 			  double ** z, int mz,

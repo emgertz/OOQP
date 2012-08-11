@@ -37,7 +37,8 @@ struct MpsColInfo {
 int MpsRowTypeFromCode( char code[4] );
 int MpsRowTypeFromCode2( char code );
 
-void doubleLexSort( int first[], int n, int second[], double data[] );
+template <typename SC>
+void doubleLexSort( int first[], int n, int second[], SC data[] );
 
 MpsReader::MpsReader( FILE * file_ )
 {

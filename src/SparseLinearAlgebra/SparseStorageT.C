@@ -12,6 +12,9 @@
 
 int SparseStorage::instances = 0;
 
+template <typename SC>
+void doubleLexSort( int first[], int n, int second[], SC data[] );
+
 SparseStorage::SparseStorage( int m_, int n_, int len_ )
 {
   int i;
@@ -674,9 +677,6 @@ void SparseStorage::transMult( double beta,  double y[], int incy,
     }
   }
 }
-
-void doubleLexSort( int first[], int n,
-		    int second[], double data[] );
 
 void SparseStorage::symmetrize( int& info)
 {

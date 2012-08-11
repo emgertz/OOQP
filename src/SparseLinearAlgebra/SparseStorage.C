@@ -805,7 +805,7 @@ double SparseStorage::abmaxnorm()
 void SparseStorage::atPutDiagonal( int idiag, OoqpVector& vvec )
 {
   SimpleVector & v = dynamic_cast<SimpleVector &>(vvec);
-  this->atPutDiagonal( idiag, &v[0], 1, v.n );
+  this->atPutDiagonal( idiag, v.elements(), 1, v.n );
 }
 
 void SparseStorage::atPutDiagonal( int idiag,

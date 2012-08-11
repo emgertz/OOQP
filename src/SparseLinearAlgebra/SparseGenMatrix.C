@@ -185,7 +185,7 @@ void SparseGenMatrix::atPutDiagonal( int idiag, OoqpVector& vvec )
 {
   SimpleVector & v = dynamic_cast<SimpleVector &>(vvec);
 
-  mStorage->atPutDiagonal( idiag, &v[0], 1, v.n );
+  mStorage->atPutDiagonal( idiag, v.elements(), 1, v.n );
 }
 
 

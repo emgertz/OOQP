@@ -7,22 +7,27 @@
 
 #include "OoqpVectorHandle.h"
 #include "DoubleMatrix.h"
-#include "SparseStorage.h"
+#include "SparseStorageT.h"
 #include "SparseGenMatrixHandle.h"
 
 /** Represents sparse non-symmetric, possibly non-square matrices stored in
  *  row-major Harwell-Boeing format.
  *  @ingroup SparseLinearAlgebra
  */
-class SparseGenMatrix : public GenMatrix {
+template <typename SCALAR>
+class SparseGenMatrixT : public GenMatrix {
+public:
+  typedef SmartPointer<SparseStorageT<SCALAR> > SparseStorageHandleT;
 protected:
-  SparseStorageHandle mStorage;
+  SparseStorageHandleT mStorage;
   int size;
 
 public:
-  SparseGenMatrix( int rows, int cols, int nnz );
-  SparseGenMatrix( int rows, int cols, int nnz,
-		       int krowM[], int jcolM[], double M[]);
+  typedef SCALAR scalarT;
+
+  SparseGenMatrixT( int rows, int cols, int nnz );
+  SparseGenMatrixT( int rows, int cols, int nnz,
+		       int krowM[], int jcolM[], SCALAR M[]);
   
   virtual void getSize( int& m, int& n );
 
@@ -36,6 +41,7 @@ public:
 
   virtual void atPutDense( int row, int col, double * A, int lda,
 			   int rowExtent, int colExtent );
+
   virtual void fromGetDense( int row, int col, double * A, int lda,
 			     int rowExtent, int colExtent );
   virtual void ColumnScale( OoqpVector& vec );
@@ -79,12 +85,12 @@ public:
   virtual void atPutDiagonal( int idiag, OoqpVector& v );
   virtual void fromGetDiagonal( int idiag, OoqpVector& v );
 
-  SparseStorage * getStorage() { return mStorage.ptr(); }
+  SparseStorageT<SCALAR> * getStorage() { return mStorage.ptr(); }
   int * krowM() { return mStorage->krowM; }
   int * jcolM() { return mStorage->jcolM; }
-  double * M() { return mStorage->M; }
+  SCALAR * M() { return mStorage->M; }
 
-  virtual ~SparseGenMatrix() {};
+  virtual ~SparseGenMatrixT() {};
 };
 
 #endif

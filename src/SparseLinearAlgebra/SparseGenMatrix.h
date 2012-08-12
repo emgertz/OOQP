@@ -3,6 +3,6 @@
 
 #include <SparseGenMatrixT.h>
 
-// typedef SparseGenMatrixT<double> SparseGenMatrix;
+typedef SparseGenMatrixT<double> SparseGenMatrix;
 
 #endif

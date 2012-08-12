@@ -8,8 +8,9 @@
 #include "IotrRefCount.h"
 #include "SmartPointer.h"
 
-class SparseGenMatrix;
-typedef SmartPointer<SparseGenMatrix> SparseGenMatrixHandle;
+template <typename S> class SparseGenMatrixT;
+typedef SparseGenMatrixT<double> SparseGenMatrix;
+typedef SmartPointer<SparseGenMatrixT<double> > SparseGenMatrixHandle;
 
 
 #endif

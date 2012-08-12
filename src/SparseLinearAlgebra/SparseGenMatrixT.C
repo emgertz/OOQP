@@ -2,50 +2,56 @@
  * Authors: E. Michael Gertz, Stephen J. Wright                       *
  * (C) 2001 University of Chicago. See Copyright Notification in OOQP */
 
-#include "SparseGenMatrix.h"
-#include "SparseStorage.h"
+#include "SparseGenMatrixT.h"
+#include "SparseStorageT.h"
 #include <cassert>
 #include "SimpleVector.h"
 
 #include "DoubleMatrixTypes.h"
 
-int SparseGenMatrix::isKindOf( int type )
+template <typename SCALAR>
+int SparseGenMatrixT<SCALAR>::isKindOf( int type )
 {
   return type == kSparseGenMatrix || type == kGenMatrix;
 }
 
 
-SparseGenMatrix::SparseGenMatrix( int rows, int cols, int nnz )
+template<typename SCALAR>
+SparseGenMatrixT<SCALAR>::SparseGenMatrixT( int rows, int cols, int nnz )
 {
-  mStorage = SparseStorageHandle( new SparseStorage( rows, cols, nnz ) );
+  mStorage = SparseStorageHandleT( new SparseStorageT<SCALAR>( rows, cols, nnz ) );
 }
 
 
-SparseGenMatrix::SparseGenMatrix( int rows, int cols, int nnz,
+template<typename SCALAR>
+SparseGenMatrixT<SCALAR>::SparseGenMatrixT( int rows, int cols, int nnz,
 					  int krowM[], int jcolM[],
-					  double M[] )
+					  SCALAR M[] )
 {
-  mStorage = SparseStorageHandle( new SparseStorage( rows, cols,
+  mStorage = SparseStorageHandleT( new SparseStorageT<SCALAR>( rows, cols,
 							 nnz, krowM,
 							 jcolM, M ) );
 }
 
 
-void SparseGenMatrix::atPutDense( int row, int col, double * A, int lda,
+template<typename SCALAR>
+void SparseGenMatrixT<SCALAR>::atPutDense( int row, int col, double * A, int lda,
 				      int rowExtent, int colExtent )
 {
   mStorage->atPutDense( row, col, A, lda, rowExtent, colExtent );
 }
 
 
-void SparseGenMatrix::fromGetDense( int row, int col, double * A, int lda,
+template<typename SCALAR>
+void SparseGenMatrixT<SCALAR>::fromGetDense( int row, int col, double * A, int lda,
 					int rowExtent, int colExtent )
 {
   mStorage->fromGetDense( row, col, A, lda, rowExtent, colExtent );
 }
   
 
-void SparseGenMatrix::fromGetSpRow( int row, int col,
+template<typename SCALAR>
+void SparseGenMatrixT<SCALAR>::fromGetSpRow( int row, int col,
 				    double A[], int lenA,
 				    int jcolA[], int& nnz,
 				    int colExtent, int& info )
@@ -55,7 +61,8 @@ void SparseGenMatrix::fromGetSpRow( int row, int col,
 }
 
 
-void SparseGenMatrix::putSparseTriple( int irow[], int len,
+template<typename SCALAR>
+void SparseGenMatrixT<SCALAR>::putSparseTriple( int irow[], int len,
 					   int jcol[], double A[], 
 					   int& info )
 {
@@ -63,57 +70,66 @@ void SparseGenMatrix::putSparseTriple( int irow[], int len,
 }
 
 
-void SparseGenMatrix::writeToStream(ostream& out) const
+template<typename SCALAR>
+void SparseGenMatrixT<SCALAR>::writeToStream(ostream& out) const
 {
   mStorage->writeToStream( out );
 }
 
 
-void SparseGenMatrix::randomize( double alpha, double beta, double * seed )
+template<typename SCALAR>
+void SparseGenMatrixT<SCALAR>::randomize( double alpha, double beta, double * seed )
 {
   mStorage->randomize( alpha, beta, seed );
 }
 
 
-void SparseGenMatrix::getDiagonal( OoqpVector& vec )
+template<typename SCALAR>
+void SparseGenMatrixT<SCALAR>::getDiagonal( OoqpVector& vec )
 {
   mStorage->getDiagonal( vec );
 }
 
 
-void SparseGenMatrix::setToDiagonal( OoqpVector& vec )
+template<typename SCALAR>
+void SparseGenMatrixT<SCALAR>::setToDiagonal( OoqpVector& vec )
 {
   mStorage->setToDiagonal( vec );
 }
 
 
-void SparseGenMatrix::atPutSpRow( int row, double A[],
+template<typename SCALAR>
+void SparseGenMatrixT<SCALAR>::atPutSpRow( int row, double A[],
 				      int lenA, int jcolA[], int& info )
 {
   mStorage->atPutSpRow( row, A, lenA, jcolA, info );
 }
 
 
-int SparseGenMatrix::numberOfNonZeros()
+template<typename SCALAR>
+int SparseGenMatrixT<SCALAR>::numberOfNonZeros()
 {
   return mStorage->numberOfNonZeros();
 }
 
 
-void SparseGenMatrix::symmetrize( int& info ) 
+template<typename SCALAR>
+void SparseGenMatrixT<SCALAR>::symmetrize( int& info ) 
 {
   mStorage->symmetrize( info );
 }
 
 
-void SparseGenMatrix::getSize( int& m, int& n )
+template<typename SCALAR>
+void SparseGenMatrixT<SCALAR>::getSize( int& m, int& n )
 {
   m = mStorage->m;
   n = mStorage->n;
 }
 
 
-void SparseGenMatrix::atPutSubmatrix( int destRow, int destCol,
+template<typename SCALAR>
+void SparseGenMatrixT<SCALAR>::atPutSubmatrix( int destRow, int destCol,
 					  DoubleMatrix& M,
 					  int srcRow, int srcCol,
 					  int rowExtent, int colExtent )
@@ -139,7 +155,8 @@ void SparseGenMatrix::atPutSubmatrix( int destRow, int destCol,
 }
 
 
-void SparseGenMatrix::mult ( double beta,  OoqpVector& y_in,
+template<typename SCALAR>
+void SparseGenMatrixT<SCALAR>::mult ( double beta,  OoqpVector& y_in,
 				 double alpha, OoqpVector& x_in )
 {
   SimpleVector & x = dynamic_cast<SimpleVector &>(x_in);
@@ -156,7 +173,8 @@ void SparseGenMatrix::mult ( double beta,  OoqpVector& y_in,
 }
 
 
-void SparseGenMatrix::transMult ( double beta,   OoqpVector& y_in,
+template<typename SCALAR>
+void SparseGenMatrixT<SCALAR>::transMult ( double beta,   OoqpVector& y_in,
 				      double alpha,  OoqpVector& x_in )
 {
   SimpleVector & x = dynamic_cast<SimpleVector &>(x_in);
@@ -175,13 +193,15 @@ void SparseGenMatrix::transMult ( double beta,   OoqpVector& y_in,
 
 
 
-double SparseGenMatrix::abmaxnorm()
+template<typename SCALAR>
+double SparseGenMatrixT<SCALAR>::abmaxnorm()
 {
   return mStorage->abmaxnorm();
 }
 
 
-void SparseGenMatrix::atPutDiagonal( int idiag, OoqpVector& vvec )
+template<typename SCALAR>
+void SparseGenMatrixT<SCALAR>::atPutDiagonal( int idiag, OoqpVector& vvec )
 {
   SimpleVector & v = dynamic_cast<SimpleVector &>(vvec);
 
@@ -189,27 +209,32 @@ void SparseGenMatrix::atPutDiagonal( int idiag, OoqpVector& vvec )
 }
 
 
-void SparseGenMatrix::fromGetDiagonal( int idiag, OoqpVector& vvec )
+template<typename SCALAR>
+void SparseGenMatrixT<SCALAR>::fromGetDiagonal( int idiag, OoqpVector& vvec )
 {
   mStorage->fromGetDiagonal( idiag, vvec );
 }
 
-void SparseGenMatrix::ColumnScale( OoqpVector& vec )
+template<typename SCALAR>
+void SparseGenMatrixT<SCALAR>::ColumnScale( OoqpVector& vec )
 {
   mStorage->ColumnScale( vec );
 }
 
-void SparseGenMatrix::SymmetricScale( OoqpVector& vec )
+template<typename SCALAR>
+void SparseGenMatrixT<SCALAR>::SymmetricScale( OoqpVector& vec )
 {
   mStorage->SymmetricScale( vec );
 }
 
-void SparseGenMatrix::RowScale( OoqpVector& vec )
+template<typename SCALAR>
+void SparseGenMatrixT<SCALAR>::RowScale( OoqpVector& vec )
 {
   mStorage->ColumnScale( vec );
 }
 
-void SparseGenMatrix::scalarMult( double num )
+template<typename SCALAR>
+void SparseGenMatrixT<SCALAR>::scalarMult( double num )
 {
   mStorage->scalarMult( num );
 }

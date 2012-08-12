@@ -6,16 +6,19 @@
 #include <cstring>
 #include <cassert>
 
-#include "SparseStorage.h"
+#include "SparseStorageT.h"
 #include "OoqpVector.h"
 #include "SimpleVector.h"
-
-int SparseStorage::instances = 0;
 
 template <typename SC>
 void doubleLexSort( int first[], int n, int second[], SC data[] );
 
-SparseStorage::SparseStorage( int m_, int n_, int len_ )
+
+template <typename SCALAR>
+int SparseStorageT<SCALAR>::instances = 0;
+
+template <typename SCALAR>
+SparseStorageT<SCALAR>::SparseStorageT( int m_, int n_, int len_ )
 {
   int i;
   
@@ -28,14 +31,15 @@ SparseStorage::SparseStorage( int m_, int n_, int len_ )
   for( i = 0; i <= m; i++ ) {
     krowM[i] = 0;
   }
-  M      = new double[len];
+  M      = new SCALAR[len];
 
-  SparseStorage::instances++;
+  SparseStorageT::instances++;
 }
 
-SparseStorage::SparseStorage( int m_, int n_, int len_,
+template <typename SCALAR>
+SparseStorageT<SCALAR>::SparseStorageT( int m_, int n_, int len_,
 				      int * krowM_, int * jcolM_,
-				      double * M_ )
+				      SCALAR * M_ )
 {
   neverDeleteElts = 1;
   m               = m_;
@@ -45,10 +49,11 @@ SparseStorage::SparseStorage( int m_, int n_, int len_,
   krowM           = krowM_;
   M               = M_;
 
-  SparseStorage::instances++;
+  SparseStorageT::instances++;
 }
 
-SparseStorage::~SparseStorage()
+template <typename SCALAR>
+SparseStorageT<SCALAR>::~SparseStorageT()
 {
   if ( !neverDeleteElts ) {
     delete [] jcolM;
@@ -56,17 +61,19 @@ SparseStorage::~SparseStorage()
     delete [] M;
   }
 
-  SparseStorage::instances--;
+  SparseStorageT::instances--;
 }
 
-void SparseStorage::getSize( int& m_, int& n_ )
+template <typename SCALAR>
+void SparseStorageT<SCALAR>::getSize( int& m_, int& n_ )
 {
   m_ = m;
   n_ = n;
 }
 
 
-void SparseStorage::fromGetDiagonal( int idiag, OoqpVector& vec_in )
+template <typename SCALAR>
+void SparseStorageT<SCALAR>::fromGetDiagonal( int idiag, OoqpVector& vec_in )
 {
   SimpleVector & vec = dynamic_cast<SimpleVector &>(vec_in);
   int extent = vec.length();
@@ -93,7 +100,8 @@ void SparseStorage::fromGetDiagonal( int idiag, OoqpVector& vec_in )
 
 }
 
-void SparseStorage::ColumnScale( OoqpVector& scale_in )
+template <typename SCALAR>
+void SparseStorageT<SCALAR>::ColumnScale( OoqpVector& scale_in )
 {
   SimpleVector & scale = dynamic_cast<SimpleVector &>(scale_in);
   int extent = scale.length();
@@ -113,7 +121,8 @@ void SparseStorage::ColumnScale( OoqpVector& scale_in )
 
 }
 
-void SparseStorage::RowScale( OoqpVector& scale_in )
+template <typename SCALAR>
+void SparseStorageT<SCALAR>::RowScale( OoqpVector& scale_in )
 {
   SimpleVector & scale = dynamic_cast<SimpleVector &>(scale_in);
   int extent = scale.length();
@@ -133,7 +142,8 @@ void SparseStorage::RowScale( OoqpVector& scale_in )
 
 }
 
-void SparseStorage::SymmetricScale( OoqpVector& scale_in )
+template <typename SCALAR>
+void SparseStorageT<SCALAR>::SymmetricScale( OoqpVector& scale_in )
 {
   SimpleVector & scale = dynamic_cast<SimpleVector &>(scale_in);
   int extent = scale.length();
@@ -155,7 +165,8 @@ void SparseStorage::SymmetricScale( OoqpVector& scale_in )
 }
 
 
-void SparseStorage::scalarMult( double num )
+template <typename SCALAR>
+void SparseStorageT<SCALAR>::scalarMult( double num )
 {
   int i, j, k;
 
@@ -170,12 +181,14 @@ void SparseStorage::scalarMult( double num )
 
 }
 
-void SparseStorage::getDiagonal( OoqpVector& vec_in )
+template <typename SCALAR>
+void SparseStorageT<SCALAR>::getDiagonal( OoqpVector& vec_in )
 {
   this->fromGetDiagonal( 0, vec_in );
 }
 
-void SparseStorage::setToDiagonal( OoqpVector& vec_in )
+template <typename SCALAR>
+void SparseStorageT<SCALAR>::setToDiagonal( OoqpVector& vec_in )
 {
   SimpleVector & vec = dynamic_cast<SimpleVector &>(vec_in);
   int diagExtent = (m <= n) ? m : n; 
@@ -197,7 +210,8 @@ void SparseStorage::setToDiagonal( OoqpVector& vec_in )
   }
 }
 
-void SparseStorage::fromGetDense( int row, int col, double * A, int lda,
+template <typename SCALAR>
+void SparseStorageT<SCALAR>::fromGetDense( int row, int col, double * A, int lda,
 				      int rowExtent, int colExtent )
 {
   int i, j, k, jcurrent;
@@ -233,7 +247,8 @@ void SparseStorage::fromGetDense( int row, int col, double * A, int lda,
 }
 
 
-void SparseStorage::atPutSpRow( int row, double A[], int lenA,
+template <typename SCALAR>
+void SparseStorageT<SCALAR>::atPutSpRow( int row, double A[], int lenA,
 				    int jcolA[], int& info )
 {
   int ik;
@@ -309,7 +324,8 @@ void SparseStorage::atPutSpRow( int row, double A[], int lenA,
   }
 }
 
-void SparseStorage:: atPutDense( int row, int col, double * A, int lda,
+template <typename SCALAR>
+void SparseStorageT<SCALAR>:: atPutDense( int row, int col, double * A, int lda,
 				     int rowExtent, int colExtent )
 { 
   int info, count;
@@ -410,7 +426,8 @@ void SparseStorage:: atPutDense( int row, int col, double * A, int lda,
   } // End loop over all rows in range.
 }
 
-void SparseStorage::shiftRows( int row, int shift, int& info )
+template <typename SCALAR>
+void SparseStorageT<SCALAR>::shiftRows( int row, int shift, int& info )
 {
   if ( shift == 0 ) {
     info = 0;
@@ -427,7 +444,7 @@ void SparseStorage::shiftRows( int row, int shift, int& info )
       memmove( &jcolM[ krowM[row] + shift ], 
 	       &jcolM[ krowM[row] ], lcopy * sizeof(int) );
       memmove( &M[ krowM[row] + shift ],
-	       &M[ krowM[row] ], lcopy * sizeof(double) );
+	       &M[ krowM[row] ], lcopy * sizeof(SCALAR) );
       int i;
       for ( i = row; i <= m; i++ ) {
 	krowM[i] += shift;
@@ -443,7 +460,8 @@ void SparseStorage::shiftRows( int row, int shift, int& info )
   } // end else we perform the copy
 }
 
-void SparseStorage::putSparseTriple( int irow[], int lenA,
+template <typename SCALAR>
+void SparseStorageT<SCALAR>::putSparseTriple( int irow[], int lenA,
 					 int jcol[], double A[], 
 					 int& info )
 {
@@ -469,7 +487,8 @@ void SparseStorage::putSparseTriple( int irow[], int lenA,
   }
 }
 
-void SparseStorage::fromGetSpRow( int row, int col,
+template <typename SCALAR>
+void SparseStorageT<SCALAR>::fromGetSpRow( int row, int col,
 				      double A[], int lenA, int jcolA[],
 				      int& nnz,
 				      int colExtent, int& info )
@@ -503,7 +522,8 @@ void SparseStorage::fromGetSpRow( int row, int col,
   nnz = ka;
 }
 
-void SparseStorage::writeToStream(ostream& out) const
+template <typename SCALAR>
+void SparseStorageT<SCALAR>::writeToStream(ostream& out) const
 {
   int i, k;
 
@@ -626,7 +646,8 @@ void indexedLexSort( int first[], int n, int swapFirst,
 }
 
 
-void SparseStorage::mult( double beta,  double y[], int incy,
+template <typename SCALAR>
+void SparseStorageT<SCALAR>::mult( double beta,  double y[], int incy,
 			      double alpha, double x[], int incx )
 {
   int i, j, k;
@@ -652,7 +673,8 @@ void SparseStorage::mult( double beta,  double y[], int incy,
   }
 }
 
-void SparseStorage::transMult( double beta,  double y[], int incy,
+template <typename SCALAR>
+void SparseStorageT<SCALAR>::transMult( double beta,  double y[], int incy,
 				   double alpha, double x[], int incx )
 {
   int i, j, k;
@@ -678,7 +700,8 @@ void SparseStorage::transMult( double beta,  double y[], int incy,
   }
 }
 
-void SparseStorage::symmetrize( int& info)
+template <typename SCALAR>
+void SparseStorageT<SCALAR>::symmetrize( int& info)
 {
   int i, k, ku;
 
@@ -724,7 +747,8 @@ void SparseStorage::symmetrize( int& info)
   delete [] irowM;
 }
 
-void SparseStorage::getTransposePat( int row, int col,
+template <typename SCALAR>
+void SparseStorageT<SCALAR>::getTransposePat( int row, int col,
 					 int rowExtent, int colExtent,
 					 int kpat[], int kcolM[], int irowM[] )
 {
@@ -761,7 +785,8 @@ void SparseStorage::getTransposePat( int row, int col,
   }
 }
 
-void SparseStorage::getFromPat( double data[], int ldata, int kpat[] )
+template <typename SCALAR>
+void SparseStorageT<SCALAR>::getFromPat( double data[], int ldata, int kpat[] )
 {
   int k;
   for ( k = 0; k < ldata; k++ ) {
@@ -769,7 +794,8 @@ void SparseStorage::getFromPat( double data[], int ldata, int kpat[] )
   }
 }
 
-void SparseStorage::randomize( double alpha, double beta, double * seed )
+template <typename SCALAR>
+void SparseStorageT<SCALAR>::randomize( double alpha, double beta, double * seed )
 {
   int  i, k, NN, chosen, icurrent;
   double r;
@@ -809,7 +835,8 @@ void SparseStorage::randomize( double alpha, double beta, double * seed )
 
 }
 
-double SparseStorage::abmaxnorm()
+template <typename SCALAR>
+double SparseStorageT<SCALAR>::abmaxnorm()
 {
   double norm = 0.0;
   int nnz = this->numberOfNonZeros();
@@ -824,13 +851,15 @@ double SparseStorage::abmaxnorm()
 }
 
 
-void SparseStorage::atPutDiagonal( int idiag, OoqpVector& vvec )
+template <typename SCALAR>
+void SparseStorageT<SCALAR>::atPutDiagonal( int idiag, OoqpVector& vvec )
 {
   SimpleVector & v = dynamic_cast<SimpleVector &>(vvec);
   this->atPutDiagonal( idiag, v.elements(), 1, v.n );
 }
 
-void SparseStorage::atPutDiagonal( int idiag,
+template <typename SCALAR>
+void SparseStorageT<SCALAR>::atPutDiagonal( int idiag,
 				       double x[], int incx, int extent )
 {
   int i;

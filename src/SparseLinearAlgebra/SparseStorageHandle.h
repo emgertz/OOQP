@@ -8,7 +8,7 @@
 #include "IotrRefCount.h"
 #include "SmartPointer.h"
 
-class SparseStorage;
-typedef SmartPointer<SparseStorage> SparseStorageHandle;
+template <typename S> class SparseStorageT;
+typedef SmartPointer<SparseStorageT<double> > SparseStorageHandle;
 
 #endif

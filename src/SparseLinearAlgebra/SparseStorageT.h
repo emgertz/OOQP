@@ -17,7 +17,8 @@ using namespace std;
 /** A class for managing the matrix elements used by sparse matrices.
  *  @ingroup SparseLinearAlgebra
  */
-class SparseStorage : public DoubleStorage {
+template <typename SCALAR>
+class SparseStorageT : public IotrRefCount {
 protected:
   int neverDeleteElts;
   
@@ -29,12 +30,12 @@ public:
   int len;
   int * jcolM;
   int * krowM;
-  double * M;
+  SCALAR * M;
 
-  SparseStorage( int m_, int n_, int len_ );
-  SparseStorage( int m_, int n_, int len_,
+  SparseStorageT( int m_, int n_, int len_ );
+  SparseStorageT( int m_, int n_, int len_,
 		     int * krowM_, int * jcolM_,
-		     double * M_ );
+		     SCALAR * M_ );
 
   void shiftRows( int row, int shift, int& info );
   virtual void getSize( int& m, int& n );
@@ -88,7 +89,7 @@ public:
   virtual void symmetrize( int& info);
   virtual double abmaxnorm();
 
-  virtual ~SparseStorage();
+  virtual ~SparseStorageT();
 };
 
 #endif

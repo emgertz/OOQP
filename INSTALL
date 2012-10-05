@@ -192,21 +192,22 @@ PREREQUISITES
     to generate the file "libMA27.a".
 
     If MA27 is already installed on your system, of if you wish to install
-    MA27 in a different location, you may need to set the LIBMA27
+    MA27 in a different location, you may need to set the MA27LIB
     environment variable to point to the library. See "ENVIRONMENT VARIABLES
     AND configure" for information on how to do so.
 
-    The procedure for MA57 is similar, once you have obtained (and licensed)
-    a copy of the MA57 source from the HSL collection. See
+    If you prefer to use MA57, obtain a copy of the MA57 source from the HSL
+    collection. See
 
          http://www.hsl.rl.ac.uk/
 
-    for details on obtaining MA57 and other HSL codes. Once you have
-    obtained MA57, unpack the files into
-
-            extras/MA57
-
-    and follow the procedure outlined above for MA27.
+    for details on obtaining MA57 and other HSL codes. Unpack the MA57
+    source archive and follow the instructions therein to build the MA57
+    library. Set the MA57LIB environment variable to refer to the
+    newly-built libraries (see "ENVIRONMENT VARIABLES AND configure"). Note
+    that newer versions of MA57 require the MeTiS library. If you are using
+    a newer version of MA57, list both the MA57 library and the MeTiS
+    library in the MA57LIB environment variable.
 
 WHAT WILL BE BUILT
     The command
@@ -228,10 +229,10 @@ WHAT WILL BE BUILT
     Interfaces of the qpgen solver to external packages, such as Ampl and
     Matlab, and variants that use linear solvers other than MA27 (such as
     MA57) are not built by default. To build the MA57-based version of the
-    qpgen solver, you first need to install MA57 and set the LIBMA57
+    qpgen solver, you first need to install MA57 and set the MA57LIB
     environment variable appropriately. Then type
 
-        make all-ma57
+        make all_ma57
 
     One of the executables created will be
 

@@ -160,9 +160,9 @@ PREREQUISITES
     collection of ISO Fortran codes for large scale scientific computation.
 
     MA27 is the default solver used with OOQP. MA57 supersedes MA27, but
-    MA57 has more restrictive licensing requirements. We find that the MA57
-    version of the OOQP solver outperforms the MA27 version in general, but
-    performance of the MA27 version is also acceptable.
+    MA57 has more restrictive licensing requirements. OOQP's MA27 interface
+    is the best supported and most robust, but MA57 perform better in some
+    circumstances.
 
     To obtain MA27, go to
 

@@ -71,6 +71,9 @@ void Ma57Solver::firstCall()
 
   lkeep = ( nnz > n ) ? (5 * n + 2 *nnz + 42) : (6 * n + nnz + 42);
   keep = new int[lkeep];
+  // Initialize keep to all zeros to keep some versions of MA57
+  // from accessing uninitialized memory.
+  memset(keep,0,lkeep*sizeof(int));
 
   int * iwork = new int[5 * n];
   ma57ad_( &n, &nnz, irowM, jcolM, &lkeep, keep, iwork, icntl,

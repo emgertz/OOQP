@@ -76,8 +76,8 @@ AC_SUBST(MA27LIB)
 
 if test -z "$MA57LIB"; then
    AC_MSG_WARN([MA57LIB environment variable was not set.])
-   AC_MSG_WARN([Defaulting to extras/MA57/libMA57.a])
-   MA57LIB=extras/MA57/libMA57.a
+   AC_MSG_WARN([Defaulting to libma57.a])
+   MA57LIB=libma57.a
 fi
 AC_SUBST(MA57LIB)
 

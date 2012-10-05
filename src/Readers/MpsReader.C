@@ -52,6 +52,7 @@ MpsReader::MpsReader( FILE * file_ )
   // -1 indicates that we have not yet determined these values
   nnzA = -1; nnzC = -1; nnzQ = -1;
   my   = -1; mz   = -1;
+  memcpy(this->objectiveSense, "MIN", 3);
 }
 
 int isOnlySpaces( char str[], int start, int finish )

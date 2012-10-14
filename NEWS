@@ -1,3 +1,13 @@
+Major Changes in OOQP 0.99.24 (October 15, 2012)
+
+- Initialize an array used by MA57 to zero, to prevent MA57 from using
+  uninitialized memory. (Thanks to John Grove for pointing this out.)
+
+- Update INSTALL instructions for MA57 and indicate that the MA27
+  interface is the best supported and most robust.
+
+- Initialize a formerly uninitialized field in MpsReader
+
 Major Changes in OOQP 0.99.23 (August 12, 2012)
 
 - Modernize installation scripts and documentation.

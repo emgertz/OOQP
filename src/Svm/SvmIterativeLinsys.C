@@ -2,52 +2,48 @@
  * Authors: E. Michael Gertz, Stephen J. Wright                       *
  * (C) 2001 University of Chicago. See Copyright Notification in OOQP */
 
-#include "SvmLinsys.h"
 #include <cmath>
+#include <iostream>
+
+using namespace std;
+
+#include "SvmIterativeLinsys.h"
 #include "DenseSymMatrix.h"
 #include "DenseGenMatrix.h"
-#include "SparseGenMatrix.h"
 #include "SvmData.h"
 #include "SvmVars.h"
 #include "SvmResiduals.h"
-#include "DoubleLinearSolver.h"
-#include "DeSymPSDSolver.h"
 #include "SimpleVector.h"
 #include "DoubleMatrix.h"
-#include "sparseutils.h"
-
-#include <iostream>
-#include <fstream>
-using namespace std;
+#include "SvmLinearSolver.h"
 
 extern "C" {
   void dsyr_( char *, int *, double *, double *, int *, double *, int *);
 }
 
 
-SvmLinsys::SvmLinsys(SvmData *prob) :
-  mL(0), mYd(0), mGamma(0), solver(0), mDinv(0)
+SvmIterativeLinsys::SvmIterativeLinsys(SvmData *prob, int usingDirectSolve) :
+  mYd(0), mGamma(0), mDinv(0)
 {
   int hyperplanedim = prob->hyperplanedim;
   int nobservations = prob->nobservations;
-
-  // allocates a square matrix of dimension hyperplanedim
-  mL = DenseSymMatrixHandle( new DenseSymMatrix(hyperplanedim) );
-  solver = new DeSymPSDSolver( mL );
 
   // allocates the messy diagonal matrix that arises in the block
   // elimination
   mDinv = SimpleVectorHandle( new SimpleVector( nobservations ) );
   mYd   = SimpleVectorHandle( new SimpleVector( hyperplanedim ) );
+
+  mSolver = SvmLinearSolverHandle( new SvmLinearSolver( nobservations,
+							hyperplanedim, usingDirectSolve) );
 }
 
 
-SvmLinsys::~SvmLinsys()
+SvmIterativeLinsys::~SvmIterativeLinsys()
 {
-  delete solver;
 }
 
-void SvmLinsys::factor(Data *prob_in, Variables *vars_in)
+
+void SvmIterativeLinsys::factor(Data *prob_in, Variables *vars_in)
 {
   // does a Cholesky factorization of the matrix (X^T D^{-1} X)
   char fortranUplo = 'U'; int info;
@@ -68,39 +64,14 @@ void SvmLinsys::factor(Data *prob_in, Variables *vars_in)
   // now compute lower triangle of X^T D^{-1} X, storing in L
   prob->XTransMult(0.0, *mYd, 1.0, *mDinv);
   SimpleVector & dinv = *mDinv;
-
   mGamma = 0.0;
   for( int i = 0; i < dinv.length(); i++ ) {
     mGamma += dinv[i];
   }
-  DenseSymMatrix & L = *mL;
-  int hdim = mYd->length();
-  int nobs = dinv.length();
-  int ione = 1;
-  /* Set L to zero.  We cheat here because we know L is contiguous */
-  for( int k = 0; k < hdim * hdim; k++ ) {
-    L[0][k] = 0.0;
-  }
-  for( int j = 0; j < hdim; j++ ) {
-    L[j][j] = 2.0; 
-  }
-  int * krowM = prob->mY->krowM();
-  int * jcolM = prob->mY->jcolM();
-  float * M = prob->mY->M();
-  
-  for( int j = 0; j < nobs; j++ ) {
-    int k = krowM[j];
-    int nnz = krowM[j + 1] - k;
-    spsyr(hdim, dinv[j], M + k, jcolM + k, nnz, &L[0][0]);
-  }
-  double alpha = -1/mGamma;
-
-  dsyr_(&fortranUplo, &hdim, &alpha, mYd->elements(), &ione, &L[0][0], &hdim);
-
-  solver->matrixChanged();
+  mSolver->newData( prob->mY, mYd, mDinv, mGamma, vars->mu());
 }
 
-void SvmLinsys::solve(Data *prob_in, Variables *vars_in, 
+void SvmIterativeLinsys::solve(Data *prob_in, Variables *vars_in, 
 		      Residuals *resids_in, Variables *step_in)
 {
   SvmData *prob = (SvmData *) prob_in;
@@ -157,7 +128,7 @@ void SvmLinsys::solve(Data *prob_in, Variables *vars_in,
 	rhatbeta = betaRes - prob->dotCategories( omegaRes );
 	wStep.axpy( rhatbeta/mGamma, *mYd );
 	
-	solver->solve( wStep );
+	mSolver->solve(wStep);
 	
 	// betaStep = (rhatbeta + < wStep, Yd > ) / mGamma
 	betaStep = (rhatbeta + wStep.dotProductWith( *mYd )) / mGamma;

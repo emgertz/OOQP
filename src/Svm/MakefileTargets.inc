@@ -1,8 +1,11 @@
-all: svm-gondzio.exe
+all: svm-gondzio.exe svmpcg-mehrotra.exe
 all_headers: svm_headers
 
 svm-gondzio.exe: $(svm_gondzio_OBJECTS)
 	$(LINK.cc) -o $@ $(svm_gondzio_OBJECTS) $(BLAS) $(LIBS) $(FLIBS)
+
+svmpcg-mehrotra.exe: $(svm_mehrotra_OBJECTS)
+	$(LINK.cc) -o $@ $(svm_mehrotra_OBJECTS) $(BLAS) $(LIBS) $(FLIBS)
 
 svm_headers: $(SVMHEADERS)
 

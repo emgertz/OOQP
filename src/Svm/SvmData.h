@@ -6,9 +6,10 @@
 #define SVMDATA_H
 
 #include "Data.h"
-#include "DenseGenMatrixHandle.h"
+#include "SparseGenMatrixHandle.h"
 #include "DenseSymMatrixHandle.h"
 #include "SimpleVectorHandle.h"
+#include "SvmMatrix.h"
 
 /**
  * @ingroup Svm
@@ -30,7 +31,7 @@ class SvmData : public Data
    *
    * @param penalty penalty parameter for violation term in objective
    * */
-  SvmData(int hyperplanedim_in, int nobservations_in,
+  SvmData(int hyperplanedim_in, int nobservations_in, int nnz,
 	  double penalty  );
 
   /** Constructor that makes object with specified dimensions, using
@@ -48,8 +49,8 @@ class SvmData : public Data
    *
    * @param penalty penalty parameter for violation term in objective
    * */
-  SvmData(int hyperplanedim_in, int nobservations_in, double * X, double * d,
-	  double penalty );
+/*   SvmData(int hyperplanedim_in, int nobservations_in, double * X, double * d, */
+/* 	  double penalty ); */
 
   /** Destructor for data class */
   ~SvmData();
@@ -70,6 +71,7 @@ class SvmData : public Data
    * @param iErr returns 0 if OK, otherwise indicates error if file
    * not found or input faulty */
   static SvmData * textInput(char filename[], double penalty, int &iErr);
+  static SvmData * denseTextInput(char filename[], double penalty, int &iErr);
 
   /** penalty parameter for violation term in objective */
   double mPenalty;
@@ -78,13 +80,14 @@ class SvmData : public Data
   int hyperplanedim;    
 
   /** number of observations */
-  int nobservations;  
+  int nobservations;
+  
 
   /** Y is an N x (t+1) matrix in which each row consists of t entries
    * representing a point, followed by a "1". Each row corresponding
    * to one of the two distinct labels is then multiplied by -1. Yt
    * stores the the transpose of Y.  */
-  DenseGenMatrixHandle Yt; 
+  SvmMatrixHandle mY; 
 
   /** vector of dimension nobservations containing the labels of the
       points */
@@ -102,6 +105,12 @@ class SvmData : public Data
    * y <- beta y + alpha Y^T x
    */
   virtual void YTransMult( double beta, SimpleVector& y,
+			   double alpha, SimpleVector& x );
+  /** Perform a saxpy operation with matrix Yt
+   *
+   * y <- beta y + alpha X^T x
+   */
+  virtual void XTransMult( double beta, SimpleVector& y,
 			   double alpha, SimpleVector& x );
 
   /** form inner product of v with the categories vector */

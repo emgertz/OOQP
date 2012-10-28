@@ -6,6 +6,7 @@
 #define SVM1FACTORY
 
 #include "ProblemFormulation.h"
+#include "OoqpStartStrategy.h"
 
 /** 
  * @defgroup Svm
@@ -35,7 +36,7 @@ public:
 
   /** make data object with specified dimensions and given penalty
       parameter */
-  virtual Data          * makeData(int hyperplanedim, int nobservations,
+  virtual Data          * makeData(int hyperplanedim, int nobservations, int nnz,
 				   double penalty);
 
   /** make data object using given structures already allocated
@@ -46,9 +47,9 @@ public:
    * @param d array of doubles containing list of labels for the points 
    *
    * @param penalty penalty parameter for violation term in objective */
-  virtual Data          * makeData(int hyperplanedim, int nobservations,
-				   double * X, double * d,
-				   double penalty );
+/*   virtual Data          * makeData(int hyperplanedim, int nobservations, int nnz, */
+/* 				   double * X, double * d, */
+/* 				   double penalty ); */
 
   /** make a data object with specified dimensions and fill it with
       random data */
@@ -58,13 +59,13 @@ public:
   /** make data object and read input from a text file in specified
       format */
   virtual Data          * makeDataFromText(char  filename[], double penalty,
-					   int &iErr); 
+					   int &iErr, bool dense_input = false); 
 
   /** make Svm residuals object */
   virtual Residuals     * makeResiduals( Data * prob_in );
 
   /** make Svm linear system object */
-  virtual LinearSystem  * makeLinsys( Data * prob_in );
+  virtual LinearSystem  * makeLinsys( Data * prob_in ) = 0;
 
   /** make Svm variables object */
   virtual Variables     * makeVariables( Data * prob_in );
@@ -76,9 +77,35 @@ public:
 					 double z[], double u[],
 					 double s[] );
 
-  /** destructore for Svm factory class */
+  /** destructor for Svm factory class */
   virtual ~Svm();
 };
+
+
+class SvmDirect : public Svm { 
+  /** make Svm linear system object */
+  virtual LinearSystem  * makeLinsys( Data * prob_in );
+};
+
+
+class SvmIterative : public Svm { 
+  /** make Svm linear system object */
+public:
+  SvmIterative(int usingDirectSolve) : mUsingDirectSolve(usingDirectSolve) {}
+  virtual LinearSystem  * makeLinsys( Data * prob_in );
+
+private:
+  int mUsingDirectSolve;
+};
+
+
+class SvmStartStrategy : public OoqpStartStrategy {
+  virtual void doIt( Solver * solver,
+		     ProblemFormulation * formulation,
+		     Variables * iterate, Data * prob,
+		     Residuals * resid, Variables * step );
+};
+
 
 #endif
 

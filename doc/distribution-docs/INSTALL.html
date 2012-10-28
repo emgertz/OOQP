@@ -137,7 +137,7 @@ This page is part of the <A HREF=../index.html> OOQP documentation </A>.
 
 <p>These codes are part of HSL (formerly the Harwell Subroutine Library), a collection of ISO Fortran codes for large scale scientific computation.</p>
 
-<p>MA27 is the default solver used with OOQP. MA57 supersedes MA27, but MA57 has more restrictive licensing requirements. We find that the MA57 version of the OOQP solver outperforms the MA27 version in general, but performance of the MA27 version is also acceptable.</p>
+<p>MA27 is the default solver used with OOQP. MA57 supersedes MA27, but MA57 has more restrictive licensing requirements. OOQP&#39;s MA27 interface is the best supported and most robust, but MA57 perform better in some circumstances.</p>
 
 <p>To obtain MA27, go to</p>
 
@@ -156,17 +156,13 @@ This page is part of the <A HREF=../index.html> OOQP documentation </A>.
 
 <p>to generate the file &quot;libMA27.a&quot;.</p>
 
-<p>If MA27 is already installed on your system, of if you wish to install MA27 in a different location, you may need to set the LIBMA27 environment variable to point to the library. See <a href="#ENVIRONMENT-VARIABLES-AND-configure">&quot;ENVIRONMENT VARIABLES AND configure&quot;</a> for information on how to do so.</p>
+<p>If MA27 is already installed on your system, of if you wish to install MA27 in a different location, you may need to set the MA27LIB environment variable to point to the library. See <a href="#ENVIRONMENT-VARIABLES-AND-configure">&quot;ENVIRONMENT VARIABLES AND configure&quot;</a> for information on how to do so.</p>
 
-<p>The procedure for MA57 is similar, once you have obtained (and licensed) a copy of the MA57 source from the HSL collection. See</p>
+<p>If you prefer to use MA57, obtain a copy of the MA57 source from the HSL collection. See</p>
 
 <pre><code>     http://www.hsl.rl.ac.uk/</code></pre>
 
-<p>for details on obtaining MA57 and other HSL codes. Once you have obtained MA57, unpack the files into</p>
-
-<pre><code>        extras/MA57 </code></pre>
-
-<p>and follow the procedure outlined above for MA27.</p>
+<p>for details on obtaining MA57 and other HSL codes. Unpack the MA57 source archive and follow the instructions therein to build the MA57 library. Set the MA57LIB environment variable to refer to the newly-built libraries (see <a href="#ENVIRONMENT-VARIABLES-AND-configure">&quot;ENVIRONMENT VARIABLES AND configure&quot;</a>). Note that newer versions of MA57 require the MeTiS library. If you are using a newer version of MA57, list both the MA57 library and the MeTiS library in the MA57LIB environment variable.</p>
 
 <h1 id="WHAT-WILL-BE-BUILT">WHAT WILL BE BUILT</h1>
 
@@ -180,9 +176,9 @@ This page is part of the <A HREF=../index.html> OOQP documentation </A>.
 
 <p>This is the default solver that takes QPS files as input and uses MA27 to solve linear systems. Use of this solver is described extensively in the OOQP User Guide (doc/ooqp-userguide.pdf).</p>
 
-<p>Interfaces of the qpgen solver to external packages, such as Ampl and Matlab, and variants that use linear solvers other than MA27 (such as MA57) are not built by default. To build the MA57-based version of the qpgen solver, you first need to install MA57 and set the LIBMA57 environment variable appropriately. Then type</p>
+<p>Interfaces of the qpgen solver to external packages, such as Ampl and Matlab, and variants that use linear solvers other than MA27 (such as MA57) are not built by default. To build the MA57-based version of the qpgen solver, you first need to install MA57 and set the MA57LIB environment variable appropriately. Then type</p>
 
-<pre><code>    make all-ma57</code></pre>
+<pre><code>    make all_ma57</code></pre>
 
 <p>One of the executables created will be</p>
 

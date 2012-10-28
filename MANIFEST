@@ -526,9 +526,6 @@ examples/README
 extras/MA27/Makefile.in
 extras/MA27/configure
 extras/MA27/configure.ac
-extras/MA57/Makefile.in
-extras/MA57/configure
-extras/MA57/configure.ac
 extras/blas/Makefile.in
 extras/blas/configure
 extras/blas/configure.ac

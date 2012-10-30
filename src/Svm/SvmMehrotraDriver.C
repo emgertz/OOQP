@@ -120,8 +120,10 @@ int main( int argc, char *argv[] )
 	    strcat( outfilename, ".out" );
 	    // Try to read the input file
 	    int iErr;
+	    // Note that we, probably incorrectly, use twice the penalty
+	    // parameter internally.
 	    prob = (SvmData *) 
-	      svm->makeDataFromText(filename, penalty, iErr, dense_input);
+	      svm->makeDataFromText(filename, 2.0 * penalty, iErr, dense_input);
 	    if(iErr != svminputok) {
 	      cerr << " Error reading input file " << filename 
 		   <<": TERMINATE\n";

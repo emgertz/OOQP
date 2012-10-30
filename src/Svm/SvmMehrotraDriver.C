@@ -159,8 +159,8 @@ int main( int argc, char *argv[] )
   if( !quiet ) {
     s->monitorSelf();
   }
-  s->setMuTol(1e-3);
-  s->setArTol(1e-3);
+  s->setMuTol(1e-6);
+  s->setArTol(1e-6);
   int status = s->solve(prob, vars, resid);
   
   //GetTime( &EndUserTime, &EndSystemTime );

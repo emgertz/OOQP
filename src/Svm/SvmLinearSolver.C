@@ -16,16 +16,16 @@ double SvmPrecond::  mScalesvmtol      =  100;
 
 extern "C" {
   void dspr_( char *, int *, double *, double *, int *, double * );
-  
+
   // void GetTime( double  * utime, double * stime );
-  
+
   void dpptrf_( char * uplo, int * n,
                 double * A, int * info );
-  
+
   void dpptrs_( char * uplo, int * n, int * nrhs,
-                double * A, 
+                double * A,
                 double * b, int * ldb, int * info ) ;
-  
+
   void daxpy_ ( int * n, double * alpha, double * x,
                 int * incx, double * y, int * incy );
   double ddot_( int * n, double * dx, int * incx, double * dy, int * incy);
@@ -34,25 +34,25 @@ extern "C" {
 
 
 //////////////////////////////////////////////////////////////////////
-SvmPrecond::SvmPrecond( int m, int n, int usingDirectSolve ) : 
-mP(0), mPfactored(0), nobs(m), hdim(n), mNsv(0), mGammaReduced(0),
-mUsingDirectSolve(usingDirectSolve)
+SvmPrecond::SvmPrecond( int m, int n, int usingDirectSolve ) :
+  mP(0), mPfactored(0), nobs(m), hdim(n), mNsv(0), mGammaReduced(0),
+  mUsingDirectSolve(usingDirectSolve)
 {
   mActiveMax = nobs/4 > 2 * hdim ? nobs/4 : 2 * hdim;
-  
-  mRhs        = SimpleVectorHandle(new SimpleVector(hdim)); 
+
+  mRhs        = SimpleVectorHandle(new SimpleVector(hdim));
   mYdReduced  = SimpleVectorHandle(new SimpleVector(hdim));
   mTraces     = SimpleVectorHandle(new SimpleVector(nobs));
   mYdReduced->setToZero();
-  
+
   mIsSv       = new char[nobs];
-  
+
   mP             = new double *[hdim];
   mP[0]          = new double[hdim*(hdim + 1)/2];
-  
+
   mPfactored     = new double *[hdim];
   mPfactored[0]  = new double[hdim*(hdim + 1)/2];
-  
+
   for( int j = 0; j < hdim; j++ ) {
     mP[j]          = &mP[0][j*(j+1)/2];
     mPfactored[j]  = &mPfactored[0][j*(j+1)/2];
@@ -72,22 +72,22 @@ SvmPrecond::~SvmPrecond()
     delete [] mPfactored;
   }
   delete [] mIsSv;
-} 
+}
 
 
 //////////////////////////////////////////////////////////////////////
 void SvmPrecond::reset()
 {
   mYdReduced->setToZero();
-  
+
   for( int k = 0; k < (hdim*(hdim + 1))/2; k++ ) {
     mP[0][k] = 0.0; mPfactored[0][k] = 0.0;
   }
   for( int j = 0; j < hdim; j++ ) {
-    mP[j][j] = 2.0; 
-  } 
+    mP[j][j] = 2.0;
+  }
   for( int i = 0; i < nobs; i++ ) mIsSv[i] = kIsSvUnknown;
-  
+
   mNsv           = 0;
   mGammaReduced  = 0.0;
   precon_count   = 0;
@@ -102,10 +102,10 @@ void SvmPrecond::init(SvmMatrix & Y, SimpleVector & dinv, double mu)
   SvmMatrix::scalarT * M = Y.M();
   int * krowM = Y.krowM();
   int * jcolM = Y.jcolM();
-  
+
   this->reset();
   //GetTime( &StartUserTime, &StartSystemTime);
-  { 
+  {
     double       **P      = this->getP();
     {
       SimpleVector & traces = *mTraces;
@@ -115,7 +115,7 @@ void SvmPrecond::init(SvmMatrix & Y, SimpleVector & dinv, double mu)
         SvmMatrix::scalarT * row = M + kk;
         int * jcol = jcolM + kk;
         int nnz = krowM[i + 1] - krowM[i];
-        
+
         for (int k = 0;  k < nnz;  k++) {
           int j = jcol[k];
           double temp = row[k] * row[k] * dinv[i];
@@ -127,7 +127,7 @@ void SvmPrecond::init(SvmMatrix & Y, SimpleVector & dinv, double mu)
       }
     }
     this->chooseSupportVectors( *mTraces, mu );
-    
+
     double ** Pcopy = this->getPworkSpace();
     const int binsize = 512;
     for( int i = 0; i < nobs; i++ ) {
@@ -141,15 +141,15 @@ void SvmPrecond::init(SvmMatrix & Y, SimpleVector & dinv, double mu)
       }
     }
   }  // end scope of dinv
-  
+
   this->formReducedmYd( Y, dinv);
-  
+
   //GetTime( &EndUserTime, &EndSystemTime );
   if( gOoqpPrintLevel >= 100 ) {
     printf("Time to form preconditioner = %1.10g\n",
            EndUserTime - StartUserTime);
   }
-  
+
   this->factorP();
 }
 
@@ -159,7 +159,7 @@ void SvmPrecond::update(SvmMatrix & Y, SimpleVector   & dinv, double mu)
 {
   double       StartUserTime, StartSystemTime;
   double       EndUserTime, EndSystemTime;
-  
+
   this->chooseSupportVectors( *mTraces, mu );
   {
     double       **P      = this->getP();
@@ -167,17 +167,17 @@ void SvmPrecond::update(SvmMatrix & Y, SimpleVector   & dinv, double mu)
     int * krowM = Y.krowM();
     int * jcolM = Y.jcolM();
     SvmMatrix::scalarT * M = Y.M();
-    
+
     for( int i = 0; i < nobs; i++ ) {
-      if( this->isSv(i)  == kIsNewSv ) { 
+      if( this->isSv(i)  == kIsNewSv ) {
         int k = krowM[i];
         int nnz = krowM[i + 1] - k;
         spspr_1(hdim, dinv[i], M + k, jcolM + k, nnz, P[0]);
       } //end if  thisitioner->isSv(i)  == kIsNewSv
-    } // end for i  
-  } // 
+    } // end for i
+  } //
   this->formReducedmYd( Y, dinv);
-  
+
   //GetTime( &EndUserTime, &EndSystemTime );
   if( gOoqpPrintLevel >= 100 ) {
     printf("Time to form updated preconditioner = %1.10g\n",
@@ -192,23 +192,23 @@ void SvmPrecond::resetGamma(double mu)
 {
   double mySvmtol = mu < 1 ? pow(mu, 0.5) : 1;
   SimpleVector & traces = *mTraces;
-  
+
   //TESTCODE
   std::vector<double> tmp(nobs);
   for( int i = 0; i < nobs; i++)
     tmp[i] = traces[i];
-  
+
   int my_max = mActiveMax > 0 ? mActiveMax : 1;
   if( my_max > nobs ) {
     my_max = nobs;
   }
   std::nth_element( tmp.begin(), tmp.end()-my_max, tmp.end());
   double nthmin = tmp[nobs-my_max];
-  
+
   if(mActiveMax == 0) {
     nthmin *= 1.000001;
   }
-  
+
   mScalesvmtol = .99999999 * nthmin/mySvmtol;
   //ENDTESTCODE
 }
@@ -220,14 +220,14 @@ void
 SvmPrecond::chooseSupportVectors( SimpleVector & dinv, double mu )
 {
   double mySvmtol = mu < 1 ? pow(mu, 0.5) : 1;
-  
+
   double scale;
   if(mUsingDirectSolve) {
-    scale = 0; 
+    scale = 0;
   } else {
     scale =  mScalesvmtol * mySvmtol;
   }
-  
+
   for( int i = 0; i < nobs; i++ ) {
     if( dinv[i] >= scale ) {
       switch( mIsSv[i] ) {
@@ -252,7 +252,7 @@ SvmPrecond::chooseSupportVectors( SimpleVector & dinv, double mu )
 
 
 //////////////////////////////////////////////////////////////////////
-void 
+void
 SvmPrecond::formReducedmYd( SvmMatrix & Y, SimpleVector & dinv)
 {
   int incx = 1,incy = 1;
@@ -264,18 +264,18 @@ SvmPrecond::formReducedmYd( SvmMatrix & Y, SimpleVector & dinv)
   for(int i = 0; i < nobs; i++){
     switch(this->isSv(i)) {
       case kIsSv: case kIsNewSv:
-	{
-	  int k = krowM[i];
-	  int nnz = krowM[i + 1] - k;
-	  spaxpy(dinv[i], M + k, jcolM + k, nnz, mYdReduced->elements());
-	  
-	  mGammaReduced += dinv[i];
-	}
+        {
+          int k = krowM[i];
+          int nnz = krowM[i + 1] - k;
+          spaxpy(dinv[i], M + k, jcolM + k, nnz, mYdReduced->elements());
+
+          mGammaReduced += dinv[i];
+        }
         break;
       case kIsNotSv: break;
-      default: 
+      default:
         cout << "i: " << i << "isSv[i] " << this->isSv(i) << endl;
-        assert( 0 && "Can't get here" ); 
+        assert( 0 && "Can't get here" );
         break;
     }
   }
@@ -301,16 +301,16 @@ void SvmPrecond::factorP()
 {
   double       StartUserTime, StartSystemTime;
   double       EndUserTime, EndSystemTime;
-  
+
   char fortranUplo = 'U'; int info;
   int n = hdim*(hdim + 1)/2, ione = 1;
   //GetTime( &StartUserTime, &StartSystemTime);
-  
+
   memcpy( mPfactored[0], mP[0], n * sizeof(double) );
   if( mNsv > 0 ) {
     double alpha = -1/mGammaReduced;
-    
-    dspr_(&fortranUplo, &hdim, &alpha, mYdReduced->elements(), 
+
+    dspr_(&fortranUplo, &hdim, &alpha, mYdReduced->elements(),
           &ione, mPfactored[0] );
     dpptrf_( &fortranUplo, &hdim, &mPfactored[0][0], &info );
   } else {
@@ -335,14 +335,14 @@ void SvmPrecond::apply(SimpleVector &  xptr, SimpleVector & yptr)
 {
   double StartUserTime, StartSystemTime;
   double EndUserTime, EndSystemTime;
-  
+
   SimpleVector & rhs = *mRhs;
-  
+
   //GetTime( &StartUserTime, &StartSystemTime);
   rhs.copyFrom( xptr );
   if( mNsv > 0 ) {
     char fortranUplo = 'U'; int info, one = 1;
-    
+
     dpptrs_( &fortranUplo, &hdim, &one, mPfactored[0],
              &rhs[0], &hdim, &info);
   } else {
@@ -356,7 +356,7 @@ void SvmPrecond::apply(SimpleVector &  xptr, SimpleVector & yptr)
     printf("% 3d: Time to solve with preconditioner = %1.10g\n",
            precon_count, EndUserTime - StartUserTime);
   }
-  
+
   precon_count++;
 }
 extern int gOoqpPrintLevel;
@@ -366,14 +366,14 @@ extern int gOoqpPrintLevel;
 
 ////////////////////////////////////////////////////////////////
 SvmLinearSolver::SvmLinearSolver(int m, int n, int usingDirectSolve):
-hyperplanedim(n), nobservations(m),
-mSvmmaxits(40),  mSolvestep(-1),
-mY(0), mYd(0), mDinv(0), mSvmPrecond(0),
-mScaleSvmTolMax(10000)
+  hyperplanedim(n), nobservations(m),
+  mSvmmaxits(40),  mSolvestep(-1),
+  mY(0), mYd(0), mDinv(0), mSvmPrecond(0),
+  mScaleSvmTolMax(10000)
 {
-  mSvmPrecond 
+  mSvmPrecond
     = SvmPrecondHandle( new SvmPrecond( nobservations, hyperplanedim,
-					usingDirectSolve ) );
+                                        usingDirectSolve ) );
   mX = SimpleVectorHandle( new SimpleVector(hyperplanedim) );
 }
 
@@ -397,24 +397,24 @@ int SvmLinearSolver::newData(SvmMatrix * Y, SimpleVector * Yd,
                              double gamma, double mu)
 {
   // Display the number of outer iterations
-{
-  static int mNumouterits = -1;
-  if( gOoqpPrintLevel >= 100 )
-    printf("My outer its = %d \n", ++mNumouterits);
-}
-SpReferTo(mY, Y);
-SpReferTo(mYd, Yd);
-SpReferTo(mDinv, Dinv);
-mGamma  = gamma;  mMu     = mu;
+  {
+    static int mNumouterits = -1;
+    if( gOoqpPrintLevel >= 100 )
+      printf("My outer its = %d \n", ++mNumouterits);
+  }
+  SpReferTo(mY, Y);
+  SpReferTo(mYd, Yd);
+  SpReferTo(mDinv, Dinv);
+  mGamma  = gamma;  mMu     = mu;
 
-mSolvestep = 0; 
-//zero for predictor step, > 0 for corrector.
+  mSolvestep = 0;
+  //zero for predictor step, > 0 for corrector.
 
-if (gOoqpPrintLevel >= 100) {
-  
-  cout << "Scale svm tol " << mSvmPrecond->scaleSvmTol() << endl;
-}
-mSvmPrecond->init(*mY, *mDinv, mMu);
+  if (gOoqpPrintLevel >= 100) {
+
+    cout << "Scale svm tol " << mSvmPrecond->scaleSvmTol() << endl;
+  }
+  mSvmPrecond->init(*mY, *mDinv, mMu);
 }
 
 
@@ -423,7 +423,7 @@ void SvmLinearSolver::solve(SimpleVector& b)
 {
   assert(mSvmPrecond);
   int ione = 1;
-  
+
   const double rtolFactor = 1e-1;
   const double rtolMax    = 1e-1;
   const int    maxtries   = 5;
@@ -431,7 +431,7 @@ void SvmLinearSolver::solve(SimpleVector& b)
   double rtol = rtolMax < rtolFactor*mMu ? rtolMax : rtolFactor*mMu;
   double normb = dnrm2_(&hyperplanedim, b.elements(), &ione);
   SimpleVector & x = *mX;
-  
+
   // If this is a corrector step, tighten the solution tolerance
   if( mSolvestep == 0 ) {
     // This is a predictor step; so reset the number of iterations
@@ -445,7 +445,7 @@ void SvmLinearSolver::solve(SimpleVector& b)
     cout << "*****mKsprtol = " << rtol << endl;
   }
   for( int tries = 0; tries < maxtries; tries++ ) {
-    if( mSolvestep > 0 || tries > 0 ) { 
+    if( mSolvestep > 0 || tries > 0 ) {
       // x contains a valid initial guess, use it
       //this->setInitialGuessNonzero();
     } else {
@@ -457,12 +457,12 @@ void SvmLinearSolver::solve(SimpleVector& b)
     }
     int cits = 0;
     int converged = 0;
-    { 
+    {
       double rprp = 1;
       SimpleVector r(hyperplanedim);
       SimpleVector p(hyperplanedim);
       SimpleVector pp(hyperplanedim);
-      
+
       if (gOoqpPrintLevel >= 1000) {
         cout << "  KSP RHS " << normb << endl;
       }
@@ -478,7 +478,7 @@ void SvmLinearSolver::solve(SimpleVector& b)
           break;
         }
         cits++;
-        if (cits > mSvmmaxits) 
+        if (cits > mSvmmaxits)
           break;
         mSvmPrecond->apply(r, p);
         double rp = r.dotProductWith(p);
@@ -498,10 +498,10 @@ void SvmLinearSolver::solve(SimpleVector& b)
     }
     mSvmmaxits -= cits;
     if( mSvmmaxits < 1 ) mSvmmaxits = 1;
-    
+
     if( converged ) {
       break;
-    } else if( mSvmPrecond->nSv() < nobservations ) { 
+    } else if( mSvmPrecond->nSv() < nobservations ) {
       int nsv =  mSvmPrecond->nSv();
       int newActiveMax = nsv +  hyperplanedim/2;
       if( newActiveMax <= nsv ) {
@@ -510,7 +510,7 @@ void SvmLinearSolver::solve(SimpleVector& b)
       mSvmPrecond->setActiveMax(newActiveMax);
       mSvmPrecond->resetGamma(mMu);
       mSvmPrecond->update(*mY, *mDinv, mMu);
-      
+
       mSvmmaxits = this->calcMaxIts();
     } else { // no hope
       fprintf(stderr, "Failed to solve preconditioning with matrix itself."
@@ -518,8 +518,8 @@ void SvmLinearSolver::solve(SimpleVector& b)
       exit( 1 );
     } // end else no hope
   } // end for tries < maxtries
-b.copyFrom(x);
-mSolvestep++;
+  b.copyFrom(x);
+  mSolvestep++;
 }
 
 
@@ -528,7 +528,7 @@ int SvmLinearSolver::converged()
 {
   int ierr;
   int reason = 1;
-  
+
   return reason > 0;
 }
 
@@ -537,27 +537,25 @@ int SvmLinearSolver::converged()
 void SvmLinearSolver::matMult(SimpleVector & avec, SimpleVector & yvec)
 {
   const int binsize = 8 * 1024;
-  
+
   /* remember mY is stored in transposed format */
   /* y =  mY'*W*mY*a - (1/gamma)*mYd*mYd'*a + 2a */
   int nobs = nobservations, hdim = hyperplanedim;
-  
+
   SimpleVector & Yd   = *mYd;
   SimpleVector & dinv = *mDinv;
-  
+
   int * krowM = mY->krowM();
   int * jcolM = mY->jcolM();
   SvmMatrix::scalarT * M = mY->M();
-  
-  { // scope of vvec
-    
+
   {
     SimpleVectorHandle hyvec_copy( new SimpleVector( hdim ) );
     SimpleVector & yvec_copy = * hyvec_copy;
-	
+
     yvec.copyFrom( avec );
     yvec.scale(2.0);
-    
+
     yvec_copy.setToZero();
     int j;
     SimpleVector Yj(hdim);
@@ -568,7 +566,7 @@ void SvmLinearSolver::matMult(SimpleVector & avec, SimpleVector & yvec)
       int nnz = krowM[j + 1] - krowM[j];
       double prod = spdot(avec.elements(), row, jcol, nnz);
       prod *= dinv[j];
-      spaxpy(prod, row, jcol, nnz, yvec_copy.elements()); 
+      spaxpy(prod, row, jcol, nnz, yvec_copy.elements());
       if (j + 1 % binsize == 0) {
         yvec.axpy(1.0, yvec_copy);
         yvec_copy.setToZero();
@@ -578,11 +576,10 @@ void SvmLinearSolver::matMult(SimpleVector & avec, SimpleVector & yvec)
       yvec.axpy(1.0, yvec_copy);
     }
   } // end scopy of yvec_copy
-  } //end scope of vvec
-  
+
   {
     double Ydta = Yd.dotProductWith( avec );
     Ydta = -Ydta/mGamma;
     yvec.axpy( Ydta, Yd );
   } // end scope of Ydta
-} 
+}

@@ -1,0 +1,9 @@
+This is the developmental, and so far unreleased, version of a port of
+the SvmPcg code to the new version of OOQP.  The major changes are 1)
+a transpose of the sense of the matrix in SvmData, 2) the conversion
+of the same matrix to a sparse format, 3) the introduction of the
+ability to use a preconditioned conjugate gradient method with a
+Svm-specific preconditioner to solve the linear systems; and 4) the
+introduction of a routine to read data in SVMlight format.
+
+The SvmPcg code was written by E. Michael Gertz and Joshua Griffin.

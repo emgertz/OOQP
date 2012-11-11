@@ -152,6 +152,7 @@ SvmData * SvmData::textInput( char filename[], double penalty, int& iErr)
     result->mY->atPutDense(i, 0, tempRowY.elements(), 1, 1, hyperplanedim);
     i++;
   }
+  fclose(file);
   return result;
 }
 

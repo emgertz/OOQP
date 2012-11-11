@@ -52,7 +52,29 @@ SvmData::SvmData(int hyperplanedim_in, int nobservations_in, int nnz,
 //   mY = SparseGenMatrixHandle( new SparseGenMatrixT( X_in, nobservations,
 // 						 hyperplanedim ) );
 //   categories = SimpleVectorHandle( new SimpleVector( d, nobservations ) );
-// }
+// 
+
+static 
+char * s_fgets(char * s, int size, FILE * stream, int& err)
+{
+  err = 0;
+  int c = '\0';
+  int i = 0;
+  while (i < size - 1 && EOF != (c = getc(stream))) {
+    s[i++] = c;
+    if (c == '\n')
+      break;
+  }
+  s[i] = '\0';
+  if (i == 0)
+    return NULL;
+  else if (c == '\n' || c == EOF)
+    return s;
+  else {
+    err = -1;
+    return NULL;
+  }
+}
 
 /* The textinput routine is called when we read input from a file
  * 
@@ -78,6 +100,7 @@ SvmData * SvmData::textInput( char filename[], double penalty, int& iErr)
   char buffer[16 * 1024];
   char * linetok;
   char * itemtok;
+  int status;
 
   // assume that the input will be OK
   iErr = svminputok;
@@ -93,7 +116,7 @@ SvmData * SvmData::textInput( char filename[], double penalty, int& iErr)
   int nnz = 0;
   int nobservations = 0;
   int hyperplanedim = 0;
-  while( fgets(buffer, sizeof(buffer) - 1, file) ) {
+  while( s_fgets(buffer, sizeof(buffer), file, status) ) {
     nobservations ++;
     char * tok;
     strtok_r(buffer, " \t\n", &linetok);  // ignore the first, it is the category
@@ -113,7 +136,7 @@ SvmData * SvmData::textInput( char filename[], double penalty, int& iErr)
 
   rewind(file);
   i = 0;
-  while(fgets(buffer, sizeof(buffer) - 1, file)) {
+  while(s_fgets(buffer, sizeof(buffer), file, status)) {
     tempRowY.setToZero();
     char * tok = strtok_r(buffer, " \n\t", &linetok);
     int cat = atoi(tok);

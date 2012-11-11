@@ -188,8 +188,8 @@ int main( int argc, char *argv[] )
   delete prob;
   delete svm;
 
-  printf("Time to solve QP = %1.8g user %1.8g system\n",
-         EndUserTime - StartUserTime, EndSystemTime - StartSystemTime);
+  // printf("Time to solve QP = %1.8g user %1.8g system\n",
+  //        EndUserTime - StartUserTime, EndSystemTime - StartSystemTime);
 
   exit(status);
   return status;

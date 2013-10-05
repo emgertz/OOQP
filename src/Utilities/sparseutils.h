@@ -55,9 +55,11 @@ void spsyr(int n, double alpha, const SCALAR * __restrict x,
   }
 }
 
-
+// spspr_1 - like [ds]spr but with a row of a sparse matrix.
+// n is not used, but could be used to check that the elements of jcol
+// are within bounds.
 template <typename SCALAR>
-void spspr_1(int n, double alpha, const SCALAR * __restrict x, 
+void spspr_1(int /* n */, double alpha, const SCALAR * __restrict x, 
 	     const int * __restrict jcol, int nnz,
 	     double * __restrict packed_matrix)
 {

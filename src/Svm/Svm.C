@@ -90,10 +90,10 @@ LinearSystem * SvmIterative::makeLinsys( Data * prob_in )
 }
 
 
-void SvmStartStrategy::doIt( Solver * solver,
-			     ProblemFormulation * formulation,
+void SvmStartStrategy::doIt( Solver * /* solver */,
+			     ProblemFormulation * /* formulation */, 
 			     Variables * iterate, Data * prob,
-			     Residuals * resid, Variables * step)
+			     Residuals * /* resid */, Variables * /*step */)
 {
   iterate->interiorPoint(2.0, 2.0);
 };

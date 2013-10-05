@@ -97,8 +97,8 @@ void SvmPrecond::reset()
 ////////////////////////////////////////////////////////////////
 void SvmPrecond::init(SvmMatrix & Y, SimpleVector & dinv, double mu)
 {
-  double       StartUserTime, StartSystemTime;
-  double       EndUserTime, EndSystemTime;
+  //double       StartUserTime, StartSystemTime;
+  //double       EndUserTime, EndSystemTime;
   SvmMatrix::scalarT * M = Y.M();
   int * krowM = Y.krowM();
   int * jcolM = Y.jcolM();
@@ -145,10 +145,10 @@ void SvmPrecond::init(SvmMatrix & Y, SimpleVector & dinv, double mu)
   this->formReducedmYd( Y, dinv);
 
   //GetTime( &EndUserTime, &EndSystemTime );
-  if( gOoqpPrintLevel >= 100 ) {
-    printf("Time to form preconditioner = %1.10g\n",
-           EndUserTime - StartUserTime);
-  }
+  // if( gOoqpPrintLevel >= 100 ) {
+  //   printf("Time to form preconditioner = %1.10g\n",
+  //          EndUserTime - StartUserTime);
+  // }
 
   this->factorP();
 }
@@ -157,8 +157,8 @@ void SvmPrecond::init(SvmMatrix & Y, SimpleVector & dinv, double mu)
 ////////////////////////////////////////////////////////////////
 void SvmPrecond::update(SvmMatrix & Y, SimpleVector   & dinv, double mu)
 {
-  double       StartUserTime, StartSystemTime;
-  double       EndUserTime, EndSystemTime;
+  //double       StartUserTime, StartSystemTime;
+  //double       EndUserTime, EndSystemTime;
 
   this->chooseSupportVectors( *mTraces, mu );
   {
@@ -179,10 +179,10 @@ void SvmPrecond::update(SvmMatrix & Y, SimpleVector   & dinv, double mu)
   this->formReducedmYd( Y, dinv);
 
   //GetTime( &EndUserTime, &EndSystemTime );
-  if( gOoqpPrintLevel >= 100 ) {
-    printf("Time to form updated preconditioner = %1.10g\n",
-           EndUserTime - StartUserTime);
-  }
+  // if( gOoqpPrintLevel >= 100 ) {
+  //   printf("Time to form updated preconditioner = %1.10g\n",
+  //          EndUserTime - StartUserTime);
+  // }
   this->factorP();
 }
 
@@ -255,7 +255,6 @@ SvmPrecond::chooseSupportVectors( SimpleVector & dinv, double mu )
 void
 SvmPrecond::formReducedmYd( SvmMatrix & Y, SimpleVector & dinv)
 {
-  int incx = 1,incy = 1;
   mYdReduced->setToZero();
   mGammaReduced = 0;
   int * krowM = Y.krowM();
@@ -299,8 +298,8 @@ void SvmPrecond::accumulateP()
 //////////////////////////////////////////////////////////////////////
 void SvmPrecond::factorP()
 {
-  double       StartUserTime, StartSystemTime;
-  double       EndUserTime, EndSystemTime;
+  //double       StartUserTime, StartSystemTime;
+  //double       EndUserTime, EndSystemTime;
 
   char fortranUplo = 'U'; int info;
   int n = hdim*(hdim + 1)/2, ione = 1;
@@ -323,18 +322,18 @@ void SvmPrecond::factorP()
     }
   }
   //GetTime( &EndUserTime, &EndSystemTime );
-  if( gOoqpPrintLevel >= 100 ) {
-    printf("Time to factor preconditioner = %1.10g\n",
-           EndUserTime - StartUserTime);
-  }
+  // if( gOoqpPrintLevel >= 100 ) {
+  //   printf("Time to factor preconditioner = %1.10g\n",
+  //          EndUserTime - StartUserTime);
+  // }
 }
 
 
 //////////////////////////////////////////////////////////////////////
 void SvmPrecond::apply(SimpleVector &  xptr, SimpleVector & yptr)
 {
-  double StartUserTime, StartSystemTime;
-  double EndUserTime, EndSystemTime;
+  //double StartUserTime, StartSystemTime;
+  //double EndUserTime, EndSystemTime;
 
   SimpleVector & rhs = *mRhs;
 
@@ -352,10 +351,10 @@ void SvmPrecond::apply(SimpleVector &  xptr, SimpleVector & yptr)
   }
   yptr.copyFrom( rhs );
   //GetTime( &EndUserTime, &EndSystemTime);
-  if( gOoqpPrintLevel >= 100 ) {
-    printf("% 3d: Time to solve with preconditioner = %1.10g\n",
-           precon_count, EndUserTime - StartUserTime);
-  }
+  // if( gOoqpPrintLevel >= 100 ) {
+  //   printf("% 3d: Time to solve with preconditioner = %1.10g\n",
+  //          precon_count, EndUserTime - StartUserTime);
+  // }
 
   precon_count++;
 }
@@ -526,7 +525,6 @@ void SvmLinearSolver::solve(SimpleVector& b)
 ////////////////////////////////////////////////////////////////
 int SvmLinearSolver::converged()
 {
-  int ierr;
   int reason = 1;
 
   return reason > 0;

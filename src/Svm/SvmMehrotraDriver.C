@@ -28,8 +28,8 @@ int main( int argc, char *argv[] )
   SvmData * prob        = 0;
   int quiet = 0, print_soln = 0, using_direct_solve = 0, dense_input = 0;
   
-  double StartUserTime, StartSystemTime;
-  double EndUserTime, EndSystemTime;
+  // double StartUserTime, StartSystemTime;
+  // double EndUserTime, EndSystemTime;
   
   char    * outfilename = 0;
   int argsOk = 1;

@@ -74,8 +74,6 @@ char * s_fgets(char * s, int size, FILE * stream, int& err)
 SvmData * SvmData::textInput( char filename[], double penalty, int& iErr)
 {
   int i;
-  int nobs_file, ndim_file;
-  double label1, label2;
   FILE * file;
   SvmData * result;
   char buffer[16 * 1024];
@@ -101,7 +99,7 @@ SvmData * SvmData::textInput( char filename[], double penalty, int& iErr)
     nobservations ++;
     char * tok;
     strtok_r(buffer, " \t\n", &linetok);  // ignore the first, it is the category
-    while (tok = strtok_r(NULL, " \t\n", &linetok)) {
+    while ((tok = strtok_r(NULL, " \t\n", &linetok))) {
       nnz ++;
       char * cindex = strtok_r(tok, ":", &itemtok);
       int index = atoi(cindex);
@@ -122,7 +120,7 @@ SvmData * SvmData::textInput( char filename[], double penalty, int& iErr)
     char * tok = strtok_r(buffer, " \n\t", &linetok);
     int cat = atoi(tok);
     categories[i] = cat;
-    while(tok = strtok_r(NULL, " \n\t", &linetok)) {
+    while((tok = strtok_r(NULL, " \n\t", &linetok))) {
       char * cindex = strtok_r(tok, ":", &itemtok);
       char * cvalue = strtok_r(NULL, ":", &itemtok);
       int index = atoi(cindex);

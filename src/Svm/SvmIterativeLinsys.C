@@ -45,11 +45,8 @@ SvmIterativeLinsys::~SvmIterativeLinsys()
 
 void SvmIterativeLinsys::factor(Data *prob_in, Variables *vars_in)
 {
-  // does a Cholesky factorization of the matrix (X^T D^{-1} X)
-  char fortranUplo = 'U'; int info;
   SvmData *prob = (SvmData *) prob_in;
   SvmVars *vars = (SvmVars *) vars_in;
-  int i, j;
 
   // compute and store mDiv, using vars
 

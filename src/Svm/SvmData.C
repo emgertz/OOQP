@@ -37,23 +37,13 @@ SvmData::SvmData(int hyperplanedim_in, int nobservations_in, int nnz,
   categories = SimpleVectorHandle( new SimpleVector( nobservations ) );
 }
 
-// SvmData::SvmData(int hyperplanedim_in, int nobservations_in,
-// 		 double * X_in, double * d,
-// 		 double penalty /* = 1.0 */ )
-// {
-//   hyperplanedim = hyperplanedim_in;
-//   nobservations = nobservations_in;
-//   mPenalty      = penalty;
-
-//   assert ( nobservations_in >= hyperplanedim_in);
-//   assert ( nobservations_in >= 2);
-//   assert ( hyperplanedim_in >= 1);
-
-//   mY = SparseGenMatrixHandle( new SparseGenMatrixT( X_in, nobservations,
-// 						 hyperplanedim ) );
-//   categories = SimpleVectorHandle( new SimpleVector( d, nobservations ) );
-// 
-
+/** s_fgets -- a reimplementation of fgets that checks for long lines 
+ *
+ *  size - the size of buffer s.  
+ *
+ * At most size - 1 characters will be
+ *  read, and the buffer will always be terminated by '\O'.
+ */
 static 
 char * s_fgets(char * s, int size, FILE * stream, int& err)
 {
@@ -78,17 +68,8 @@ char * s_fgets(char * s, int size, FILE * stream, int& err)
 
 /* The textinput routine is called when we read input from a file
  * 
- * The file must start with two integers that denote
- *
- * - nobservations : number of observations
- * - hyperplanedim : hyperplane dimension (that is, the size of each vector)
- *
- * must satisfy nobservations >= 2, hyperplanedim >= 1, nobservations
- * >= hyperplanedim.
- *
- * Then for each observation one must list the "hyperplanedim" entries
- * in each vector, followed by a label for that vector. The labels
- * must take two distinct values (not necessarily +1 and -1).  */
+ * The file is/should be the same (sparse) format as SVMlight.  The
+ * largest line permitted is 16kb. */
 
 SvmData * SvmData::textInput( char filename[], double penalty, int& iErr)
 {
@@ -156,7 +137,7 @@ SvmData * SvmData::textInput( char filename[], double penalty, int& iErr)
   return result;
 }
 
-/* The textinput routine is called when we read input from a file
+/* The denseTextinput routine is called when we read input from a file
 * 
 * The file must start with two integers that denote
 *

@@ -37,8 +37,6 @@ public:
 			     double A[], int lenA, int jcolA[], int& nnz,
 			     int colExtent, int& info );
   virtual void SymmetricScale ( OoqpVector& vec );
-  virtual void ColumnScale ( OoqpVector& vec );
-  virtual void RowScale ( OoqpVector& vec );
   virtual void scalarMult( double num);
 
   virtual void symAtPutSpRow( int col, double A[], int lenA, int jcolA[],

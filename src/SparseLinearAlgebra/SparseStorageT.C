@@ -122,27 +122,6 @@ void SparseStorageT<SCALAR>::ColumnScale( OoqpVector& scale_in )
 }
 
 template <typename SCALAR>
-void SparseStorageT<SCALAR>::RowScale( OoqpVector& scale_in )
-{
-  SimpleVector & scale = dynamic_cast<SimpleVector &>(scale_in);
-  int extent = scale.length();
-
-  assert( extent == m );
-
-  int i, j, k;
-
-  for ( i = 0; i < m; i++ ) {
-    // Loop over all rows in the sparse matrix
-    for( k = krowM[i]; k < krowM[i+1]; k++ ) {
-      // Loop over the elements of the sparse row
-      j = jcolM[k];
-      M[k] = M[k] * scale[i];
-    } // End loop over the elements of the sparse row
-  } // End loop over all rows in the sparse matrix
-
-}
-
-template <typename SCALAR>
 void SparseStorageT<SCALAR>::SymmetricScale( OoqpVector& scale_in )
 {
   SimpleVector & scale = dynamic_cast<SimpleVector &>(scale_in);

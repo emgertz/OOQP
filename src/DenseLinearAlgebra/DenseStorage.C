@@ -304,24 +304,6 @@ void DenseStorage::scalarMult( double num )
   } // End loop over all rows in the dense matrix
 }
 
-void DenseStorage::RowScale( OoqpVector& scale_in )
-{
-  SimpleVector & scale = dynamic_cast<SimpleVector &>(scale_in);
-  int extent = scale.length();
-
-  assert( extent == m );
-
-  int i, j;
-
-  for ( i = 0; i < m; i++ ) {
-    // Loop over all rows in the dense matrix
-    for( j = 0; j < n; j++ ) {
-      // Loop over the elements of the dense row
-      M[i][j] = M[i][j] * scale[i];
-    } // End loop over the elements of the dense row
-  } // End loop over all rows in the dense matrix
-
-}
 
 void DenseStorage::SymmetricScale( OoqpVector& scale_in )
 {

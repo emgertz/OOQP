@@ -278,16 +278,6 @@ void DenseGenMatrix::ColumnScale( OoqpVector& vec )
   mStorage->ColumnScale( vec );
 }
 
-void DenseGenMatrix::SymmetricScale( OoqpVector& vec )
-{
-  mStorage->SymmetricScale( vec );
-}
-
-void DenseGenMatrix::RowScale( OoqpVector& vec )
-{
-  mStorage->ColumnScale( vec );
-}
-
 void DenseGenMatrix::scalarMult( double num )
 {
   mStorage->scalarMult( num );

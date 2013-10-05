@@ -298,16 +298,6 @@ void SparseSymMatrix::SymmetricScale( OoqpVector& vec )
   mStorage->SymmetricScale( vec );
 }
 
-void SparseSymMatrix::ColumnScale( OoqpVector& vec )
-{
-  mStorage->ColumnScale( vec );
-}
-
-void SparseSymMatrix::RowScale( OoqpVector& vec )
-{
-  mStorage->RowScale( vec );
-}
-
 void SparseSymMatrix::scalarMult( double num )
 {
   mStorage->scalarMult( num );

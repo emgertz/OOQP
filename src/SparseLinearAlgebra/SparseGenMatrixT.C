@@ -222,18 +222,6 @@ void SparseGenMatrixT<SCALAR>::ColumnScale( OoqpVector& vec )
 }
 
 template<typename SCALAR>
-void SparseGenMatrixT<SCALAR>::SymmetricScale( OoqpVector& vec )
-{
-  mStorage->SymmetricScale( vec );
-}
-
-template<typename SCALAR>
-void SparseGenMatrixT<SCALAR>::RowScale( OoqpVector& vec )
-{
-  mStorage->ColumnScale( vec );
-}
-
-template<typename SCALAR>
 void SparseGenMatrixT<SCALAR>::scalarMult( double num )
 {
   mStorage->scalarMult( num );

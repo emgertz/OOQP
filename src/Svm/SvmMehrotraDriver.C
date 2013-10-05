@@ -90,6 +90,7 @@ int main( int argc, char *argv[] )
 	    argsOk = 0;
 	  }
 	  if( argsOk ) {
+	    svm =  new SvmIterative(using_direct_solve);
 	    prob = (SvmData *) svm->makeRandomData(hyperplanedim,
 						   nobservations, 1.0);
 	  }

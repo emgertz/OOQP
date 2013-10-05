@@ -39,13 +39,13 @@ protected:
   SimpleVectorHandle mYdReduced;
   SimpleVectorHandle mRhs;
   SimpleVectorHandle    mTraces;
-  double mGammaReduced;
   int    nobs;
   int    hdim;
+  int mNsv;
+  double mGammaReduced;
   char   * mIsSv;
   static double  mScalesvmtol;
   int mActiveMax;
-  int mNsv;
   int mUsingDirectSolve;
 };
 typedef SmartPointer<SvmPrecond> SvmPrecondHandle;
@@ -58,9 +58,9 @@ class SvmLinearSolver : public IotrRefCount
 {
  public:
   SvmLinearSolver(int m, int n, int usingDirectSolve);
-  virtual int newData(SvmMatrix * Y,
-		      SimpleVector *  Yd, SimpleVector *
-		      Dinv, double gamma, double mu);
+  virtual void newData(SvmMatrix * Y,
+		       SimpleVector *  Yd, SimpleVector *
+		       Dinv, double gamma, double mu);
   virtual void solve(SimpleVector& b);
   virtual int converged();
   virtual int calcMaxIts();
@@ -74,13 +74,13 @@ class SvmLinearSolver : public IotrRefCount
   int mSvmmaxits;
   int mSolvestep;  // mSolvestep = 0 if on predictor, = 1 corrector.
   /** The number of support vectors */
-  double mScaleSvmTolMax;
   /** The arrays that define the matrix */
   SvmMatrixHandle  mY;
   SimpleVectorHandle    mYd, mDinv;
   double mGamma;
   double mMu;
   SvmPrecondHandle mSvmPrecond;
+  double mScaleSvmTolMax;
   SimpleVectorHandle mX;
 };
 

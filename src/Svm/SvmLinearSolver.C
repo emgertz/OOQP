@@ -391,7 +391,7 @@ int SvmLinearSolver::calcMaxIts()
 
 
 ////////////////////////////////////////////////////////////////
-int SvmLinearSolver::newData(SvmMatrix * Y, SimpleVector * Yd,
+void SvmLinearSolver::newData(SvmMatrix * Y, SimpleVector * Yd,
                              SimpleVector * Dinv,
                              double gamma, double mu)
 {

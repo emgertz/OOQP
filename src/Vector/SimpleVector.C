@@ -156,20 +156,6 @@ int i;
 for( i = 0; i < n; i++) v[i] *= num;
 }
 
-// Print first 10 entries of solution vector to stderr.
-// Useful for debugging purposes...
-void SimpleVector::printSolutionToStdErr( OoqpVector &vec)
-{
-  SimpleVector & sv = dynamic_cast<SimpleVector &>(vec);
-  double * y = sv.v;
-  int i;
-  for( i = 0; i < 10; i++ )
-    {
-    fprintf( stderr, "%f", v[i]);
-    }
-  fprintf( stderr, "******");
-}
-
 void SimpleVector::componentDiv ( OoqpVector& vec )
 {
   assert( n == vec.length() );

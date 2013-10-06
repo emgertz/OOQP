@@ -134,13 +134,12 @@ void SparseStorage::SymmetricScale( OoqpVector& scale_in )
 
 void SparseStorage::scalarMult( double num )
 {
-  int i, j, k;
+  int i, k;
 
   for ( i = 0; i < m; i++ ) {
     // Loop over all rows in the sparse matrix
     for( k = krowM[i]; k < krowM[i+1]; k++ ) {
       // Loop over the elements of the sparse row
-      j = jcolM[k];
       M[k] = M[k] * num;
     } // End loop over the elements of the sparse row
   } // End loop over all rows in the sparse matrix

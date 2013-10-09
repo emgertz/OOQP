@@ -49,13 +49,15 @@ int main( int argc, char *argv[] )
 		  0 == strcmp( argv[iarg], "--print-solution" ) ) {
         
 	print_soln = 1;
-        
       } else if ( 0 == strcmp( argv[iarg], "-direct-solve" ) ||
 		  0 == strcmp( argv[iarg], "--direct-solve" ) ) {
 	using_direct_solve = 1;
       } else if ( 0 == strcmp( argv[iarg], "-dense-input" ) ||
                   0 == strcmp( argv[iarg], "--dense-input" ) ) {
         dense_input = 1;
+      } else if ( 0 == strcmp( argv[iarg], "-sparse-input" ) ||
+                  0 == strcmp( argv[iarg], "--sparse-input" ) ) {
+        dense_input = 0;
       } else {
 	cerr << argv[0] << ": "
 	     << argv[iarg] << " is not a recognized option.\n";

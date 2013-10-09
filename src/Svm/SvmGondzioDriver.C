@@ -26,7 +26,7 @@ int main( int argc, char *argv[] )
 {
   Svm     * svm         = 0;
   SvmData * prob        = 0;
-  int quiet = 0, print_soln = 0, using_direct_solve = 0, dense_input = 0;
+  int quiet = 0, print_soln = 0, using_direct_solve = 0, dense_input = 1;
   
   // double StartUserTime, StartSystemTime;
   // double EndUserTime, EndSystemTime;
@@ -49,13 +49,15 @@ int main( int argc, char *argv[] )
 		  0 == strcmp( argv[iarg], "--print-solution" ) ) {
         
 	print_soln = 1;
-        
       } else if ( 0 == strcmp( argv[iarg], "-direct-solve" ) ||
 		  0 == strcmp( argv[iarg], "--direct-solve" ) ) {
 	using_direct_solve = 1;
       } else if ( 0 == strcmp( argv[iarg], "-dense-input" ) ||
                   0 == strcmp( argv[iarg], "--dense-input" ) ) {
         dense_input = 1;
+      } else if ( 0 == strcmp( argv[iarg], "-sparse-input" ) ||
+                  0 == strcmp( argv[iarg], "--sparse-input" ) ) {
+        dense_input = 0;
       } else {
 	cerr << argv[0] << ": "
 	     << argv[iarg] << " is not a recognized option.\n";
@@ -188,6 +190,9 @@ int main( int argc, char *argv[] )
   delete s;
   delete prob;
   delete svm;
+
+  // printf("Time to solve QP = %1.8g user %1.8g system\n",
+  //        EndUserTime - StartUserTime, EndSystemTime - StartSystemTime);
 
   return status;
 }

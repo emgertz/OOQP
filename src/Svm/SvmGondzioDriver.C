@@ -2,6 +2,13 @@
  * Authors: E. Michael Gertz, Stephen J. Wright                       *
  * (C) 2001 University of Chicago. See Copyright Notification in OOQP */
 
+#include <cstring>
+#include <iostream>
+#include <fstream>
+#include <cstdio> 
+#include <cstdlib>
+using namespace std;
+
 #include "SvmData.h"
 #include "SvmVars.h"
 #include "SvmResiduals.h"
@@ -9,40 +16,52 @@
 #include "GondzioSolver.h"
 #include "Svm.h"
 #include "SimpleVector.h"
-#include <cstring>
-#include <iostream>
-#include <fstream>
-using namespace std;
-#include <cstdio> 
-#include <cstdlib>
+
+//extern "C" void GetTime( double  * utime, double * stime );
 
 extern int DenseStorageInstances; 
+extern int gOoqpPrintLevel;
 
 int main( int argc, char *argv[] )
 {
-  Svm     * svm         = new SvmDirect;
+  Svm     * svm         = 0;
   SvmData * prob        = 0;
-  int quiet = 0, print_soln = 0;
+  int quiet = 0, print_soln = 0, using_direct_solve = 0, dense_input = 0;
+  
+  // double StartUserTime, StartSystemTime;
+  // double EndUserTime, EndSystemTime;
   
   char    * outfilename = 0;
   int argsOk = 1;
   {
-    int iarg;
+    int iarg = 1;
     
-    for( iarg = 1; iarg < argc && argv[iarg][0] == '-'; iarg++ ) {
+    while (iarg < argc && argv[iarg][0] == '-') {
       // it is a option. Check against recognized options
       if( 0 == strcmp( argv[iarg], "-quiet" ) ||
 	  0 == strcmp( argv[iarg], "--quiet" ) ) {
 	quiet = 1;
-      } else if ( 0 == strcmp( argv[iarg], "-print_solution" ) ||
-		  0 == strcmp( argv[iarg], "--print_solution" ) ) {
-
+      } else if ( 0 == strcmp( argv[iarg], "-print-level" ) ||
+		  0 == strcmp( argv[iarg], "--print-level" ) ) {
+	iarg++;
+	gOoqpPrintLevel = atoi(argv[iarg] );
+      } else if ( 0 == strcmp( argv[iarg], "-print-solution" ) ||
+		  0 == strcmp( argv[iarg], "--print-solution" ) ) {
+        
 	print_soln = 1;
+        
+      } else if ( 0 == strcmp( argv[iarg], "-direct-solve" ) ||
+		  0 == strcmp( argv[iarg], "--direct-solve" ) ) {
+	using_direct_solve = 1;
+      } else if ( 0 == strcmp( argv[iarg], "-dense-input" ) ||
+                  0 == strcmp( argv[iarg], "--dense-input" ) ) {
+        dense_input = 1;
       } else {
 	cerr << argv[0] << ": "
 	     << argv[iarg] << " is not a recognized option.\n";
 	argsOk = 0;
       }
+      iarg++;
     }
     if( iarg >= argc ) argsOk = 0;  // Not enough arguments 
     if( argsOk ) { // the options were read successfully
@@ -71,6 +90,7 @@ int main( int argc, char *argv[] )
 	    argsOk = 0;
 	  }
 	  if( argsOk ) {
+	    svm =  new SvmDirect;
 	    prob = (SvmData *) svm->makeRandomData(hyperplanedim,
 						   nobservations, 1.0);
 	  }
@@ -93,6 +113,7 @@ int main( int argc, char *argv[] )
 	    }
 	  } // end if the penalty parameter was specified
 	  if( argsOk ) { // syntax of the args is good
+            svm =  new SvmDirect;
 	    char * filename = argv[iarg];
 	    // Get a name for the output file.
 	    outfilename = new char[strlen(filename) + 5]; 
@@ -103,7 +124,7 @@ int main( int argc, char *argv[] )
 	    // Note that we, probably incorrectly, use twice the penalty
 	    // parameter internally.
 	    prob = (SvmData *) 
-	      svm->makeDataFromText(filename, 2.0 * penalty, iErr);
+	      svm->makeDataFromText(filename, 2.0 * penalty, iErr, dense_input);
 	    if(iErr != svminputok) {
 	      cerr << " Error reading input file " << filename 
 		   <<": TERMINATE\n";
@@ -128,13 +149,22 @@ int main( int argc, char *argv[] )
     return 1;
   }
 
+  //GetTime( &StartUserTime, &StartSystemTime );
+
   GondzioSolver * s     = new GondzioSolver( svm, prob );
+  SvmStartStrategy startStrategy;
+  //s->useStartStrategy(&startStrategy);
+
   SvmVars       * vars  = (SvmVars *) svm->makeVariables( prob );
   Residuals     * resid = svm->makeResiduals( prob );
   if( !quiet ) {
     s->monitorSelf();
   }
+  s->setMuTol(1e-6);
+  s->setArTol(1e-6);
   int status = s->solve(prob, vars, resid);
+  
+  //GetTime( &EndUserTime, &EndSystemTime );
 
   // print the interesting variables
   if( (!quiet && vars->hyperplanedim < 20) ||

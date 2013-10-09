@@ -192,7 +192,6 @@ int main( int argc, char *argv[] )
   // printf("Time to solve QP = %1.8g user %1.8g system\n",
   //        EndUserTime - StartUserTime, EndSystemTime - StartSystemTime);
 
-  exit(status);
   return status;
 }
 

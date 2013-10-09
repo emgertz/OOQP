@@ -6,6 +6,7 @@
 // #include "math.h"
 #include <cstring>
 #include <cstdio>
+#include <cerrno>
 #include <iostream>
 #include <fstream>
 using namespace std;
@@ -66,6 +67,30 @@ char * s_fgets(char * s, int size, FILE * stream, int& err)
   }
 }
 
+static int parseInt(char * str, int & status)
+{
+  char * endptr;
+  errno = 0;
+  int result = strtol(str, &endptr, 10);
+  if (errno == 0 && *endptr == 0)
+    status = 0;
+  else
+    status = 1;
+  return result;
+}
+
+static double parseDouble(char * str, int & status)
+{
+  char * endptr;
+  errno = 0;
+  int result = strtol(str, &endptr, 10);
+  if (errno == 0 && *endptr == 0)
+    status = 0;
+  else
+    status = 1;
+  return result;
+}
+
 /* The textinput routine is called when we read input from a file
  * 
  * The file is/should be the same (sparse) format as SVMlight.  The
@@ -95,43 +120,114 @@ SvmData * SvmData::textInput( char filename[], double penalty, int& iErr)
   int nnz = 0;
   int nobservations = 0;
   int hyperplanedim = 0;
+  int lineno = 0;
   while( s_fgets(buffer, sizeof(buffer), file, status) ) {
+    ++lineno;
     nobservations ++;
     char * tok;
-    strtok_r(buffer, " \t\n", &linetok);  // ignore the first, it is the category
+    // ignore the first, it is the category
+    tok = strtok_r(buffer, " \t\n", &linetok);
+    if (!tok) {
+      fprintf( stderr, " textInput: Error reading %s on line %d\n", 
+	       filename, lineno );
+      iErr = svmfileinputerror;
+      return 0;
+    }
+
     while ((tok = strtok_r(NULL, " \t\n", &linetok))) {
       nnz ++;
+      status = 1;
       char * cindex = strtok_r(tok, ":", &itemtok);
-      int index = atoi(cindex);
-      if (index > hyperplanedim) {
-	hyperplanedim = index;
+      
+      if (cindex) {
+	int index = parseInt(cindex, status);
+	if (index > hyperplanedim) {
+	  hyperplanedim = index;
+	}
+      }
+      if (status != 0) {
+	fprintf( stderr, " textInput: Error reading %s on line %d\n", 
+		 filename, lineno );
+	iErr = svmfileinputerror;
+	return 0;
       }
     }
+  }
+  if (status != 0) {
+    fprintf( stderr, " textInput: Error reading %s on line %d\n", 
+	     filename, lineno );
+    iErr = svmfileinputerror;
+    return 0;
   }
   result = new SvmData(hyperplanedim, nobservations, nnz, penalty );          
   SimpleVector & categories = *result->categories;
   SimpleVectorHandle hTempRowY( new SimpleVector( result->hyperplanedim ) );
   SimpleVector & tempRowY = *hTempRowY;
 
-  rewind(file);
+  if (0 != fseek(file, 0L, SEEK_SET)) {
+	fprintf( stderr, " textInput: Error rewinding %s\n", 
+		 filename, lineno );
+	iErr = svmfileinputerror;
+	return 0;
+  }    
   i = 0;
+  lineno = 0;
   while(s_fgets(buffer, sizeof(buffer), file, status)) {
+    ++lineno;
     tempRowY.setToZero();
+    status = 1;
     char * tok = strtok_r(buffer, " \n\t", &linetok);
-    int cat = atoi(tok);
-    categories[i] = cat;
+    if (tok) {
+      int cat = parseInt(tok, status);
+      if (status == 0) {
+	if (cat == 1 || cat == -1) {
+	  categories[i] = cat;
+	} else {
+	  fprintf( stderr, " textInput: Label not -1 or 1 in %s on line %d\n", 
+		   filename, lineno );
+	  iErr = svmlabelerror;
+	  return 0;
+	}
+      }
+    }
+    if (0 != status) {
+      fprintf( stderr, " textInput: Error reading %s on line %d\n", 
+	       filename, lineno );
+      iErr = svmfileinputerror;
+      return 0;
+    }
     while((tok = strtok_r(NULL, " \n\t", &linetok))) {
+      status = 1;
       char * cindex = strtok_r(tok, ":", &itemtok);
       char * cvalue = strtok_r(NULL, ":", &itemtok);
-      int index = atoi(cindex);
-      double value = atof(cvalue);
-
-      tempRowY[index - 1] = value;
+      if (cindex && cvalue) {
+	int index = parseInt(cindex, status);
+	if (0 == status) 
+	  tempRowY[index - 1] = parseDouble(cvalue, status);
+      }
+      if (0 != status) {
+	fprintf( stderr, " textInput: Error reading %s on line %d\n", 
+		 filename, lineno );
+	iErr = svmfileinputerror;
+	return 0;
+      }
     }
     result->mY->atPutDense(i, 0, tempRowY.elements(), 1, 1, hyperplanedim);
     i++;
   }
-  fclose(file);
+  if (status != 0) {
+    fprintf( stderr, " textInput: Error reading %s on line %d\n", 
+	     filename, lineno );
+    iErr = svmfileinputerror;
+    return 0;
+  }
+  if (0 != fclose(file)) {
+    fprintf( stderr, " textInput: Error closing %s\n", 
+	     filename, lineno );
+    iErr = svmfileinputerror;
+    return 0;
+  }
+
   return result;
 }
 

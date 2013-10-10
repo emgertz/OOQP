@@ -23,7 +23,7 @@ int main()
   int    *irowA, *jcolA, *irowC, *jcolC;
   char   *iclow, *icupp;
 
-  double f, ObjVal;
+  double objconst, objval;
   double *x = 0, *gamma = 0, *phi = 0;
   double *y = 0, *z = 0,     *lambda = 0 , *pi = 0;
 
@@ -54,7 +54,7 @@ int main()
   }
 
 
-  cMpsReaderReadQpGen( mps,  &f, c,  irowQ,  jcolQ,  dQ,
+  cMpsReaderReadQpGen( mps,  &objconst, c,  irowQ,  jcolQ,  dQ,
 		       xlow,  ixlow,  xupp,  ixupp,
 		       irowA,  jcolA,  dA,  b,
 		       irowC,  jcolC,  dC,
@@ -79,13 +79,13 @@ int main()
 	     clow,  mz,   iclow, cupp, icupp,
 	     x, gamma, phi,
 	     y, 
-	     z, lambda, pi, &ObjVal, PRINT_LEVEL, &ierr );
+	     z, lambda, pi, &objval, PRINT_LEVEL, &ierr );
 
   if( ierr != 0 ) {
     fprintf( stderr, "Couldn't solve it.\n" );
     return 1;
   } else {
-    printf(" Final Objective Value: %g\n\n", ObjVal);
+    printf(" Final Objective Value: %g\n\n", objval + objconst);
     printf( "Solution:...\n" );
     for( i = 0; i < nx; i++ ) {
       printf( "x[%2d] = %g\n", i, x[i] );

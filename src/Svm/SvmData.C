@@ -165,8 +165,7 @@ SvmData * SvmData::textInput( char filename[], double penalty, int& iErr)
   SimpleVector & tempRowY = *hTempRowY;
 
   if (0 != fseek(file, 0L, SEEK_SET)) {
-	fprintf( stderr, " textInput: Error rewinding %s\n", 
-		 filename, lineno );
+	fprintf( stderr, " textInput: Error rewinding %s\n", filename );
 	iErr = svmfileinputerror;
 	return 0;
   }    
@@ -222,8 +221,7 @@ SvmData * SvmData::textInput( char filename[], double penalty, int& iErr)
     return 0;
   }
   if (0 != fclose(file)) {
-    fprintf( stderr, " textInput: Error closing %s\n", 
-	     filename, lineno );
+    fprintf( stderr, " textInput: Error closing %s\n", filename );
     iErr = svmfileinputerror;
     return 0;
   }

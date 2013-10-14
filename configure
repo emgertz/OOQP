@@ -4007,9 +4007,9 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 fi
 
 if test -z "$BLAS"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: BLAS environment variable was not set. Defaulting to -lblas" >&5
-$as_echo "$as_me: WARNING: BLAS environment variable was not set. Defaulting to -lblas" >&2;}
-    BLAS=-lblas
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: BLAS environment variable was not set. Defaulting to '-lblas -llapack'." >&5
+$as_echo "$as_me: WARNING: BLAS environment variable was not set. Defaulting to '-lblas -llapack'." >&2;}
+    BLAS='-lblas -llapack'
 fi
 
 

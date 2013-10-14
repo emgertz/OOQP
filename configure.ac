@@ -62,8 +62,8 @@ fi
 dnl End of --with-fortran
 
 if test -z "$BLAS"; then
-    AC_MSG_WARN([BLAS environment variable was not set. Defaulting to -lblas])
-    BLAS=-lblas
+    AC_MSG_WARN([BLAS environment variable was not set. Defaulting to '-lblas -llapack'.])
+    BLAS='-lblas -llapack'
 fi
 AC_SUBST(BLAS)
 

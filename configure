@@ -4016,18 +4016,18 @@ fi
 if test -z "$MA27LIB"; then
    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: MA27LIB environment variable was not set." >&5
 $as_echo "$as_me: WARNING: MA27LIB environment variable was not set." >&2;}
-   { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Defaulting to extras/MA27/libMA27.a" >&5
-$as_echo "$as_me: WARNING: Defaulting to extras/MA27/libMA27.a" >&2;}
-   MA27LIB=extras/MA27/libMA27.a
+   { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Defaulting to libma27.a" >&5
+$as_echo "$as_me: WARNING: Defaulting to libma27.a" >&2;}
+   MA27LIB=libma27.a
 fi
 
 
 if test -z "$MA57LIB"; then
    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: MA57LIB environment variable was not set." >&5
 $as_echo "$as_me: WARNING: MA57LIB environment variable was not set." >&2;}
-   { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Defaulting to libma57.a" >&5
-$as_echo "$as_me: WARNING: Defaulting to libma57.a" >&2;}
-   MA57LIB=libma57.a
+   { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Defaulting to 'libma57.a libfakemetis.a'." >&5
+$as_echo "$as_me: WARNING: Defaulting to 'libma57.a libfakemetis.a'." >&2;}
+   MA57LIB='libma57.a libfakemetis.a'
 fi
 
 

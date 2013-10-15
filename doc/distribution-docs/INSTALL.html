@@ -4,7 +4,7 @@
 <head>
 <title></title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<link rev="made" href="mailto:kevin@archlinux.org" />
+<link rev="made" href="mailto:" />
 </head>
 
 <body style="background-color: white">
@@ -21,7 +21,7 @@
       <li><a href="#A-C-compiler-and-a-means-of-compiling-FORTRAN-77-files">A C++ compiler and a means of compiling FORTRAN 77 files</a></li>
       <li><a href="#A-UNIX-like-environment">A UNIX-like environment</a></li>
       <li><a href="#GNU-make">GNU make</a></li>
-      <li><a href="#BLAS">BLAS</a></li>
+      <li><a href="#BLAS-and-LAPACK">BLAS and LAPACK</a></li>
       <li><a href="#MA27-or-MA57">MA27 or MA57</a></li>
     </ul>
   </li>
@@ -70,24 +70,24 @@ This page is part of the <A HREF=../index.html> OOQP documentation </A>.
 
 <p>The configure script attempts to determine properties of your system and compilers automatically. Occasionally, it will be unable to resolve some aspect of your environment satisfactorily; for example, the locations of certain external packages. You will need to set certain environment variables (and possibly obtain some additional software) before running configure.</p>
 
-<p>To take one important example, consider the <a>BLAS</a> library. which is required for a successful build. By default, configure assumes the BLAS library may be accessed as -lblas. If this is not the case, you must set the BLAS environment variable to the name of the library as you want it to appear on the link line. To make this example concrete, suppose that your version of BLAS at the path extra/blas/libblas.a. For most shells, commands of the following form will suffice to set the BLAS environment variable:</p>
+<p>To take one important example, consider the MA27 library. which is required for a successful build. By default, configure assumes the MA27 library is in the top level OOQP directory and be accessed as libma27.a. If this is not the case, you must set the MA27LIB environment variable to the name of the library as you want it to appear on the link line. To make this example concrete, suppose that your version of MA27 at the path $HOME/sw/lib/libma27.a (the pattern $HOME expands to the full path of your home directory). For most shells, commands of the following form will suffice to set the MA27LIB environment variable:</p>
 
-<pre><code>    BLAS=extras/blas/libblas.a
-    export LIBBLAS</code></pre>
+<pre><code>    MA27LIB=$HOME/sw/lib/libma27.a
+    export MA27LIB</code></pre>
 
-<p>(Of course, extras/blas/libblas.a should be replaced with the value appropriate to your system) For the csh shell, and its derivatives, the form of the command is as follows.</p>
+<p>(Of course, $HOME/sw/lib/libma27.a should be replaced with the value appropriate to your system) For the csh shell, and its derivatives, the form of the command is as follows.</p>
 
-<pre><code>    setenv LIBBLAS extras/blas/libblas.a</code></pre>
+<pre><code>    setenv MA27LIB $HOME/sw/lib/libma27.a</code></pre>
 
-<p>The use of spaces is significant in these examples - particularly the absence of spaces surrounding the = sign in the first example. If you are uncertain which shell you are using it is safe to simply try both these commands; one should work.</p>
+<p>The use of spaces is significant in these examples -- particularly the absence of spaces surrounding the = sign in the first example. If you are uncertain which shell you are using it is safe to simply try both these commands; one should work.</p>
 
-<p>Once BLAS and other variables of interest are set appropriately, one may run the configure script by going to the OOQP directory and typing the following:</p>
+<p>Once MA27LIB and other variables of interest are set appropriately, one may run the configure script by going to the OOQP directory and typing the following:</p>
 
-<pre><code>     ./configure</code></pre>
+<pre><code>    ./configure</code></pre>
 
 <p>This script will copy the values of the environment variables into appropriate locations, so you do not need to set these variables permanently (that is, there is no need to modify your .login or .profile). However, if you need to re-run configure (after fixing some error or after acquiring additional external packages), you will need to be sure all appropriate environment variables are set appropriately before calling the script. It may help to make a note of the appropriate values.</p>
 
-<p>An alternative approach is to modify the files GNUmakefile and PetscMakefile by hand to set environment variables appropriately. However, these files are generated automatically by the configure script, so any changes you make will be lost next time you run this script.</p>
+<p>An alternative approach is to modify the file GNUmakefile by hand to set environment variables appropriately. However, these files are generated automatically by the configure script, so any changes you make will be lost next time you run this script.</p>
 
 <h1 id="PREREQUISITES">PREREQUISITES</h1>
 
@@ -99,7 +99,7 @@ This page is part of the <A HREF=../index.html> OOQP documentation </A>.
 
 <p>OOQP uses a number of routines from the BLAS and LAPACK FORTRAN 77 libraries. C++ code that calls these routines adheres to typical intra-language calling conventions that work for a number of compiler suites. We remark that the GNU C++ and FORTRAN (gfortran) compilers build OOQP correctly. The GNU compilers are available on a wide variety of platforms, and in particular any GNU Linux distribution should have installable packages for these compilers.</p>
 
-<p>We users cannot obtain a FORTRAN 77 compiler, or are having difficulty compiling OOQP using their FORTRAN compiler may try to compile OOQP using F2C (see the <a href="#USING-F2C">&quot;USING F2C&quot;</a> section below.)</p>
+<p>Users who cannot obtain a FORTRAN 77 compiler, or are having difficulty compiling OOQP using their FORTRAN compiler may try to compile OOQP using F2C (see the <a href="#USING-F2C">&quot;USING F2C&quot;</a> section below.) We do not recommend using F2C, as it is almost always better to try to install gfortran -- it is certainly better to install gfortran on any GNU linux distribution, on Mac OS X or under Cygwin.</p>
 
 <h2 id="A-UNIX-like-environment">A UNIX-like environment</h2>
 
@@ -121,15 +121,20 @@ This page is part of the <A HREF=../index.html> OOQP documentation </A>.
 
 <p>If none of these succeed, then GNU make probably is not installed on your system. You may obtain a copy at http://www.gnu.org. Although our makefiles are not too elaborate, we do use some features of GNU make.</p>
 
-<h2 id="BLAS">BLAS</h2>
+<h2 id="BLAS-and-LAPACK">BLAS and LAPACK</h2>
 
-<p>The BLAS (Basic Linear Algebra Subproblems) is a collection of routines that perform common linear-algebra operations used in scientific computing. Because these operations are so fundamental, a great deal of effort has gone into ensuring that they are implemented correctly and efficiently on various architectures. The BLAS may already be installed on your machine. If not, you must obtain a version and install it.</p>
+<p>The BLAS (Basic Linear Algebra Subproblems) and LAPACK (Linear Algebra PACKage) are a collections of routines that perform common linear-algebra operations used in scientific computing. Because these operations are so fundamental, a great deal of effort has gone into ensuring that they are implemented correctly and efficiently on various architectures.</p>
 
-<p>A Fortran reference implementation of the BLAS may be found at http://www.netlib.org/blas/index.html, but it is preferable to use a machine-optimized library if one is available. Most GNU Linux distributions have a prepackaged version of BLAS that may be installed using the distribution&#39;s package manager. Information about obtaining optimized versions of the BLAS for other architectures may be found on the Netlib page http://www.netlib.org/blas/index.html</p>
+<p>The source for these libraries is freely available on NETLIB (www.netlib.org) and the libraries may be compiled using a standard FORTRAN 77 compiler. But...STOP DON&#39;T.</p>
 
-<p>The ./configure script uses &quot;-lblas&quot; as the default name of the BLAS library. If this is not the appropriate value for your system, you will need to set the BLAS environment variable to the correct name. See <a href="#ENVIRONMENT-VARIABLES-AND-configure">&quot;ENVIRONMENT VARIABLES AND configure&quot;</a> for information on how to do so.</p>
+<p>These libraries are standard and commonly available from OS vendors. Any GNU Linux distribution should have them in their package repository. (For some distributions, you may also need to install &quot;development&quot; packages. For instance, on Fedora, you need lapack-devel.) Mac OS X supplies a preinstalled library with these routines. If you cannot obtain a vendor-supplied BLAS or LAPACK, only then visit www.netlib.org and compile the libraries from source.</p>
 
-<p>We note that &quot;-framework vecLib&quot; is the appropriate version of BLAS preinstalled on many versions of MacOS.</p>
+<p>The default locations for these libraries is &#39;-lblas -llapack&#39;.za To provide an alternate location, set the BLAS environment variable. See <a href="#ENVIRONMENT-VARIABLES-AND-configure">&quot;ENVIRONMENT VARIABLES AND configure&quot;</a> for information on how to do so. For Mac OS X, the vecLib framework supplies both BLAS and LAPACK. Set the BLAS environment variable as follows:</p>
+
+<pre><code>    BLAS=&#39;-framework vecLib&#39;
+    export BLAS</code></pre>
+
+<p>Spaces are significant in these commands, as are the single quotes around &#39;-framework vecLib&#39;.</p>
 
 <h2 id="MA27-or-MA57">MA27 or MA57</h2>
 
@@ -141,28 +146,17 @@ This page is part of the <A HREF=../index.html> OOQP documentation </A>.
 
 <p>To obtain MA27, go to</p>
 
-<pre><code>  http://hsl.rl.ac.uk/archive/hslarchive.html</code></pre>
+<pre><code>    http://hsl.rl.ac.uk/archive/hslarchive.html</code></pre>
 
-<p>You will need the double precision versions of the MA27, FD05, ID05 and ZA02 packages, which you should save to files named ma27.f, fd05.f id05.f and za02.f respectively. The FD05, ID05 and ZA02 packages are machine-dependent. Most users will want to download the default version of these packages (generic IEEE or generic Unix), but read the options carefully to see if a version specific to your hardware or OS is available. Contact the maintainers of the HSL archive if you cannot determine which version of these packages is appropriate to your system. We note that the default version of these packages is appropriate for users running GNU Linux on Intel hardware.</p>
-
-<p>Move the downloaded FORTRAN (.f) files to the</p>
-
-<pre><code>        extras/MA27/ </code></pre>
-
-<p>subdirectory of the OOQP distribution directory. From within this directory, type</p>
-
-<pre><code>     ./configure
-     make </code></pre>
-
-<p>to generate the file &quot;libMA27.a&quot;.</p>
+<p>You will need the double precision versions of MA27. Unpack the MA27 source archive and follow the instructions therein to build the MA27 library. Move the compiled library to the OOQP directory.</p>
 
 <p>If MA27 is already installed on your system, of if you wish to install MA27 in a different location, you may need to set the MA27LIB environment variable to point to the library. See <a href="#ENVIRONMENT-VARIABLES-AND-configure">&quot;ENVIRONMENT VARIABLES AND configure&quot;</a> for information on how to do so.</p>
 
 <p>If you prefer to use MA57, obtain a copy of the MA57 source from the HSL collection. See</p>
 
-<pre><code>     http://www.hsl.rl.ac.uk/</code></pre>
+<pre><code>    http://www.hsl.rl.ac.uk/</code></pre>
 
-<p>for details on obtaining MA57 and other HSL codes. Unpack the MA57 source archive and follow the instructions therein to build the MA57 library. Set the MA57LIB environment variable to refer to the newly-built libraries (see <a href="#ENVIRONMENT-VARIABLES-AND-configure">&quot;ENVIRONMENT VARIABLES AND configure&quot;</a>). Note that newer versions of MA57 require the MeTiS library. If you are using a newer version of MA57, list both the MA57 library and the MeTiS library in the MA57LIB environment variable.</p>
+<p>for details on obtaining MA57 and other HSL codes. Unpack the MA57 source archive and follow the instructions therein to build the MA57 library. Set the MA57LIB environment variable to refer to the newly-built libraries (see <a href="#ENVIRONMENT-VARIABLES-AND-configure">&quot;ENVIRONMENT VARIABLES AND configure&quot;</a>). Note that newer versions of MA57 require the MeTiS library. If you are using a newer version of MA57, list both the MA57 library and the MeTiS library in the MA57LIB environment variable. By default OOQP looks for libma57.a and libfakemetis.a in the OOQP directory.</p>
 
 <h1 id="WHAT-WILL-BE-BUILT">WHAT WILL BE BUILT</h1>
 
@@ -220,13 +214,7 @@ This page is part of the <A HREF=../index.html> OOQP documentation </A>.
 
 <h1 id="USING-F2C">USING F2C</h1>
 
-<p>F2C is a FORTRAN to C translator that may be obtained from http://www.netlib.org/f2c. We have had no difficulty compiling OOQP using the output from this translator. We recommend using F2C if you are having difficulty compiling OOQP using your FORTRAN compiler (or if you don&#39;t have a FORTRAN compiler.)</p>
-
-<p>Once the f2c translator is installed, you may type</p>
-
-<pre><code>     f2c *.f</code></pre>
-
-<p>in any directory containing FORTRAN files that you wish to translate. The OOQP build system will try to compile the translated C files, rather than the original FORTRAN files. (Actually, this behavior is not unique to OOQP, but is rather a default of GNU make.) You must be sure that the compiler can find the include file f2c.h. You may, for instance, copy this include file into any directory containing translated FORTRAN files.</p>
+<p>F2C is a FORTRAN to C translator that may be obtained from http://www.netlib.org/f2c. We have had no difficulty compiling OOQP using the output from this translator.</p>
 
 <p>If you are using f2c instead of a FORTRAN compiler, be sure to set the FLIBS environment to point to the F2C library, which is typically named libf2c.a. Then run configure like this</p>
 

@@ -23,7 +23,6 @@ doc/distribution-docs/README_Windows.html
 doc/examples/README.html
 doc/formulations/Huber.html
 doc/formulations/QpBound.html
-doc/formulations/QpGen.html
 doc/formulations/Svm.html
 doc/index.html
 doc/ooqp-userguide.pdf
@@ -560,9 +559,6 @@ examples/QpGen/random/QpGenSparseRandomDriver.C
 examples/QpGen/sample-qps/Example.qps
 examples/README
 examples/Svm/svm.wisconsin.data
-extras/MA27/Makefile.in
-extras/MA27/configure
-extras/MA27/configure.ac
 src/Abstract/Data.C
 src/Abstract/Data.h
 src/Abstract/DoubleLinearSolver.h

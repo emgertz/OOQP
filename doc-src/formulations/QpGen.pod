@@ -1,5 +1,0 @@
-=head1 NAME
-
-QpGen
-
-=cut

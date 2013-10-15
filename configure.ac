@@ -69,15 +69,15 @@ AC_SUBST(BLAS)
 
 if test -z "$MA27LIB"; then
    AC_MSG_WARN([MA27LIB environment variable was not set.])
-   AC_MSG_WARN([Defaulting to extras/MA27/libMA27.a])
-   MA27LIB=extras/MA27/libMA27.a
+   AC_MSG_WARN([Defaulting to libma27.a])
+   MA27LIB=libma27.a
 fi
 AC_SUBST(MA27LIB)
 
 if test -z "$MA57LIB"; then
    AC_MSG_WARN([MA57LIB environment variable was not set.])
-   AC_MSG_WARN([Defaulting to libma57.a])
-   MA57LIB=libma57.a
+   AC_MSG_WARN([Defaulting to 'libma57.a libfakemetis.a'.])
+   MA57LIB='libma57.a libfakemetis.a'
 fi
 AC_SUBST(MA57LIB)
 

@@ -54,7 +54,7 @@ An implementation of the Huber solver that uses Gondzio's algorithm
 and reads data from an ascii file is supplied with the OOQP
 distribution. To generate this executable, first follow the
 installation procedures described in the file
-L<INSTALL|INSTALL>. Then, from the main OOQP directory, type
+L<INSTALL|distribution-docs::INSTALL>. Then, from the main OOQP directory, type
 
     make huber-gondzio.exe
 
@@ -141,7 +141,7 @@ nonnegative value can be used for "penalty".
 
 The Huber code may be invoked from within Matlab
 environment. Documentation for this interface may be read from within
-Matlab. See the L<README_Matlab|README_Matlab> file for instruction on
+Matlab. See the L<README_Matlab|distribution-docs::README_Matlab> file for instruction on
 how to install the Matlab interface. One the interface is installed,
 type
 

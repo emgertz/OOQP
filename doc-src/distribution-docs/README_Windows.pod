@@ -13,7 +13,7 @@ installed and will run under Microsoft Windows. The C++ code itself is
 platform-independent.  The only issue is the system for building the
 libraries and executables.
 
-The file L<INSTALL|INSTALL> contains instructions for compiling OOQP
+The file L<INSTALL|distribution-docs::INSTALL> contains instructions for compiling OOQP
 in a UNIX-like environment, as well as general information about
 installing OOQP. The current file contains suplemental information for
 compiling under Windows. We are aware of two reasonable options. The
@@ -25,7 +25,7 @@ Microsoft Visual C++.
 Cygwin is a UNIX-like environment that runs under Windows. It is
 freely available from http://www.cygwin.com, or may be purchased on
 machine readable media.  If you choose to install Cygwin, you may
-simply follow the standard instructions in the L<INSTALL|INSTALL>
+simply follow the standard instructions in the L<INSTALL|distribution-docs::INSTALL>
 guide.
 
 =head1 Visual C++

@@ -46,7 +46,8 @@ An implementation of the SVM solver that uses Gondzio's algorithm and
 reads data from an ascii file is supplied with the OOQP
 distribution. To generate this executable, first follow the
 installation procedures described in the file
-L<INSTALL|INSTALL>. Then, from the main OOQP directory, type
+L<INSTALL|distribution-docs::INSTALL>.
+Then, from the main OOQP directory, type
 
     make svm-gondzio.exe
 
@@ -148,7 +149,8 @@ values for "penalty" for this data set include 1.0 and 10.0.
 
 The SVM code may be invoked from Matlab. Documentation for this
 interface may be read within Matlab. See the
-L<README_Matlab|README_Matlab> file for instruction on how to install
+L<README_Matlab|distribution-docs::README_Matlab> file
+for instruction on how to install
 the Matlab interface. One the interface is installed, type
 
 	help ooqp_svm

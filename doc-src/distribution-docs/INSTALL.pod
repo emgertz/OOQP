@@ -25,7 +25,7 @@ instructions on how to build interfaces to these packages.
 =head1 MICROSOFT WINDOWS
 
 If you intend to build and install OOQP under Microsoft Windows, read
-the L<README_Windows|README_Windows> file before you read the remainder of
+the L<README_Windows|distribution-docs::README_Windows> file before you read the remainder of
 the current file.
 
 =head1 ENVIRONMENT VARIABLES AND configure
@@ -117,7 +117,7 @@ GNU linux distribution, on Mac OS X or under Cygwin.
 You may compile OOQP under any operating system you wish, but the
 installation instructions in the current file require the use of
 UNIX-style system utilities. For instructions on how to build OOQP
-under Microsoft Windows, see the L<README_Windows|README_Windows> file.
+under Microsoft Windows, see the L<README_Windows|distribution-docs::README_Windows> file.
 
 =head2 GNU make
 
@@ -228,7 +228,7 @@ The command
 will build several executables in the current directory along with
 libraries containing the OOQP development framework in lib/. It will
 also copy the OOQP header files into include/. See the
-L<README|README> file for a description of the conventions used to
+L<README|distribution-docs::README> file for a description of the conventions used to
 name the executables. One of the executables created will be
 
      qpgen-sparse-gondzio.exe
@@ -295,7 +295,7 @@ source directory and then type
 =head2 Matlab
 
 OOQP may be invoked from within Matlab. Instructions on how to build
-this interface may be found in the L<README_Matlab|README_Matlab>
+this interface may be found in the L<README_Matlab|distribution-docs::README_Matlab>
 file.
 
 =head2 PETSc
@@ -361,7 +361,8 @@ CXXFLAGS -- compiler flags for the C++ compiler.
 
 The libraries and executables will be built using those flags. Of
 particular importance are the flags used to compile 
-L<MA27 or MA57|ma27 or ma57>. Also, the quality of the L<BLAS|blas> library can
+L<MA27 or MA57|/"MA27 or MA57">. Also, the quality of the
+L<BLAS|/"BLAS and LAPACK"> library can
 affect performance greatly, so use an optimized version where
 possible.
 

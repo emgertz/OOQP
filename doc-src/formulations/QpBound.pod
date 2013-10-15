@@ -26,7 +26,7 @@ An implementation of the QpBound solver that uses Gondzio's algorithm
 and reads data from a QPS file is supplied with the OOQP
 distribution. To generate this executable, first follow the
 installation procedures described in the file
-L<INSTALL|INSTALL>. Then, from the main OOQP directory, type
+L<INSTALL|distribution-docs::INSTALL>. Then, from the main OOQP directory, type
 
     make qpbound-dense-gondzio.exe
 
@@ -160,7 +160,7 @@ be set at run time. The program is capable of being run on multiple
 processors, but the mechanism for invoking such a run is
 system-dependant.
 
-See the PETSc section in the L<INSTALL|INSTALL/"petsc"> file for
+See the PETSc section in the L<INSTALL|distribution-docs::INSTALL/"petsc"> file for
 instructions on how to build this executable.
 
 

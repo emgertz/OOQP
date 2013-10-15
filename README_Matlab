@@ -17,7 +17,7 @@ BEFORE YOU BUILD THE OOQP-MATLAB INTERFACE
     are simply not compatible with the Matlab executable, and little can be
     done to fix this other than upgrading some of your software. On other
     systems, the mex files may be built, but it may require a specific
-    combination of compiler flags and options. See the TROUBLESHOOTING
+    combination of compiler flags and options. See the "TROUBLESHOOTING"
     section below for more info.
 
 BUILDING THE OOQP-MATLAB INTERFACE

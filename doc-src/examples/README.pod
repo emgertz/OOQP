@@ -25,17 +25,17 @@ problem.
 =head1 examples/Svm
 
 Sample data files for use with the B<svm-gondzio.exe> program. See
-L<Svm> for more information.
+L<Svm|formulations::Svm> for more information.
 
 =head1 examples/Huber
 
 Sample data files for use with the B<huber-gondzio.exe> program. See
-L<Huber> for more information.
+L<Huber|formulations::Huber> for more information.
 
 =head1 examples/QpBound
 
 Sample data files for the B<qpbound-dense-gondzio.exe> and
-B<qpbound-petsc-mehrotra.exe> programs. See L<QpBound> for more
+B<qpbound-petsc-mehrotra.exe> programs. See L<QpBound|formulations::QpBound> for more
 information.
 
 =head1 examples/QpGen

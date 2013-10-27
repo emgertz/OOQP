@@ -49,7 +49,7 @@ installation guide for the OOQP package.
 
 Further documentation is available in the doc/ directory. For an index
 of the available documentation, point your favorite html viewer
-(e.g. Netscape) at the file doc/index.html. On many systems, this can
+(e.g. Firefox) at the file doc/index.html. On many systems, this can
 be done by entering a string of the following form into the location
 window on the browser:
 

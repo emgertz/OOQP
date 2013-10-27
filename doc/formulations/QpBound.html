@@ -64,12 +64,6 @@ This page is part of the <A HREF=../index.html> OOQP documentation </A>.
 
 <p>We note one aspect of the QPS standard which is significant here: Each component of x is assumed by default to have a lower bound of 0 and an upper bound of infinity. When the BOUNDS section specifies only a lower bound l_i on the component x_i, then the component x_i is assumed to be bounded as follows: l_i &lt;= x_i. When the BOUNDS section specifies only an upper bound u_i on x_i, the component x_i is assumed to be bounded as follows: 0 &lt;= x_i &lt;= u_i. When the BOUNDS section specifies both a lower bound l_i and an upper bound u_i, the component x_i is assumed to be bounded as follows: l_i &lt;= x_i &lt;= u_i.</p>
 
-<p>Further information can be found in the OOQP User Guide and references cited therein, and on the following web site:</p>
-
-<pre><code>  http://www-fp.mcs.anl.gov/otc/Guide/OptWeb/continuous/constrained/linearprog/mps.html</code></pre>
-
-<p>(This site discusses MPS format, which is identical to QPS format with the exception of the QUADOBJ section, which defines the Hessian Q.)</p>
-
 <h1 id="CALLING-THE-QPBOUND-SOLVER-WITH-QPS-INPUT">CALLING THE QPBOUND SOLVER WITH QPS INPUT</h1>
 
 <p>Having constructed the <b>qpbound-dense-gondzio.exe</b> executable and an input file, the solver can be invoked as follows:</p>

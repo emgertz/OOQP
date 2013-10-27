@@ -68,14 +68,6 @@ to be bounded as follows: 0 <= x_i <= u_i. When the BOUNDS section
 specifies both a lower bound l_i and an upper bound u_i, the component
 x_i is assumed to be bounded as follows: l_i <= x_i <= u_i.
 
-Further information can be found in the OOQP User Guide and references
-cited therein, and on the following web site:
-
-  http://www-fp.mcs.anl.gov/otc/Guide/OptWeb/continuous/constrained/linearprog/mps.html
-
-(This site discusses MPS format, which is identical to QPS format with
-the exception of the QUADOBJ section, which defines the Hessian Q.)
-
 =head1 CALLING THE QPBOUND SOLVER WITH QPS INPUT
 
 Having constructed the B<qpbound-dense-gondzio.exe> executable and an

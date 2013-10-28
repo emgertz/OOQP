@@ -15,7 +15,7 @@ SYNOPSYS
 
 CYGWIN
     Cygwin is a UNIX-like environment that runs under Windows. It is freely
-    available from http://www.cygwin.com, or may be purchased on machine
+    available from <http://www.cygwin.com>, or may be purchased on machine
     readable media. If you choose to install Cygwin, you may simply follow
     the standard instructions in the INSTALL guide.
 

@@ -13,20 +13,20 @@ installed and will run under Microsoft Windows. The C++ code itself is
 platform-independent.  The only issue is the system for building the
 libraries and executables.
 
-The file L<INSTALL|distribution-docs::INSTALL> contains instructions for compiling OOQP
-in a UNIX-like environment, as well as general information about
-installing OOQP. The current file contains suplemental information for
-compiling under Windows. We are aware of two reasonable options. The
-first is to install and use Cygwin. The second is to compile under
-Microsoft Visual C++.
+The file L<INSTALL|distribution-docs::INSTALL> contains instructions
+for compiling OOQP in a UNIX-like environment, as well as general
+information about installing OOQP. The current file contains
+suplemental information for compiling under Windows. We are aware of
+two reasonable options. The first is to install and use Cygwin. The
+second is to compile under Microsoft Visual C++.
 
 =head1 CYGWIN
 
 Cygwin is a UNIX-like environment that runs under Windows. It is
-freely available from http://www.cygwin.com, or may be purchased on
+freely available from L<http://www.cygwin.com>, or may be purchased on
 machine readable media.  If you choose to install Cygwin, you may
-simply follow the standard instructions in the L<INSTALL|distribution-docs::INSTALL>
-guide.
+simply follow the standard instructions in the
+L<INSTALL|distribution-docs::INSTALL> guide.
 
 =head1 Visual C++
 
@@ -44,9 +44,9 @@ tasks.
 =item 1)
 
 Obtain a means of compiling MA27, which is written in Fortran 77.  F2C
-may work (see the INSTALL file for a discussion of F2C).  There are
-also commercial packages that support for compiling Fortran with
-Visual Studio; we don't have experience with these.
+may work (see the L<INSTALL|./INSTALL> file for a discussion of F2C).
+There are also commercial packages that support for compiling Fortran
+with Visual Studio; we don't have experience with these.
 
 =item 2) 
 

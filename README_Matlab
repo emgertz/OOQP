@@ -76,7 +76,7 @@ TROUBLESHOOTING
     can be set to the name of an alternate C++ compiler. The names of these
     variables loosely follow the naming conventions used by GNU make. See
     the "Variables Used by Implicit Rules" section of the online manual for
-    GNU make that may be found at http://www.gnu.org/manual/.
+    GNU make that may be found at <http://www.gnu.org/manual/>.
 
     If you have already run "configure" delete the config.cache file. It is
     never harmful to remove this file, but is only necessary when you are

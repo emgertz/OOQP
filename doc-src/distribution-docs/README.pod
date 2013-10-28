@@ -39,7 +39,7 @@ computational environments.
 
 =head1 OBTAINING OOQP
 
-Visit http://www.cs.wisc.edu/~swright/ooqp to obtain the latest
+Visit L<http://www.cs.wisc.edu/~swright/ooqp> to obtain the latest
 version of OOQP.
 
 =head1 GETTING STARTED
@@ -228,7 +228,7 @@ emgertz@mac.com
 =item Stephen Wright
 
 Computer Sciences Department, University of Wisconsin, Madison.
-http://www.cs.wisc.edu/~swright/
+L<http://www.cs.wisc.edu/~swright/>
 
 =back
 

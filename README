@@ -30,8 +30,8 @@ SYNOPSIS
     specific structured QPs and their specific computational environments.
 
 OBTAINING OOQP
-    Visit http://www.cs.wisc.edu/~swright/ooqp to obtain the latest version
-    of OOQP.
+    Visit <http://www.cs.wisc.edu/~swright/ooqp> to obtain the latest
+    version of OOQP.
 
 GETTING STARTED
     The file INSTALL, included in this directory, is the installation guide
@@ -178,5 +178,5 @@ CREDITS
 
     Stephen Wright
         Computer Sciences Department, University of Wisconsin, Madison.
-        http://www.cs.wisc.edu/~swright/
+        <http://www.cs.wisc.edu/~swright/>
 

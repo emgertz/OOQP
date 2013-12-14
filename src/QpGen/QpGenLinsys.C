@@ -133,17 +133,14 @@ void QpGenLinsys::solve(Data * prob_in, Variables *vars_in,
   step->y->copyFrom( *res->rA );
   step->z->copyFrom( *res->rC );
 
-  {
-    // Unfortunately, we need a temporary  OoqpVector for the solve,
-    // Use step->lambda or step->pi
-    OoqpVectorHandle ztemp;
-    if( mclow > 0 ) {
-      ztemp = step->lambda;
-    } else {
-      ztemp = step->pi;
-    }
-    this->solveXYZS( *step->x, *step->y, *step->z, *step->s,
-		     *ztemp, prob );
+  // Unfortunately, we need a temporary  OoqpVector for the solve,
+  // Use step->lambda or step->pi
+  if( mclow > 0 ) {
+      this->solveXYZS( *step->x, *step->y, *step->z, *step->s,
+		       *step->lambda, prob );
+  } else {
+      this->solveXYZS( *step->x, *step->y, *step->z, *step->s,
+		       *step->pi, prob );
   }
 
   if( mclow > 0 ) {

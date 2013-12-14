@@ -126,6 +126,7 @@ void Ma27SolverBase::diagonalChanged( int /* idiag */, int /* extent */ )
 void Ma27SolverBase::matrixChanged()
 {
   // if fact has not been allocated, this must be the first call.
+  int print_level = gOoqpPrintLevel;
   if( !fact ) this->firstCall();  
   int done = 0, tries = 0;
   do {
@@ -134,7 +135,7 @@ void Ma27SolverBase::matrixChanged()
 
 #ifdef HAVE_GETRUSAGE
     rusage before;
-    if( gOoqpPrintLevel >= 100 ) {
+    if( print_level >= 100 ) {
       getrusage( RUSAGE_SELF, &before );
     }
 #endif
@@ -146,7 +147,7 @@ void Ma27SolverBase::matrixChanged()
 	     iw1,      icntl,   cntl,  info );
 #ifdef HAVE_GETRUSAGE
     rusage  after;
-    if( gOoqpPrintLevel >= 100 ) {
+    if( print_level >= 100 ) {
       getrusage( RUSAGE_SELF, &after );
       cout << "For try " << tries + 1 
 	   << " the factorization took " 
@@ -166,30 +167,30 @@ void Ma27SolverBase::matrixChanged()
       cerr << "nnz out of range: " << nnz << endl; assert(0);
     }; break;
     case -3 : {
-      if ( gOoqpPrintLevel >= 100 )
+      if ( print_level >= 100 )
 	cout << "insufficient space in iw: " << liw;
       delete [] iw;
       liw = (this->ierror() > ipessimism * liw) ? 
 	this->ierror() : (int)(ipessimism * liw);
       iw = new int[liw];
-      if( gOoqpPrintLevel >= 100 )
+      if( print_level >= 100 )
 	cout << " resetting to " << liw << endl;
 
       ipessimism *= 1.1;
     }; break;
     case -4 : {
-      if( gOoqpPrintLevel >= 100 )
+      if( print_level >= 100 )
 	cout << "insufficient factorization space: " << la;
       delete [] fact;
       la = (this->ierror() > rpessimism * la)  ?
 	this->ierror() : (int) (rpessimism * la);
       fact = new double [la];
       this->copyMatrixElements( fact, la );
-      if( gOoqpPrintLevel >= 100 ) cout << " resetting to " << la << endl;
+      if( print_level >= 100 ) cout << " resetting to " << la << endl;
       rpessimism *= 1.1;
     }; break;
     case -5 : {
-      if( gOoqpPrintLevel >= 100 ) {
+      if( print_level >= 100 ) {
 	cout << "matrix apparently numerically singular, detected at stage " 
 	     << this->ierror() << endl;
 	cout << "accept this factorization and hope for the best.." << endl;
@@ -197,7 +198,7 @@ void Ma27SolverBase::matrixChanged()
       done = 1;
     }; break;
     case -6 : {
-      if( gOoqpPrintLevel >= 100 ) {
+      if( print_level >= 100 ) {
 	cout << "change of sign of pivots detected at stage " 
 	     << this->ierror() << endl;
 	cout << "but who cares " << endl;
@@ -209,7 +210,7 @@ void Ma27SolverBase::matrixChanged()
       assert(0);
     }; break;
     case 1 : {
-      if( gOoqpPrintLevel >= 100 ) {
+      if( print_level >= 100 ) {
 	cout << "detected " << this->ierror() 
 	     << " entries out of range in irowM and jcolM; ignored" 
 	     << endl;
@@ -217,7 +218,7 @@ void Ma27SolverBase::matrixChanged()
       done = 1;
     }; break;
     case 3 : {
-      if( gOoqpPrintLevel >= 100 ) {
+      if( print_level >= 100 ) {
 	cout << "rank deficient matrix detected; apparent rank is " 
 	     << this->ierror() << endl;
       }
@@ -230,7 +231,7 @@ void Ma27SolverBase::matrixChanged()
   } while( !done && tries < 10);
 
   if ( !done && tries >= 10) {
-    if( gOoqpPrintLevel >= 100 ) {
+    if( print_level >= 100 ) {
       cout << "we are screwed; did not get a factorization after 10 tries " 
 	   << endl;
     }
@@ -243,9 +244,10 @@ void Ma27SolverBase::matrixChanged()
 
 void Ma27SolverBase::basicSolve( double * drhs, int nn )
 {
+  int print_level = gOoqpPrintLevel;
 #ifdef HAVE_GETRUSAGE
   rusage before;
-  if( gOoqpPrintLevel >= 100 ) {
+  if( print_level >= 100 ) {
     getrusage( RUSAGE_SELF, &before );
   }
 #endif
@@ -257,7 +259,7 @@ void Ma27SolverBase::basicSolve( double * drhs, int nn )
 	   icntl, info );
 #ifdef HAVE_GETRUSAGE
   rusage after;
-  if( gOoqpPrintLevel >= 100 ) {
+  if( print_level >= 100 ) {
     getrusage( RUSAGE_SELF, &after );
     cout << "Solution with the factored matrix took "
 	 << (double) (after.ru_utime.tv_sec - before.ru_utime.tv_sec)

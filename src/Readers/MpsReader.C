@@ -454,7 +454,7 @@ void MpsReader::readRangesSection( SimpleVector& clow, SimpleVector& cupp,
 void MpsReader::readRangesSection( double clow[], double cupp[],
 				   char line[], int& iErr, int& kindOfLine )
 {
-  char currentRange[10] = "";
+  char currentRange[16] = "";
   // The ranges section has already been scanned. Any syntax errors
   // left are programming errors
   char blank[4], rangeName[16]="", row[2][16];

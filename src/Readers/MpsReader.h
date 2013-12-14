@@ -111,37 +111,26 @@ protected:
    *  @see MpsReader::newReadingFile */
   virtual void scanFile( int& iErr );
 
-  virtual int GetLine_old(char * line );
   virtual int GetLine(char * line );
 
-  virtual int ParseHeaderLine( char line[], char entry1[] );
   virtual int ParseHeaderLine2( char line[], char entry1[] );
-  virtual int ParseBoundsLine( char line[], int& code, char name1[],
-			       char name2[], double * val );
+
   virtual int ParseBoundsLine2( char line[], int& code, char name1[],
 			       char name2[], double * val );
-  virtual int ParseRowsLine( char line[], char code[], char name1[] );
   virtual int ParseRowsLine2( char line[], char code[], char name1[] );
-  virtual void expectHeader( int kindOfLine, const char expectName[],
-			    char line[], int& ierr );
+
   virtual void expectHeader2( int kindOfLine, const char expectName[],
 			    char line[], int& ierr );
   virtual void remapRows();
-  virtual int acceptHeader( int kindOfLine, const char expectName[],
-			    char line[], int& ierr );
+
   virtual int acceptHeader2( int kindOfLine, const char expectName[],
 			    char line[], int& ierr );
   virtual int ParseDataLine2( char line[], char code[], char name1[], 
                              char name2[], double * val1, int& hasSecondValue,
                              char name3[], double * val2);
 
-  virtual int ParseDataLine( char line[], char code[], char name1[], 
-                             char name2[], double * val1, int& hasSecondValue,
-                             char name3[], double * val2);
-
   virtual int string_copy( char dest[], char string[], int max);
   
-  virtual void readProblemName( char line[], int& iErr, int kindOfLine );
   virtual void readProblemName2( char line[], int& iErr, int kindOfLine );
 
   virtual void readObjectiveSense( char line[], int& iErr, int kindOfLine );

@@ -849,25 +849,6 @@ void MpsReader::rowHasRange( int rownum, double val, int& iErr )
   rowInfo[rownum].kind = kind;
 }
 
-void MpsReader::expectHeader( int lineType, const char expectName[],
-			     char line[], int& ierr )
-{
-  ierr = 0;
-  if( lineType == HEADERLINE ) {
-    char name[16];
-    ierr = this->ParseHeaderLine( line, name ); 
-    if( ierr == mpsok ) {
-      if( !isLJustOf( name, expectName, 16 ) ) {
-	ierr = mpssyntaxerr;
-	fprintf( stderr, "Expected %s at line %d, got %s.\n",
-		 expectName, iline, name );
-      }
-    }
-  } else {
-    ierr = mpssyntaxerr;
-    fprintf( stderr, "Expected %s at line %d.\n", expectName, iline );
-  }
-}
 
 void MpsReader::expectHeader2( int lineType, const char expectName[],
 			     char line[], int& ierr )
@@ -883,24 +864,6 @@ void MpsReader::expectHeader2( int lineType, const char expectName[],
   }
 }
 
-int MpsReader::acceptHeader( int lineType, const char acceptName[],
-			     char line[], int& ierr )
-{
-  if( lineType == HEADERLINE ) {
-    char name[16];
-    ierr = this->ParseHeaderLine( line, name );
-    if( ierr != mpsok ) return 0;
-    if( isLJustOf( name, acceptName, 16 ) ) {
-      return 1;
-    } else {
-      return 0;
-    }
-  } else {
-    fprintf( stderr, "Expected a new section to start at line %d.\n", iline );
-    ierr = mpssyntaxerr;
-    return 0;
-  }
-}
 
 int MpsReader::acceptHeader2( int lineType, const char acceptName[],
 			     char line[], int& ierr )
@@ -1070,39 +1033,6 @@ void MpsReader::findFile( FILE*& file, char*& resolvedName,
   } // end if we didn't find the file.
 }
 
-void MpsReader::readProblemName( char line[], int& iErr, int kindOfLine )
-{
-  int extra_crud;
-  char tag[6];
-
-  if( HEADERLINE == kindOfLine ) {
-    this->string_copy( tag, &line[0], 4 );  /* characters  1 - 4 to name */
-    if( !isLJustOf( "NAME", tag, 4 ) ) {
-      fprintf( stderr, "Expected NAME on line %d, got %s.\n",
-	       iline, tag );
-      iErr = mpssyntaxerr;
-      return;
-    }
-    extra_crud = !isOnlySpaces( line, 4, 13 );
-    if( !extra_crud ) {
-      this->string_copy( problemName, &line[14], 8 );
-    }
-    extra_crud = extra_crud || !isOnlySpaces( line, 22, 60 );
-    if( extra_crud ) {
-      fprintf( stderr, "Extra characters in NAME field on line %d.\n",
-	       iline );
-      fprintf( stderr, "These will be ignored. Only the first 8 characters are significant: '%s'.\n", problemName);
-      // iErr = mpssyntaxerr;
-      // return;
-    }
-  } else {
-    fprintf( stderr, "Expected NAME on line %d.\n", iline );
-    iErr = mpssyntaxerr;
-    return;
-  }
-  iErr = mpsok;
-  return;
-}
 
 void MpsReader::readProblemName2( char line[], int& iErr, int kindOfLine )
 {
@@ -1797,69 +1727,6 @@ inline int isEndOfLine( char c, FILE * file )
   return 0;
 }
 
-int MpsReader::GetLine_old(char * line )
-{
-  int             i, j, terminated;
-  const int length = 61;
-
-  do {
-    int c;
-
-    iline++;
- 
-    i = 0; terminated = 0;
-    while( i < length && EOF != ( c = getc( file ) ) ) {
-      if( isEndOfLine( c, file ) ) {
-	terminated = 1;
-	break;
-      }
-      if( !isprint( c ) ) c = ' '; // Eliminate non-printing characters
-      line[i] = c;
-      
-      i++;
-    }
-    if( !terminated ) {
-      // The line wasn't terminated, or was possibly just terminated
-      // after the 61st character.
-      if( i == 0 ) {
-	// Nothing was read. This is an error.
-        fprintf( stderr, "Unexpected end-of-file at line %d.\n", iline );
-        return READERROR;
-      } else if( i == length ) { 
-	// We read 61 characters without an error or a '\n'
-	if( line[0] == '*' ) { 
-	  // This is a comment line. There is no restriction on length.
-	  // Just throw away characters til the end of line
-          while( EOF != ( c = getc( file ) ) && c != '\n' ) ;
-	} else {
-	  // This is not a comment line. The only characters
-	  // beyond the 61st column should be ' '
-	  int extracrud = 0;
-	  while( EOF != ( c = getc( file ) ) ) {
-	    if( isEndOfLine( c, file ) ) break;
-	    if( c != ' ' ) extracrud = 1;
-	  }
-	  if(  extracrud ) {
-	    fprintf( stderr,
-		     "Extra characters beyond column 61 in line %d.\n",
-		     iline );
-	    return mpssyntaxerr;
-	  }
-	} // end else this is not a comment line
-      } // end else we read 61 characters
-      // Otherwise, the file just doesn't have a terminating newline,
-      // which is acceptable.
-    }
-    
-    // Fill in the rest of line with spaces
-    for( j = i; j < length; j++ ) line[j] = ' ';
-    // Terminate the line
-    line[length] = '\0';
-  } while ( line[0] == '*' ); // Disgard comment lines
-  
-  if(line[0] == ' ') return DATALINE;
-  else return HEADERLINE;
-}
 
 int MpsReader::GetLine(char * line )
 {
@@ -1933,26 +1800,6 @@ int MpsReader::GetLine(char * line )
 }
 
 
-int MpsReader::ParseHeaderLine(char line[], char entry[] )
-{
-  // the comments in this function are 1-indexed. I.e. line[0] is
-  // character one.
-  int extra_crud = 0;
-
-  this->string_copy(entry, &line[0],  16);  // characters  1 - 16 to entry1 
-  extra_crud = !isOnlySpaces( line, 8, 60 );
-
-  if( extra_crud ) {
-    fprintf( stderr,
-             "Extra characters outside prescribed fields at line %d.\n",
-             iline );
-    return mpssyntaxerr;
-  }
-  
-  return mpsok;
-}
-
-
 int MpsReader::ParseHeaderLine2(char line[], char entry[] )
 {
     int i = 0;
@@ -2013,108 +1860,6 @@ int MpsReader::ParseRowsLine2( char line[],  char code[], char name1[] )
         return mpssyntaxerr;
         }
     
-  return mpsok;
-}
-
-
-int MpsReader::ParseRowsLine( char line[],  char code[], char name1[] )
-{
-  int extra_crud = 0;
-  assert( line[0] == ' ' );
-
-  this->string_copy(code, &line[1], 2); // characters  2 -  3 to code  
-  extra_crud = extra_crud || ' ' != line[3];
-
-  this->string_copy(name1, &line[4], 8);    // characters  5 - 12 to name1 
-  extra_crud = extra_crud || ' ' != line[12] || ' ' != line[13];
-  if( isOnlySpaces( name1, 0, 7 ) ) { // name1 cannot be empty
-    fprintf( stderr, "Empty row name field on line %d.\n", iline );
-    return mpssyntaxerr;
-  }
-  
-  extra_crud = extra_crud || !isOnlySpaces( line, 12, 60 );
-  if( extra_crud ) {
-    fprintf( stderr,
-             "Extra characters outside prescribed fields at line %d.\n",
-             iline );
-    return mpssyntaxerr;
-  }
-  
-  return mpsok;
-}
-
-
-
-int MpsReader::ParseBoundsLine( char line[], int& code, char name1[],
-				char name2[], double * val )
-{
-  int extra_crud = 0;
-  char codeStr[4];
-  char valstr[16];
-  int ierr;
-
-  assert( line[0] == ' ' );
-  this->string_copy(codeStr, &line[1], 2); // characters  2 -  3 to codeStr
-  codeStr[0] = toupper( codeStr[0] ); codeStr[1] = toupper( codeStr[1] );
-  extra_crud = extra_crud || ' ' != line[3];
-    if( 0 == strcmp( codeStr, "LO" ) ) {
-      code = kLowerBound;
-    } else if ( 0 == strcmp( codeStr, "UP" ) ) {
-      code = kUpperBound;
-    } else if ( 0 == strcmp( codeStr, "FX" ) ) {
-      code = kFixedBound;
-      // fprintf( stderr, "This code does not support fixed variables.\n" );
-      // return mpssyntaxerr;
-    } else if ( 0 == strcmp( codeStr, "FR" ) ) {
-      code = kFreeBound;
-    } else if ( 0 == strcmp( codeStr, "MI" ) ) {
-      code = kMInftyBound;
-    } else if ( 0 == strcmp( codeStr, "PL" ) ) {
-      code = kPInftyBound;
-    } else {
-      fprintf( stderr, "Bad type of bound specified on line %d.\n", iline );
-      return mpssyntaxerr;
-    }
-
-  this->string_copy(name1, &line[4], 8);    // characters  5 - 12 to name1 
-  // name1 is allowed to be empty.
-  extra_crud = extra_crud || ' ' != line[12] || ' ' != line[13];
-
-  this->string_copy(name2, &line[14], 8);   // characters 15 - 22 to name2 
-  extra_crud = extra_crud || ' ' != line[22] || ' ' != line[23];
-  if( isOnlySpaces( name2, 0, 7 ) ) { // name2 cannot be empty
-    fprintf( stderr, "Empty second name field on line %d.\n", iline );
-    return mpssyntaxerr;
-  }
-  switch( code ) {
-  case kFreeBound:
-  case kMInftyBound:
-  case kPInftyBound:
-    // this is it, nothing else may be specified
-    extra_crud = extra_crud || !isOnlySpaces( line, 22, 60 );
-    break;
-  default:
-    // A value must be specified.
-    this->string_copy(valstr, &line[24], 12); 
-    // characters 25 - 36 to valstr
-    *val = asDouble( valstr, 12, ierr );
-
-    if( 0 != ierr ) {
-      fprintf( stderr, "Value doesn't parse as number on line %d.\n", iline );
-      return mpssyntaxerr;
-    }
-	
-    extra_crud = extra_crud || !isOnlySpaces( line, 36, 60 );
-
-    break;
-  }
-  if( extra_crud ) {
-    fprintf( stderr,
-             "Extra characters outside prescribed fields at line %d.\n",
-             iline );
-    return mpssyntaxerr;
-  }
-  
   return mpsok;
 }
 
@@ -2240,145 +1985,6 @@ int MpsReader::ParseBoundsLine2( char line[], int& code, char name1[],
 return mpsok;
 }
 
-/*
-//szhu - extend to character 60
-int MpsReader::ParseBoundsLine( char line[], int& code, char name1[],
-				char name2[], double * val )
-{
-  int extra_crud = 0;
-  char codeStr[4];
-  char valstr[36];  //extend to character 60
-  int ierr;
-
-  assert( line[0] == ' ' );
-  this->string_copy(codeStr, &line[1], 2); // characters  2 -  3 to codeStr
-  codeStr[0] = toupper( codeStr[0] ); codeStr[1] = toupper( codeStr[1] );
-  extra_crud = extra_crud || ' ' != line[3];
-    if( 0 == strcmp( codeStr, "LO" ) ) {
-      code = kLowerBound;
-    } else if ( 0 == strcmp( codeStr, "UP" ) ) {
-      code = kUpperBound;
-    } else if ( 0 == strcmp( codeStr, "FX" ) ) {
-      code = kFixedBound;
-      // fprintf( stderr, "This code does not support fixed variables.\n" );
-      // return mpssyntaxerr;
-    } else if ( 0 == strcmp( codeStr, "FR" ) ) {
-      code = kFreeBound;
-    } else if ( 0 == strcmp( codeStr, "MI" ) ) {
-      code = kMInftyBound;
-    } else if ( 0 == strcmp( codeStr, "PL" ) ) {
-      code = kPInftyBound;
-    } else {
-      fprintf( stderr, "Bad type of bound specified on line %d.\n", iline );
-      return mpssyntaxerr;
-    }
-
-  this->string_copy(name1, &line[4], 8);    // characters  5 - 12 to name1 
-  // name1 is allowed to be empty.
-  extra_crud = extra_crud || ' ' != line[12] || ' ' != line[13];
-
-  this->string_copy(name2, &line[14], 8);   // characters 15 - 22 to name2 
-  extra_crud = extra_crud || ' ' != line[22] || ' ' != line[23];
-  if( isOnlySpaces( name2, 0, 7 ) ) { // name2 cannot be empty
-    fprintf( stderr, "Empty second name field on line %d.\n", iline );
-    return mpssyntaxerr;
-  }
-  switch( code ) {
-  case kFreeBound:
-  case kMInftyBound:
-  case kPInftyBound:
-    // this is it, nothing else may be specified
-    extra_crud = extra_crud || !isOnlySpaces( line, 22, 60 );
-    break;
-  default:
-    // A value must be specified.
-	this->string_copy(valstr, &line[24], 36); 
-    // characters 25 - 60 to valstr
-    *val = asDouble( valstr, 36, ierr );
-
-    if( 0 != ierr ) {
-      fprintf( stderr, "Value doesn't parse as number on line %d.\n", iline );
-      return mpssyntaxerr;
-    }
-
-    break;
-  }
-  if( extra_crud ) {
-    fprintf( stderr,
-             "Extra characters outside prescribed fields at line %d.\n",
-             iline );
-    return mpssyntaxerr;
-  }
-  
-  return mpsok;
-}
-
-*/
-
-
-int MpsReader::ParseDataLine( char line[],  char code[],
-                              char name1[], char name2[], double * val1,
-                              int& hasSecondValue,
-                              char name3[], double * val2)
-{
-  char            valstr1[16], valstr2[16];
-  
-  int extra_crud = 0, ierr;
-  *val1 = 0.0;
-  *val2 = 0.0;
-  
-  assert( line[0] == ' ' );
-  this->string_copy(code, &line[1], 2); // characters  2 -  3 to code 
-  extra_crud = extra_crud || ' ' != line[3];
-
-  this->string_copy(name1, &line[4], 8);    // characters  5 - 12 to name1
-  extra_crud = extra_crud || ' ' != line[12] || ' ' != line[13];
-  // name1 is allowed to be empty.
-
-  this->string_copy(name2, &line[14], 8);   // characters 15 - 22 to name2
-  extra_crud = extra_crud || ' ' != line[22] || ' ' != line[23];
-  if( isOnlySpaces( name2, 0, 7 ) ) { // name2 cannot be empty
-    fprintf( stderr, "Empty second name field on line %d.\n", iline );
-    return mpssyntaxerr;
-  }
-
-  this->string_copy(valstr1, &line[24], 12); // characters 25 - 36 to valstr 
-  extra_crud = extra_crud ||
-    ' ' != line[36] || ' ' != line[37] || ' ' != line[38];
-  *val1 = asDouble( valstr1, 12, ierr );
-
-  if( 0 != ierr ) {
-    fprintf( stderr, "Value doesn't parse as number on line %d.\n", iline );
-    return mpssyntaxerr;
-  }
-
-  if( !isOnlySpaces( line, 39, 46 ) ) {
-    hasSecondValue = 1;
-    this->string_copy(name3, &line[39], 8); 
-    // characters 40 - 47 to name3 
-    extra_crud = extra_crud || ' ' != line[47] || ' ' != line[48];
-    
-    this->string_copy(valstr2, &line[49], 12); 
-    // characters 50 - 61 to valstr 
-    
-    *val2 = asDouble( valstr2, 12, ierr );
-    if( 0 != ierr ) {
-      fprintf( stderr, "Value doesn't parse as number on line %d.\n", iline );
-      return mpssyntaxerr;
-    }
-  } else {
-    hasSecondValue = 0;
-    extra_crud = extra_crud || !isOnlySpaces( line, 47, 60 );
-  }
-  if( extra_crud ) {
-    fprintf( stderr,
-             "Extra characters outside prescribed fields at line %d.\n",
-             iline );
-    return mpssyntaxerr;
-  }
-  
-  return mpsok;
-}
 
 int MpsReader::ParseDataLine2( char line[],  char code[],
                               char name1[], char name2[], double * val1,
@@ -2475,84 +2081,6 @@ int MpsReader::ParseDataLine2( char line[],  char code[],
     return ierr;
     }
 
-/*
-//szhu - extend to character 60
-int MpsReader::ParseDataLine( char line[],  char code[],
-                              char name1[], char name2[], double * val1,
-                              int& hasSecondValue,
-                              char name3[], double * val2)
-{
-  char            valstr1[36], valstr2[36];
-  
-  int extra_crud = 0, ierr;
-  *val1 = 0.0;
-  *val2 = 0.0;
-  
-  assert( line[0] == ' ' );
-  this->string_copy(code, &line[1], 2); // characters  2 -  3 to code 
-  extra_crud = extra_crud || ' ' != line[3];
-
-  this->string_copy(name1, &line[4], 8);    // characters  5 - 12 to name1
-  extra_crud = extra_crud || ' ' != line[12] || ' ' != line[13];
-  // name1 is allowed to be empty.
-
-  this->string_copy(name2, &line[14], 8);   // characters 15 - 22 to name2
-  extra_crud = extra_crud || ' ' != line[22] || ' ' != line[23];
-  if( isOnlySpaces( name2, 0, 7 ) ) { // name2 cannot be empty
-    fprintf( stderr, "Empty second name field on line %d.\n", iline );
-    return mpssyntaxerr;
-  }
-
-  //first check if there is second value
-  this->string_copy(valstr1, &line[24], 12); // characters 25 - 36 to valstr 
-  extra_crud = extra_crud ||
-    ' ' != line[36] || ' ' != line[37] || ' ' != line[38];
-  *val1 = asDouble( valstr1, 12, ierr );
-
-  if( !extra_crud ) //may have second value or follows strict character position rule
-  {
-	  if( !isOnlySpaces( line, 39, 46 ) ) {  //has second value
-		hasSecondValue = 1;
-		this->string_copy(name3, &line[39], 8); 
-		// characters 40 - 47 to name3 
-		extra_crud = extra_crud || ' ' != line[47] || ' ' != line[48];
-    
-		this->string_copy(valstr2, &line[49], 12); 
-		// characters 50 - 61 to valstr 
-    
-		*val2 = asDouble( valstr2, 12, ierr );
-		if( 0 != ierr ) {
-		  fprintf( stderr, "Value doesn't parse as number on line %d.\n", iline );
-		  return mpssyntaxerr;
-		}
-	  } else {  //no second value, users follow strict character position rule
-		hasSecondValue = 0;
-		extra_crud = extra_crud || !isOnlySpaces( line, 47, 60 );
-		if( 0 != ierr ) {
-		  fprintf( stderr, "Value doesn't parse as number on line %d.\n", iline );
-		  return mpssyntaxerr;
-		}
-	  }
-  }
-  else  //no second value, the ending character position could be extened to 60
-  {
-    hasSecondValue = 0;
-	extra_crud = 0;
-	this->string_copy(valstr1, &line[24], 36); // characters 25 - 60 to valstr 
-	*val1 = asDouble( valstr1, 36, ierr );
-  }
-
-  if( extra_crud ) {
-    fprintf( stderr,
-             "Extra characters outside prescribed fields at line %d.\n",
-             iline );
-    return mpssyntaxerr;
-  }
-  
-  return mpsok;
-}
-
-*/
 
 int MpsRowTypeFromCode2( char code )
 {
@@ -2566,32 +2094,6 @@ int MpsRowTypeFromCode2( char code )
   }
 }
 
-/*
-int MpsRowTypeFromCode( char code[2] )
-{
-  char c;
-
-  if ( code[0] != ' ' ) {
-    // the first character is not a space. The second
-    // character must be.
-    c = code[0];
-    if ( code[1] != ' ' ) return kBadRowType;
-  } else {
-    // The first character is a space. The second character must
-    // not be.
-    c = code[1];
-    if ( code[0] != ' ' ) return kBadRowType;
-  }
-  switch ( c ) {
-  case 'N' : case 'n' : return kFreeRow;    break;
-  case 'L' : case 'l' : return kLessRow;    break;
-  case 'G' : case 'g' : return kGreaterRow; break;
-  case 'E' : case 'e' : return kEqualRow;  break;
-  default: return kBadRowType; break;
-  }
-}
-
-  */
 
 /////////////////
 // Output section
@@ -2760,4 +2262,3 @@ void MpsReader::printSolution( double x[],      int     nx,
   iErr = mpsok;
   return;
 }
-

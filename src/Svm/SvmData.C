@@ -363,13 +363,10 @@ SvmData * SvmData::denseTextInput( char filename[], double penalty, int& iErr)
     
     // Now, make the two labels be exactly 1, and -1
     // Make the greater of the two labels be 1 and the lesser -1.
-    if( label1 < label2 ) {
-        double temp;
-        temp = label1; label1 = label2; label2 = temp;
-    }
-    
+    int negative_label = (label1 < label2) ? label1 : label2;
+
     for(i=0; i<result->nobservations; i++) {
-        if(categories[i] == label2) {
+        if(categories[i] == negative_label) {
             categories[i] = -1.0;
         } else {
             categories[i] =  1.0;

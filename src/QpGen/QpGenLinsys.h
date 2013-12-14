@@ -6,7 +6,6 @@
 #define QPGENLINSYS
 
 #include "LinearSystem.h"
-#include "DoubleMatrixHandle.h"
 #include "OoqpVectorHandle.h"
 #include "OoqpVector.h"
 

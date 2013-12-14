@@ -74,7 +74,6 @@ QpBoundVars::~QpBoundVars()
 double QpBoundVars::mu()
 {
   double temp;
-  temp = 0.0;
 
   temp =   t->dotProductWith( *tau );
   temp +=  v->dotProductWith( *nu  );

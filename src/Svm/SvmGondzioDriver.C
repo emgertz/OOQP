@@ -26,7 +26,7 @@ int main( int argc, char *argv[] )
 {
   Svm     * svm         = 0;
   SvmData * prob        = 0;
-  int quiet = 0, print_soln = 0, using_direct_solve = 0, dense_input = 1;
+  int quiet = 0, print_soln = 0, dense_input = 1;
   
   // double StartUserTime, StartSystemTime;
   // double EndUserTime, EndSystemTime;

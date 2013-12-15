@@ -788,31 +788,39 @@ void MpsReader::rowHasRange( int rownum, double val, int& iErr )
 }
 
 
+int startsWithWord( const char word[], const char s[] )
+{
+  int n = strlen(word);
+  
+  return 0 == strncmp(word, s, n) && 
+    (s[n] == '\0' || s[n] == ' ' || s[n] == '\t');
+} 
+
+ 
 void MpsReader::expectHeader2( int lineType, const char expectName[],
 			       char line[], int& ierr )
 {
   if( lineType == DATALINE) {
     fprintf( stderr, "Expected a new section to start at line %d.\n", iline );
     ierr = mpssyntaxerr;
-  } else if (0 != strncmp(expectName, line, strlen(expectName))) { 
+  } else if (!startsWithWord( expectName, line )) {
     ierr = mpssyntaxerr;
     fprintf( stderr, "Expected %s at line %d.\n", expectName, iline );
-  } else {
-    ierr = 0;
   }
+  ierr = 0;
 }
 
 
 int MpsReader::acceptHeader2( int lineType, const char acceptName[],
 			     char line[], int& ierr )
 {
-  ierr = 0;
+    ierr = 0;
   if( lineType == DATALINE) {
     fprintf( stderr, "Expected a new section to start at line %d.\n", iline );
     ierr = mpssyntaxerr;
     return 0;
   } else {
-    return 0 == strncmp(acceptName, line, strlen(acceptName));
+    return startsWithWord(acceptName, line);
   }
 }
 
@@ -1184,9 +1192,6 @@ void MpsReader::readRowsSection( char line[],
   } // end while we are reading data lines
 
   if( iErr == 0 ) {
-//      rowInfo = 
-//        (MpsRowInfo *) realloc( rowInfo, totalRows * sizeof( MpsRowInfo ) );
-    // This is smaller, so it shouldn't fail.
     rowTable = NewHashTable( 2 * totalRows );
     if ( rowTable ) {
       int i;

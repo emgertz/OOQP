@@ -34,7 +34,6 @@ struct MpsColInfo {
   int  nnz;
 };
 
-int MpsRowTypeFromCode( char code[4] );
 int MpsRowTypeFromCode2( char code );
 
 void doubleLexSort( int first[], int n, int second[], double data[] );
@@ -1029,44 +1028,20 @@ void MpsReader::readProblemName2( char line[], int& iErr, int kindOfLine )
 
 void MpsReader::readObjectiveSense( char line[], int& iErr, int kindOfLine )
 {
-    int i = 0;
-    char *token;
-    char *arrayOfTokens[1];
-    int ierr =0;
-    char tempLine[200];
-
-    if( DATALINE == kindOfLine ) {
-        strncpy( tempLine, line, 200);
-        token = strtok( tempLine, " ");
-
-        // Split the extracted line into tokens delimited by space...
-        arrayOfTokens[0] = token;
-
-        // Field 1: "MAX" or "MIN"
-        if( arrayOfTokens[0] != NULL){
-            strncpy( objectiveSense, arrayOfTokens[0], 3);
-
-            if( strncmp( "MAX", objectiveSense, 3 ) && strncmp( "MIN", objectiveSense, 3) ) {
-                fprintf( stderr, "Expected objective sense MAX or MIN on line %d, got %s.\n",
-                   iline, objectiveSense );
-                iErr = mpssyntaxerr;
-                return;
-                }
-            }
-        else{
-            fprintf( stderr, "Empty objective sense on line %d.\n", iline );
-            iErr = mpssyntaxerr;
-            return;
-            }
-        }
-    else {
-        fprintf( stderr, "Expected objective sense MAX or MIN on line %d.\n", iline );
-        iErr = mpssyntaxerr;
-        return;
-        }
-
-  iErr = mpsok;
-  return;
+  iErr = mpssyntaxerr;
+  if (DATALINE == kindOfLine) {
+   
+    char * token = strtok(line, " \t");
+    if (token) {
+      if (0 == strcmp("MAX", token) || 0 == strcmp("MIN", token))
+	iErr = mpsok;
+      strcpy(objectiveSense, token);
+    }
+  }
+  if (iErr != mpsok) {
+    fprintf( stderr, "Expected objective sense MAX or MIN on line %d.\n",
+	     iline );
+  }
 }
 
 void MpsReader::scanFile( int& iErr )
@@ -1138,7 +1113,7 @@ void MpsReader::scanFile( int& iErr )
 void MpsReader::readRowsSection( char line[], 
 				 int& iErr, int& linetype )
 {
-  char rname[16], code[4];
+  char rname[word_max+1], code[word_max+1];
   const int rowsGuess          = 1000;
   const double rowsBlockFactor = 1.5;
 
@@ -1683,37 +1658,30 @@ int MpsReader::GetLine(char * line )
 
 int MpsReader::ParseRowsLine2( char line[],  char code[], char name1[] )
 {
-    int i = 0;
-    char *token;
-    char *arrayOfTokens[2];
-    int ierr =0;
-    char tempLine[200];
+  int len;
+  char *codef, *namef, *endp;
 
-    strncpy( tempLine, line, 200);
-
-    token = strtok( tempLine, " ");
-
-    // Split the extracted line into tokens delimited by space...
-    arrayOfTokens[0] = token;
-    arrayOfTokens[1] = strtok( NULL, " ");
-
-    // Field 1: Row type
-    if( arrayOfTokens[0] != NULL){
-        strcpy(code, arrayOfTokens[0]);         
-        }
-    else{
-        fprintf( stderr, "Empty row type field on line %d.\n", iline );
-        return mpssyntaxerr;
-        }
-
-    // Field 2: Row name
-    if( arrayOfTokens[1] != NULL){
-        strcpy(name1, arrayOfTokens[1]);         
-        }
-    else{
-        fprintf( stderr, "Empty row name field on line %d.\n", iline );
-        return mpssyntaxerr;
-        }
+  codef = strtok_r( line, " \t", &endp);
+  if (!codef) { 
+    fprintf( stderr, "Empty row type field on line %d.\n", iline );
+    return mpssyntaxerr;
+  } else if ( (len = strlen(codef)) > word_max) {
+    fprintf( stderr, "Row type too long on line %d.\n", iline );
+    return mpssyntaxerr;
+  } else {
+    memcpy(code, codef, len + 1);
+  }
+  
+  namef = strtok_r( NULL, " \t", &endp);
+  if (!namef) {
+    fprintf( stderr, "Empty row name field on line %d.\n", iline );
+    return mpssyntaxerr;
+  } else if ( (len = strlen(namef)) > word_max ) {
+    fprintf( stderr, "Row name too long on line %d.\n", iline );
+    return mpssyntaxerr;
+  } else {
+    memcpy(name1, namef, len + 1);
+  }
     
   return mpsok;
 }

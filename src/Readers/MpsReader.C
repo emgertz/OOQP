@@ -744,7 +744,7 @@ void MpsReader::readHessSection( int irowQ[], int jcolQ[], double dQ[],
   doubleLexSort( irowQ, nnzQ, jcolQ, dQ );
 }
 
-void MpsReader::scanRangesSection( char line[200], 
+void MpsReader::scanRangesSection( char line[], 
                                    int& iErr, int& kindOfLine )
 {
   // currentRange holds the name of the current range. There is no
@@ -884,7 +884,7 @@ int MpsReader::acceptHeader2( int lineType, const char acceptName[],
         }
     }
 
-void MpsReader::scanHessSection( char line[200], 
+void MpsReader::scanHessSection( char line[], 
                                  int& iErr, int& linetype )
 {
   char code[4], name[2][16], colname[16];
@@ -1138,7 +1138,7 @@ void MpsReader::readObjectiveSense( char line[], int& iErr, int kindOfLine )
 
 void MpsReader::scanFile( int& iErr )
 {
-  char line[200];
+  char line[bufsz];
   int kindOfLine;
 
   // Problem name
@@ -1202,7 +1202,7 @@ void MpsReader::scanFile( int& iErr )
 }
 
 
-void MpsReader::readRowsSection( char line[200], 
+void MpsReader::readRowsSection( char line[], 
 				 int& iErr, int& linetype )
 {
   char rname[16], code[4];
@@ -1310,7 +1310,7 @@ void MpsReader::readRowsSection( char line[200],
   }
 }
 
-void MpsReader::scanColsSection( char line[200], 
+void MpsReader::scanColsSection( char line[], 
 				 int& iErr, int& linetype )
 {
   char colname[16], code[4], name[2][16];
@@ -1535,7 +1535,7 @@ void MpsReader::readQpGen( double     c[],
 			   double  cupp[],  char icupp[],
 			   int&    ierr )
 {
-  char line[200];
+  char line[bufsz];
   int  kindOfLine;
   this->readColsSection( c,
 			 irowA, jcolA, dA,
@@ -1584,7 +1584,7 @@ void MpsReader::readQpBound( OoqpVector& c, SymMatrix& Q,
 			     int& iErr )
 {
   if( my > 0 || mz > 0 ) { iErr = 1024; return; }
-    char line[200];
+  char line[bufsz];
   int  kindOfLine;
 
   {
@@ -1634,7 +1634,7 @@ void MpsReader::readQpGen( OoqpVector& c, SymMatrix& Q,
 			   OoqpVector& cupp_, OoqpVector& icupp,
                            int& iErr )
 {
-  char line[200];
+  char line[bufsz];
   int  kindOfLine;
 
   this->readColsSection( c, A, C, line, iErr,  kindOfLine );
@@ -1713,90 +1713,38 @@ MpsReader::~MpsReader()
   delete [] rowRemap;
 }
 
-// Universal end-of-line
-inline int isEndOfLine( char c, FILE * file )
-{
-  if( '\n' == c ) return 1;
-  if( '\r' == c ) {
-    int newChar = getc( file );
-    if( newChar != '\n' ) {
-      ungetc( newChar, file );
-    }
-    return 1;
-  }
-  return 0;
-}
-
 
 int MpsReader::GetLine(char * line )
 {
-  int i, j, terminated;
-
-  /* 
-   * This has been arbitrarily increased by 90 characters to allow 
-   * for the increase in length of names from 8 to 16 characters,
-   * the increase in length of numbers from 12 to 25 characters,
-   * and possibility of having extra spaces between fields. 
-   */
-  const int length = 150;
-
+  int i, j;
+  
   do {
     int c;
-
+    
     iline++;
- 
-    i = 0; terminated = 0;
-    while( i < length && EOF != ( c = getc( file ) ) ) {
-      if( isEndOfLine( c, file ) ) {
-	terminated = 1;
+    
+    i = 0;
+    while( EOF != ( c = getc( file ) ) ) {
+      if(c == '\n' || i == bufsz - 1)
 	break;
-      }
-      if( !isprint( c ) ) c = ' '; // Eliminate non-printing characters
-      line[i] = c;
       
-      i++;
+      if( !isprint( c ) )
+	continue;
+      
+      line[i++] = c;
     }
-    if( !terminated ) {
-      // The line wasn't terminated, or was possibly just terminated
-      // after the 150th character.
-      if( i == 0 ) {
-	// Nothing was read. This is an error.
-        fprintf( stderr, "Unexpected end-of-file at line %d.\n", iline );
-        return READERROR;
-      } else if( i == length ) { 
-	// We read 150 characters without an error or a '\n'
-	if( line[0] == '*' ) { 
-	  // This is a comment line. There is no restriction on length.
-	  // Just throw away characters til the end of line
-          while( EOF != ( c = getc( file ) ) && c != '\n' ) ;
-	} else {
-	  // This is not a comment line. The only characters
-	  // beyond the 150th column should be ' '
-	  int extracrud = 0;
-	  while( EOF != ( c = getc( file ) ) ) {
-	    if( isEndOfLine( c, file ) ) break;
-	    if( c != ' ' ) extracrud = 1;
-	  }
-	  if(  extracrud ) {
-	    fprintf( stderr,
-		     "Line %d has exceeded the maximum permissible characters.\n",
-		     iline );
-	    return mpssyntaxerr;
-	  }
-	} // end else this is not a comment line
-      } // end else we read 150 characters
-      // Otherwise, the file just doesn't have a terminating newline,
-      // which is acceptable.
+    line[i] = '\0';
+    
+    // Line too long; Ok if EOF
+    if ( c != '\n' && (i != bufsz - 1 || !feof(file)) ) {
+      return READERROR;
     }
     
-    // Fill in the rest of line with spaces
-    for( j = i; j < length; j++ ) line[j] = ' ';
-    // Terminate the line
-    line[length] = '\0';
+    if (i == 0) 		// Empty line is an error
+      return READERROR;
   } while ( line[0] == '*' ); // Disgard comment lines
   
-  if(line[0] == ' ') return DATALINE;
-  else return HEADERLINE;
+  return line[0] == ' ' ? DATALINE : HEADERLINE;
 }
 
 

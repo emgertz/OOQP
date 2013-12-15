@@ -40,6 +40,8 @@ class MpsReader {
   friend MpsReaderTester;
 #endif
 private:
+  enum { bufsz = 256 };
+
   void insertElt( int irow[], int len, int jcol[],
 		  double dval[], int& ne,
 		  int row, int col, double val, int& ier );
@@ -47,7 +49,7 @@ private:
 		    int irow[], int nnz, int jcol[], double dA[] );
   void stuffMatrix( SymMatrix& A,
 		    int irow[], int nnz, int jcol[], double dA[] );
-protected:
+
   /** root of the filename for input (and possibly output) files */
   char * infilename;
   /** Input file line number */
@@ -134,24 +136,24 @@ protected:
   virtual void readProblemName2( char line[], int& iErr, int kindOfLine );
 
   virtual void readObjectiveSense( char line[], int& iErr, int kindOfLine );
-  virtual void readRowsSection( char line[62], 
+  virtual void readRowsSection( char line[], 
                 int& iErr, int& return_getline );
-  virtual void scanColsSection( char line[62], 
+  virtual void scanColsSection( char line[], 
                 int& iErr, int& return_getline );
-  virtual void scanRangesSection( char line[62], 
+  virtual void scanRangesSection( char line[], 
                   int& iErr, int& return_getline );
   virtual void rowHasRange( int rownum, double val, int& iErr );
-  virtual void scanHessSection( char line[62], 
+  virtual void scanHessSection( char line[], 
                 int& iErr, int& return_getline );
 
   virtual void readColsSection( OoqpVector& c,
 				GenMatrix& A, GenMatrix& C,
-				char line[62], 
+				char line[], 
 				int& iErr, int& return_getline );
   virtual void readColsSection( double  c[],
 			        int irowA[], int jcolA[], double dA[],
 				int irowC[], int jcolC[], double dC[],
-				char line[62], 
+				char line[], 
 				int& iErr, int& return_getline );
   virtual void readRHSSection( OoqpVector&  b,
 			       SimpleVector& clow, OoqpVector& iclow,

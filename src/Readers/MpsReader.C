@@ -34,7 +34,7 @@ struct MpsColInfo {
   int  nnz;
 };
 
-int MpsRowTypeFromCode2( char code );
+int MpsRowTypeFromCode2( char * code );
 
 void doubleLexSort( int first[], int n, int second[], double data[] );
 
@@ -1136,7 +1136,7 @@ void MpsReader::readRowsSection( char line[],
     iErr = this->ParseRowsLine2(line, code, rname );
     if( iErr != mpsok ) break;
 
-    int rowType = MpsRowTypeFromCode2( code[0] );
+    int rowType = MpsRowTypeFromCode2( code );
     if( rowType == kBadRowType ) {
       fprintf( stderr, "Unrecognized row type\n"); 
       iErr = mpssyntaxerr;
@@ -1905,10 +1905,12 @@ int MpsReader::ParseDataLine2( char line[],  char code[],
     }
 
 
-int MpsRowTypeFromCode2( char code )
+int MpsRowTypeFromCode2( char * code )
 {
+  if (1 != strlen(code))
+      return kBadRowType;
 
-  switch ( code ) {
+  switch ( code[0] ) {
   case 'N' : case 'n' : return kFreeRow;    break;
   case 'L' : case 'l' : return kLessRow;    break;
   case 'G' : case 'g' : return kGreaterRow; break;

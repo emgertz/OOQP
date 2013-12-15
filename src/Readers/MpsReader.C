@@ -55,68 +55,6 @@ MpsReader::MpsReader( FILE * file_ )
   memcpy(this->objectiveSense, "MIN", 3);
 }
 
-int isOnlySpaces( char str[], int start, int finish )
-{
-  int i;
-  for( i = start; i <= finish; i++ ) {
-    if( str[i] != ' ' ) return 0;
-  }
-  return 1;
-}
-
-// isLJustOf - is str the left justification of prefix is a field of len?
-int isLJustOf( const char str[], const char prefix[], int len )
-{
-  int i;
-  int result = 1;
-  for( i = 0; i < len; i++ ) {
-    if( prefix[i] == '\0' ) break;
-    if( prefix[i] != str[i] ) {
-      result = 0;
-      break;
-    }
-  }
-  // Did we use all characters of the prefix?
-  if ( prefix[i] != '\0' ) {
-    // No we didn't, so str is not the ljust of prefix
-    result = 0;
-  }
-  if( result == 1 ) { 
-    // Ok so far. Make sure all remaining characters in str are ' '
-    for( ; i < len; i++ ) { // for all remaining characters in str
-      if( str[i] != ' ' ) {
-	result = 0;
-	break;
-      }
-    } // end for all remaining characters in str
-  } // end if Ok so far
-  return result;
-}
-
-double asDouble( char str[], int len, int& ierr )
-{
-  char * pstr = str;
-  int lpstr   = len;
-  char * endptr;
-  ierr = 0;
-
-  while( ' ' == *pstr && lpstr > 0 ) {
-    pstr++; lpstr--;
-  }
-  if( lpstr == 0 ) {
-    ierr = 1;
-    return 0.0;
-  }
-
-  double value = strtod( pstr, &endptr );
-  while( *endptr == ' ' ) endptr++;
-  if( endptr != pstr + lpstr ) {
-    ierr = 1;
-    return 0.0;
-  }
-  
-  return value;
-}
 
 void MpsReader::readColsSection( OoqpVector& c_,
 				 GenMatrix& A, GenMatrix& C,

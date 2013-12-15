@@ -128,7 +128,7 @@ private:
                              char name2[], double * val1, int& hasSecondValue,
                              char name3[], double * val2);
 
-  virtual int string_copy( char dest[], char string[], int max);
+  virtual int word_copy( char dest[], char string[]);
   
   virtual void readProblemName2( char line[], int& iErr, int kindOfLine );
 

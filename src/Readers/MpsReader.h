@@ -42,6 +42,8 @@ class MpsReader {
 private:
   enum { bufsz = 256, word_max = 31 };
 
+  typedef char Word[word_max + 1];
+
   void insertElt( int irow[], int len, int jcol[],
 		  double dval[], int& ne,
 		  int row, int col, double val, int& ier );

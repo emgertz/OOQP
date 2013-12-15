@@ -1120,7 +1120,7 @@ void MpsReader::scanFile( int& iErr )
 void MpsReader::readRowsSection( char line[], 
 				 int& iErr, int& linetype )
 {
-  char rname[word_max+1], code[word_max+1];
+  Word rname, code;
   const int rowsGuess          = 1000;
   const double rowsBlockFactor = 1.5;
 
@@ -1225,14 +1225,14 @@ void MpsReader::readRowsSection( char line[],
 void MpsReader::scanColsSection( char line[], 
 				 int& iErr, int& linetype )
 {
-  char colname[16], code[4], name[2][16];
+  Word colname, code, name[2];
   int hasSecondValue;
   double val[2];
   int * lastSeen;
 
-  int colsGuess = 1000;
+  int lcolnames = 1000;		// Initial guess
   const double colsBlockFactor = 1.5;
-  char oldColumnName[17] = "";
+  Word oldColumnName = "";
   int nvals;
   int colnum = -1;
   iErr       = mpsok;
@@ -1254,79 +1254,71 @@ void MpsReader::scanColsSection( char line[],
   colTable  = 0; totalCols = 0; colnum = 0;
   lastSeen  = new int[totalRows];
 
-  if(2*totalRows >  colsGuess) colsGuess = 2*totalRows;
-  int lcolnames = colsGuess;
-  colInfo   = new MpsColInfo[colsGuess];
+  if(2*totalRows >  lcolnames) lcolnames = 2*totalRows;
+  colInfo   = new MpsColInfo[lcolnames];
 
-  if( !colInfo || !lastSeen ) {
-    iErr = mpsmemoryerr;
-  } else { // memory was allocated sucessfully
-    // Nothing has yet been seen
-    for( i = 0; i < totalRows; i++ ) {
-      lastSeen[i] = -1;
-    }
-
-    while ((linetype = this->GetLine(line)) == DATALINE) {
-      // we are reading datalines
-      iErr = this->ParseDataLine2(line, code, colname, name[0], &val[0],
-                                 hasSecondValue, name[1], &val[1]);
-      if( iErr != mpsok ) break;
+  // Nothing has yet been seen
+  for( i = 0; i < totalRows; i++ ) {
+    lastSeen[i] = -1;
+  }
+  
+  while ((linetype = this->GetLine(line)) == DATALINE) {
+    // we are reading datalines
+    iErr = this->ParseDataLine2(line, code, colname, name[0], &val[0],
+				hasSecondValue, name[1], &val[1]);
+    if( iErr != mpsok ) break;
       // are we already working on this column?
-      if (strcmp(oldColumnName, colname) != 0) {
-        /* it's a new column */
-        colnum = totalCols++;
-        
-        this->word_copy( oldColumnName, colname );
-        /* register its name */
-        this->word_copy( colInfo[colnum].name, colname );
-        colInfo[colnum].nnz  = 0;
-        
-        if( totalCols>= lcolnames ) {
-          // We must reallocate
-	  int lNewColInfo = (int) (lcolnames * colsBlockFactor) ;
-	  MpsColInfo * newColInfo;
-	  try {
-	    newColInfo = new MpsColInfo[lNewColInfo];
-	  } catch( ... ) {
-	    iErr = mpsmemoryerr;
-	    break;
-	  }
-	  for( int k = 0; k < lcolnames; k++ ) {
-	    newColInfo[k] = colInfo[k];
-	  }
-	  delete [] colInfo;
-
-          colInfo = newColInfo;
-	  lcolnames = lNewColInfo;
-        } // end if we must reallocate
-      }  // end if it's a new column
+    if (strcmp(oldColumnName, colname) != 0) {
+      /* it's a new column */
+      colnum = totalCols++;
       
-      nvals = hasSecondValue ? 2 : 1;
-      for( i = 0; i < nvals; i++ ) {
-        // What row is the value in?
-        int rownum = GetIndex( rowTable, name[i] );
-        if( rownum < 0 ) {
-          iErr = mpssyntaxerr;
+      this->word_copy( oldColumnName, colname );
+      /* register its name */
+      this->word_copy( colInfo[colnum].name, colname );
+      colInfo[colnum].nnz  = 0;
+      
+      if( totalCols>= lcolnames ) {
+	// We must reallocate
+	int lNewColInfo = (int) (lcolnames * colsBlockFactor) ;
+	MpsColInfo * newColInfo;
+	newColInfo = new MpsColInfo[lNewColInfo];
+
+	for( int k = 0; k < lcolnames; k++ ) {
+	  newColInfo[k] = colInfo[k];
+	}
+	delete [] colInfo;
+	
+	colInfo = newColInfo;
+	lcolnames = lNewColInfo;
+      } // end if we must reallocate
+    }  // end if it's a new column
+    
+    nvals = hasSecondValue ? 2 : 1;
+    for( i = 0; i < nvals; i++ ) {
+      // What row is the value in?
+      int rownum = GetIndex( rowTable, name[i] );
+      if( rownum < 0 ) {
+	iErr = mpssyntaxerr;
           fprintf( stderr, "Unrecognized row name" );
           break;
-        }
-        if( lastSeen[rownum] == colnum ) {
-          iErr = mpssyntaxerr;
-          fprintf( stderr,
-                   "Error on line %d: "
-                   "row %s was already specified for column %s.\n",
-                   iline, name[i], colname );
-          break;
-        }
-        rowInfo[rownum].nnz++;
-        lastSeen[rownum] = colnum;
       }
-      if( iErr != mpsok ) break;
-    } // end while we are reading datalines.
-  }
-
+      if( lastSeen[rownum] == colnum ) {
+	iErr = mpssyntaxerr;
+	fprintf( stderr,
+		 "Error on line %d: "
+		 "row %s was already specified for column %s.\n",
+		 iline, name[i], colname );
+	break;
+      }
+      rowInfo[rownum].nnz++;
+      lastSeen[rownum] = colnum;
+    }
+    if( iErr != mpsok ) break;
+  } // end while we are reading datalines.
+  
+  
   delete [] lastSeen;
-
+  
   if( iErr == mpsok ) {
     // No error yet.
     // Shrink the colInfo to actual size
@@ -1336,16 +1328,16 @@ void MpsReader::scanColsSection( char line[],
     colTable = NewHashTable( 2 * totalCols );
     if( !colTable ) { 
       iErr = mpsmemoryerr;
-    } else { // The column table was successfully allocated.
+    } else {
       for( i = 0; i < totalCols; i++ ) { // loop over all columns
-        if (Insert( colTable, colInfo[i].name, i) == 1) {
-          // This column name was already found in the hash table.
-          fprintf( stderr, "Column %s was specified twice.\n",
-                   colInfo[i].name );
-          iErr = mpssyntaxerr; break;
-        }
-      } // end loop over all columns
-    } // end else the column table was allocated
+	if (Insert( colTable, colInfo[i].name, i) == 1) {
+	  // This column name was already found in the hash table.
+	  fprintf( stderr, "Column %s was specified twice.\n",
+		   colInfo[i].name );
+	  iErr = mpssyntaxerr; break;
+	}
+      }
+    } // end loop over all columns
   } // end if no error yet
   if( iErr == mpsok ) {
     // There isn't already an error.

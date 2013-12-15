@@ -40,7 +40,7 @@ class MpsReader {
   friend MpsReaderTester;
 #endif
 private:
-  enum { bufsz = 256 };
+  enum { bufsz = 256, word_max = 31 };
 
   void insertElt( int irow[], int len, int jcol[],
 		  double dval[], int& ne,
@@ -76,11 +76,10 @@ private:
   int firstColumnLine;
   int columnFilePosition;
 
-  char problemName[17];
-  char objectiveName[17];
-  char RHSName[17];
-  //  char rangeName[10];
-  char boundName[17];
+  char problemName[word_max+1];
+  char objectiveName[word_max+1];
+  char RHSName[word_max+1];
+  char boundName[word_max+1];
 
   /** hash tables containing row names */
   HashTable *rowTable;
@@ -192,7 +191,7 @@ public:
   /**
    * Objective sense is either MAX or MIN 
    */
-  char objectiveSense[3]; /* MAX or MIN */
+  char objectiveSense[4]; /* MAX or MIN */
 
    
   /** Creates a new MpsReader that initializes itself from the data

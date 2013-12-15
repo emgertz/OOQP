@@ -1001,7 +1001,7 @@ void MpsReader::readProblemName2( char line[], int& iErr, int kindOfLine )
 
         // Field 2: Problem Name
         if( arrayOfTokens[1] != NULL){
-            this->string_copy(problemName, arrayOfTokens[1], 16);
+	  this->word_copy(problemName, arrayOfTokens[1]);
             
             if( strlen( arrayOfTokens[1]) > 16){
                 fprintf( stderr, "Extra characters in NAME field on line %d.\n",
@@ -1151,7 +1151,7 @@ void MpsReader::readRowsSection( char line[],
 		   objectiveName );
 	}
       } else {
-	this->string_copy( objectiveName, rname, 16 );
+	this->word_copy( objectiveName, rname);
       }
       foundObjective++;
     }
@@ -1175,7 +1175,7 @@ void MpsReader::readRowsSection( char line[],
       rowInfo = newRowInfo;
       lrowInfo = lNewRowInfo;
     }
-    this->string_copy( rowInfo[totalRows].name, rname, 16 );
+    this->word_copy( rowInfo[totalRows].name, rname );
     rowInfo[totalRows].kind    = rowType;
     rowInfo[totalRows].nnz     = 0;
     
@@ -1271,9 +1271,9 @@ void MpsReader::scanColsSection( char line[],
         /* it's a new column */
         colnum = totalCols++;
         
-        this->string_copy( oldColumnName, colname, 16);
+        this->word_copy( oldColumnName, colname );
         /* register its name */
-        this->string_copy( colInfo[colnum].name, colname, 16 );
+        this->word_copy( colInfo[colnum].name, colname );
         colInfo[colnum].nnz  = 0;
         
         if( totalCols>= lcolnames ) {
@@ -1358,16 +1358,19 @@ void MpsReader::scanColsSection( char line[],
 }
 
 
-int MpsReader::string_copy( char dest[], char str[], int max)
+int MpsReader::word_copy( char dest[], char str[])
 {
-  /* Copy string to dest converting non-printable characters to spaces.
-   * Null-terminate dest at max+1 */
-  
-  strncpy( dest, str, max );
-  dest[max] = '\0';
+  int len = strlen(str);
+  if (len > word_max) {
+    dest[0] = '\0';
+    return -1;
+  }
+
+  memcpy(dest, str, len + 1);
 
   return 0;
 }
+
 
 void MpsReader::getSizes( int& nx_, int& my_, int& mz_ )
 {

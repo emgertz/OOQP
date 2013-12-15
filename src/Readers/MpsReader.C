@@ -852,38 +852,33 @@ void MpsReader::rowHasRange( int rownum, double val, int& iErr )
 
 
 void MpsReader::expectHeader2( int lineType, const char expectName[],
-			     char line[], int& ierr )
+			       char line[], int& ierr )
 {
-  ierr = 0;
-  if( lineType == HEADERLINE ) {
-    char name[16];
-    ierr = this->ParseHeaderLine2( line, name ); 
-    if( ierr != mpsok ) {
-        ierr = mpssyntaxerr;
-        fprintf( stderr, "Expected %s at line %d.\n", expectName, iline );
-        }
+  if( lineType == DATALINE) {
+    fprintf( stderr, "Expected a new section to start at line %d.\n", iline );
+    ierr = mpssyntaxerr;
+  } else if (0 != strncmp(expectName, line, strlen(expectName))) { 
+    ierr = mpssyntaxerr;
+    fprintf( stderr, "Expected %s at line %d.\n", expectName, iline );
+  } else {
+    ierr = 0;
   }
 }
 
 
 int MpsReader::acceptHeader2( int lineType, const char acceptName[],
 			     char line[], int& ierr )
-    {
-    if( lineType == HEADERLINE ){
-        char name[16];
-        ierr = this->ParseHeaderLine2( line, name );
+{
+  ierr = 0;
+  if( lineType == DATALINE) {
+    fprintf( stderr, "Expected a new section to start at line %d.\n", iline );
+    ierr = mpssyntaxerr;
+    return 0;
+  } else {
+    return 0 == strncmp(acceptName, line, strlen(acceptName));
+  }
+}
 
-        if( ierr == mpsok && !strcmp( name, acceptName))
-            return 1;
-        else
-            return 0;
-        }
-    else{
-        fprintf( stderr, "Expected a new section to start at line %d.\n", iline );
-        ierr = mpssyntaxerr;
-        return 0;
-        }
-    }
 
 void MpsReader::scanHessSection( char line[], 
                                  int& iErr, int& linetype )
@@ -1742,30 +1737,6 @@ int MpsReader::GetLine(char * line )
   } while ( line[0] == '*' ); // Disgard comment lines
   
   return line[0] == ' ' ? DATALINE : HEADERLINE;
-}
-
-
-int MpsReader::ParseHeaderLine2(char line[], char entry[] )
-{
-    char *token;
-    char tempLine[200];
-
-    strncpy( tempLine, line, 200);
-
-    /* Split the line delimited by space */
-    token = strtok( tempLine, " ");
-
-    /* Copy the token into the input argument */
-    strcpy( entry, token);
-
-    if( strlen( token) > 16 ) {
-        fprintf( stderr,
-                "Extra characters outside prescribed fields at line %d.\n",
-                iline );
-    return mpssyntaxerr;
-  }
-  
-  return mpsok;
 }
 
 

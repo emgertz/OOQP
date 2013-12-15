@@ -115,8 +115,6 @@ private:
 
   virtual int GetLine(char * line );
 
-  virtual int ParseHeaderLine2( char line[], char entry1[] );
-
   virtual int ParseBoundsLine2( char line[], int& code, char name1[],
 			       char name2[], double * val );
   virtual int ParseRowsLine2( char line[], char code[], char name1[] );

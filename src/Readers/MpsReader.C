@@ -978,7 +978,6 @@ void MpsReader::findFile( FILE*& file, char*& resolvedName,
 void MpsReader::readProblemName2( char line[], int& iErr, int kindOfLine )
 {
   char *fname, *endptr;
-  char tag[6];
   
   expectHeader2(kindOfLine, "NAME", line, iErr );
   if (iErr != mpsok) {
@@ -1612,7 +1611,7 @@ MpsReader::~MpsReader()
 
 int MpsReader::GetLine(char * line )
 {
-  int i, j;
+  int i;
   
   do {
     int c;
@@ -1646,7 +1645,6 @@ int MpsReader::GetLine(char * line )
 
 int MpsReader::ParseRowsLine2( char line[],  char code[], char name1[] )
 {
-  int len;
   char *codef, *namef, *endp;
 
   codef = strtok_r( line, " \t", &endp);

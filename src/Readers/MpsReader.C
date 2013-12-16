@@ -24,13 +24,13 @@ enum { kLowerBound, kUpperBound, kFixedBound, kFreeBound, kMInftyBound, kPInftyB
 const int READERROR = mpsioerr;
 
 struct MpsRowInfo {
-  Word name;
+  MpsReader::Word name;
   int  kind;
   int  nnz;
 };
 
 struct MpsColInfo {
-  char name[17];
+  MpsReader::Word name;
   int  nnz;
 };
 
@@ -1361,12 +1361,28 @@ int MpsReader::word_copy( char dest[], char str[])
   int len = strlen(str);
   if (len > word_max) {
     dest[0] = '\0';
+    fprintf(stderr, "Word too long on line %d\n", iline);
     return -1;
   }
 
   memcpy(dest, str, len + 1);
 
   return 0;
+}
+
+
+int MpsReader::parse_double(const char * word, double & value)
+{
+  char * endptr;
+  errno = 0;
+  value = strtod(word, &endptr);
+  if (0 != errno || endptr[0] != '\0') {
+    fprintf( stderr, 
+	     "Value doesn't parse as number on line %d.\n", iline );
+    return mpssyntaxerr;
+  } else {
+    return mpsok;
+  }
 }
 
 
@@ -1815,93 +1831,66 @@ int MpsReader::ParseDataLine2( char line[],  char /* code */[],
 			       char name3[], double * val2)
 {
     int i = 0;
-    char *token;
-    char *arrayOfTokens[5];
-    int ierr =0;
-    char tempLine[200];
-    char *endptr;
+    char *token, *endptr;
+    char *arrayOfTokens[5] = {NULL,};
 
     *val1 = 0.0;
     *val2 = 0.0;
     hasSecondValue = 0;
-
+    
     //Name1 is optional
-    bool hasName1 = true;
     int numberOfTokens = 0;
-    int tokIndex = 0;
-
-    strncpy( tempLine, line, 200);
-
-    token = strtok( tempLine, " ");
-    arrayOfTokens[0] = token;
-    if( arrayOfTokens[0] != NULL) 
-    	numberOfTokens++;
 
     // Split the extracted line into tokens delimited by space...
-    for( i = 1; i < 5; i++){       
-        arrayOfTokens[i] = strtok( NULL, " ");
-
-	if( arrayOfTokens[i] != NULL)
-	    numberOfTokens++;
-    }
-
+    token = strtok_r( line, " \t", &endptr);
+    while (token != NULL && numberOfTokens < 5) {
+      arrayOfTokens[numberOfTokens++] = token;
+      token = strtok_r( NULL, " \t", &endptr);
+    } 
+    
     // An even number of tokens indicates that name1 is missing
-    if( (numberOfTokens % 2) == 0){
-    	hasName1 = false;
+    if (numberOfTokens % 2 == 0) {
+      for (i = numberOfTokens;  i > 0;  i--)
+	arrayOfTokens[i] = arrayOfTokens[i-1];
+      arrayOfTokens[0] = NULL;
+      numberOfTokens++;
+    }
+    
+    if (numberOfTokens != 3 && numberOfTokens != 5) {
+      fprintf(stderr, "Wrong number of fields on line %d\n", iline);
+      return mpssyntaxerr;
     }
 
-    // Field 2: Column/RHS/Right-hand side range vector Identifier
-    if( hasName1 && arrayOfTokens[tokIndex] != NULL){
-        strcpy(name1, arrayOfTokens[tokIndex]);         
-        tokIndex++;
+    // Field 1: Column/RHS/Right-hand side range vector Identifier
+    if( arrayOfTokens[0] == NULL) {
+      name1[0] = '\0';
+    } else if(0 != word_copy(name1, arrayOfTokens[0])) {
+      return mpssyntaxerr;
     }
 
-    // Field 3: Row identifier
-    if( arrayOfTokens[tokIndex] != NULL){
-        strcpy(name2, arrayOfTokens[tokIndex]);
-	tokIndex++;
-    }
-    else{
-        fprintf( stderr, "Empty second name field on line %d.\n", iline );
-        return mpssyntaxerr;
-    }
+    // Field 2: Row identifier
+    if (0 != word_copy(name2, arrayOfTokens[1]))
+      return mpssyntaxerr;
 
-    // Field 4: Value of matrix coefficient specified by fields 2 and 3
-    if( arrayOfTokens[tokIndex] != NULL){
-
-        *val1 = strtod( arrayOfTokens[tokIndex], &endptr );
-	tokIndex++;
-
-        if( endptr[0] != ' ' && endptr[0] != '\0')
-            ierr = 1; // This works because we have already tokenized based on space delimiters
-
-	if( 0 != ierr ){
-            fprintf( stderr, "Value doesn't parse as number on line %d.\n", iline );
-            return mpssyntaxerr;
-	}
+    // Field 3: Value of matrix coefficient specified by fields 1 and 2
+    if (0 != parse_double(arrayOfTokens[2], *val1)) {
+      return mpssyntaxerr;
     }
 
-    // Field 5 (Optional): Row identifier
-    if( arrayOfTokens[tokIndex] != NULL){
+    if (numberOfTokens == 5) {
 	hasSecondValue = 1;
-	strcpy(name3, arrayOfTokens[tokIndex]);
-	tokIndex++;
+
+	// Field 4 (Optional): Row identifier
+	if (0 != word_copy(name3, arrayOfTokens[3]))
+	  return mpssyntaxerr; 
+
+
+	// Field 5 (Optional): Value of matrix coefficient specified 
+	// by fields 1 and 4
+	if (0 != parse_double(arrayOfTokens[4], *val2))
+	  return mpssyntaxerr;
     }
-
-    // Field 6 (Optional): Value of matrix coefficient specified by fields 2 and 5
-    if( arrayOfTokens[tokIndex] != NULL){
-        *val2 = strtod( arrayOfTokens[tokIndex], &endptr );
-	tokIndex++;
-
-        if( endptr[0] != ' ' && endptr[0] != '\0')
-            ierr = 1; // This works because we have already tokenized based on space delimiters
-
-	if( 0 != ierr ){
-            fprintf( stderr, "Value doesn't parse as number on line %d.\n", iline );
-            return mpssyntaxerr;
-	}
-    }
-    return ierr;
+    return mpsok;
 }
 
 

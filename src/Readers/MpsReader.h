@@ -42,8 +42,10 @@ class MpsReader {
 private:
   enum { bufsz = 256, word_max = 31 };
 
+ public:
   typedef char Word[word_max + 1];
 
+ private:
   void insertElt( int irow[], int len, int jcol[],
 		  double dval[], int& ne,
 		  int row, int col, double val, int& ier );
@@ -132,6 +134,8 @@ private:
 
   virtual int word_copy( char dest[], char string[]);
   
+  virtual int parse_double(const char * token, double & value);
+
   virtual void readProblemName2( char line[], int& iErr, int kindOfLine );
 
   virtual void readObjectiveSense( char line[], int& iErr, int kindOfLine );

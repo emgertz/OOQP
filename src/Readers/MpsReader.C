@@ -1106,22 +1106,16 @@ void MpsReader::readRowsSection( char line[],
 				 int& iErr, int& linetype )
 {
   Word rname, code;
-  const int rowsGuess          = 1000;
   const double rowsBlockFactor = 1.5;
+  int foundObjective = 0;
 
-  int lrowInfo   = rowsGuess;
+  int lrowInfo   = 1000; 	// Initial guess
   totalRows      = 0;
   rowInfo        = 0;
   rowTable       = 0;
 
   // Remember code for rhs and bound
-  rowInfo = new MpsRowInfo[rowsGuess];
-  if( rowInfo == 0 ) {
-    fprintf( stderr, "Out of memory\n" );
-    iErr = mpsmemoryerr; return;
-  }
-
-  int foundObjective = 0;
+  rowInfo = new MpsRowInfo[lrowInfo];
 
   while ((linetype = this->GetLine(line)) == DATALINE) {
     // we are reading datalines
@@ -1144,7 +1138,7 @@ void MpsReader::readRowsSection( char line[],
 		   objectiveName );
 	}
       } else {
-	this->word_copy( objectiveName, rname);
+	this->word_copy( objectiveName, rname); // Know to be < word_max
       }
       foundObjective++;
     }
@@ -1154,13 +1148,8 @@ void MpsReader::readRowsSection( char line[],
       int lNewRowInfo = (int) (lrowInfo * rowsBlockFactor);
       MpsRowInfo * newRowInfo;
 
-      try {
-	newRowInfo = new MpsRowInfo[lNewRowInfo];
-      } catch(...) {
-	cerr << "Out of memory in MpsReader.\n";
-	iErr = mpsmemoryerr;
-        break;
-      }
+      newRowInfo = new MpsRowInfo[lNewRowInfo];
+
       for( int k = 0; k < lrowInfo; k++ ) {
 	newRowInfo[k] = rowInfo[k];
       }
@@ -1168,10 +1157,9 @@ void MpsReader::readRowsSection( char line[],
       rowInfo = newRowInfo;
       lrowInfo = lNewRowInfo;
     }
-    this->word_copy( rowInfo[totalRows].name, rname );
+    this->word_copy( rowInfo[totalRows].name, rname ); // Know to be Ok
     rowInfo[totalRows].kind    = rowType;
     rowInfo[totalRows].nnz     = 0;
-    
     
     totalRows++;
   } // end while we are reading data lines

@@ -24,7 +24,7 @@ enum { kLowerBound, kUpperBound, kFixedBound, kFreeBound, kMInftyBound, kPInftyB
 const int READERROR = mpsioerr;
 
 struct MpsRowInfo {
-  char name[17];
+  Word name;
   int  kind;
   int  nnz;
 };
@@ -1234,7 +1234,7 @@ void MpsReader::scanColsSection( char line[],
   const double colsBlockFactor = 1.5;
   Word oldColumnName = "";
   int nvals;
-  int colnum = -1;
+  int colnum;
   iErr       = mpsok;
 
   int i;
@@ -1809,10 +1809,10 @@ return mpsok;
 
 
 int MpsReader::ParseDataLine2( char line[],  char /* code */[],
-                              char name1[], char name2[], double * val1,
-                              int& hasSecondValue,
-                              char name3[], double * val2)
-    {
+			       char name1[], char name2[], double * val1,
+			       int& hasSecondValue,
+			       char name3[], double * val2)
+{
     int i = 0;
     char *token;
     char *arrayOfTokens[5];
@@ -1841,29 +1841,29 @@ int MpsReader::ParseDataLine2( char line[],  char /* code */[],
         arrayOfTokens[i] = strtok( NULL, " ");
 
 	if( arrayOfTokens[i] != NULL)
-		numberOfTokens++;
-        }
+	    numberOfTokens++;
+    }
 
     // An even number of tokens indicates that name1 is missing
     if( (numberOfTokens % 2) == 0){
     	hasName1 = false;
-	}
+    }
 
     // Field 2: Column/RHS/Right-hand side range vector Identifier
     if( hasName1 && arrayOfTokens[tokIndex] != NULL){
         strcpy(name1, arrayOfTokens[tokIndex]);         
         tokIndex++;
-	}
+    }
 
     // Field 3: Row identifier
     if( arrayOfTokens[tokIndex] != NULL){
         strcpy(name2, arrayOfTokens[tokIndex]);
 	tokIndex++;
-        }
+    }
     else{
         fprintf( stderr, "Empty second name field on line %d.\n", iline );
         return mpssyntaxerr;
-        }
+    }
 
     // Field 4: Value of matrix coefficient specified by fields 2 and 3
     if( arrayOfTokens[tokIndex] != NULL){
@@ -1874,18 +1874,18 @@ int MpsReader::ParseDataLine2( char line[],  char /* code */[],
         if( endptr[0] != ' ' && endptr[0] != '\0')
             ierr = 1; // This works because we have already tokenized based on space delimiters
 
-		if( 0 != ierr ){
+	if( 0 != ierr ){
             fprintf( stderr, "Value doesn't parse as number on line %d.\n", iline );
             return mpssyntaxerr;
-            }
-        }
+	}
+    }
 
     // Field 5 (Optional): Row identifier
     if( arrayOfTokens[tokIndex] != NULL){
-		hasSecondValue = 1;
-		strcpy(name3, arrayOfTokens[tokIndex]);
-		tokIndex++;
-        }
+	hasSecondValue = 1;
+	strcpy(name3, arrayOfTokens[tokIndex]);
+	tokIndex++;
+    }
 
     // Field 6 (Optional): Value of matrix coefficient specified by fields 2 and 5
     if( arrayOfTokens[tokIndex] != NULL){
@@ -1895,13 +1895,13 @@ int MpsReader::ParseDataLine2( char line[],  char /* code */[],
         if( endptr[0] != ' ' && endptr[0] != '\0')
             ierr = 1; // This works because we have already tokenized based on space delimiters
 
-		if( 0 != ierr ){
+	if( 0 != ierr ){
             fprintf( stderr, "Value doesn't parse as number on line %d.\n", iline );
             return mpssyntaxerr;
-            }
-        }
-    return ierr;
+	}
     }
+    return ierr;
+}
 
 
 int MpsRowTypeFromCode2( char * code )

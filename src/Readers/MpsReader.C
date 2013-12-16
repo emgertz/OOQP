@@ -1015,14 +1015,17 @@ void MpsReader::readProblemName2( char line[], int& iErr, int kindOfLine )
 
 void MpsReader::readObjectiveSense( char line[], int& iErr, int kindOfLine )
 {
+  char * endptr;
+
   iErr = mpssyntaxerr;
   if (DATALINE == kindOfLine) {
    
-    char * token = strtok(line, " \t");
+    char * token = strtok_r(line, " \t", &endptr);
     if (token) {
-      if (0 == strcmp("MAX", token) || 0 == strcmp("MIN", token))
+      if (0 == strcmp("MAX", token) || 0 == strcmp("MIN", token)) {
 	iErr = mpsok;
-      strcpy(objectiveSense, token);
+	memcpy(objectiveSense, token, 4);
+      }
     }
   }
   if (iErr != mpsok) {

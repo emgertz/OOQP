@@ -977,61 +977,42 @@ void MpsReader::findFile( FILE*& file, char*& resolvedName,
 
 void MpsReader::readProblemName2( char line[], int& iErr, int kindOfLine )
 {
-    char *token;
-    char *arrayOfTokens[2];
-    char tempLine[200];
-    char tag[6];
+  char *fname, *endptr;
+  char tag[6];
+  
+  expectHeader2(kindOfLine, "NAME", line, iErr );
+  if (iErr != mpsok) {
+    fprintf( stderr, "Expected tag NAME on line %d.\n", iline );
+    iErr = mpssyntaxerr;
+    return;
+  }
+  
+  (void) strtok_r( line, " \t", &endptr);
 
-    if( HEADERLINE == kindOfLine ) {
-        strncpy( tempLine, line, 200);
-        token = strtok( tempLine, " ");
+  // Field 2: Problem Name
+  fname = strtok_r( NULL, " \t", &endptr);
 
-        // Split the extracted line into tokens delimited by space...
-        arrayOfTokens[0] = token;
-        arrayOfTokens[1] = strtok( NULL, " ");
+  if (fname == NULL) {
+    fprintf( stderr, "Empty problem name on line %d.\n", iline );
+    iErr = mpssyntaxerr;
+    return;
+  }
 
-        // Field 1: Tag "Name"
-        if( arrayOfTokens[0] != NULL){
-            strcpy(tag, arrayOfTokens[0]);
-            
-            if( strncmp( "NAME", tag, 4 ) ) {
-                fprintf( stderr, "Expected NAME on line %d, got %s.\n",
-                   iline, tag );
-                iErr = mpssyntaxerr;
-                return;
-                }
-            }
-        else{
-            fprintf( stderr, "Empty tag NAME on line %d.\n", iline );
-            iErr = mpssyntaxerr;
-            return;
-            }
-
-        // Field 2: Problem Name
-        if( arrayOfTokens[1] != NULL){
-	  this->word_copy(problemName, arrayOfTokens[1]);
-            
-            if( strlen( arrayOfTokens[1]) > 16){
-                fprintf( stderr, "Extra characters in NAME field on line %d.\n",
-                   iline );
-                fprintf( stderr, "These will be ignored. Only the first 16 characters are significant: '%s'.\n", problemName);
-                }
-            }
-        else{
-            fprintf( stderr, "Empty problem name on line %d.\n", iline );
-            iErr = mpssyntaxerr;
-            return;
-            }
-        }
-    else {
-        fprintf( stderr, "Expected tag NAME on line %d.\n", iline );
-        iErr = mpssyntaxerr;
-        return;
-        }
+  int len = strlen(fname);
+  if (len > word_max) {
+    fprintf( stderr, "Extra characters in NAME field on line %d.\n",
+	     iline );
+    fprintf( stderr, "These will be ignored. "
+	     "Only the first %d characters are significant: "
+	     "'%s'.\n", word_max, problemName);
+  
+    len = word_max;
+  }
+  memcpy(problemName, fname, len + 1);
 
   iErr = mpsok;
-  return;
 }
+
 
 void MpsReader::readObjectiveSense( char line[], int& iErr, int kindOfLine )
 {

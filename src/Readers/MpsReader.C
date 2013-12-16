@@ -1019,8 +1019,9 @@ void MpsReader::readObjectiveSense( char line[], int& iErr, int kindOfLine )
   char * endptr;
 
   iErr = mpssyntaxerr;
+  objectiveSense[0] ='\0';
+
   if (DATALINE == kindOfLine) {
-   
     char * token = strtok_r(line, " \t", &endptr);
     if (token) {
       if (0 == strcmp("MAX", token) || 0 == strcmp("MIN", token)) {
@@ -1664,22 +1665,16 @@ int MpsReader::ParseRowsLine2( char line[],  char code[], char name1[] )
   if (!codef) { 
     fprintf( stderr, "Empty row type field on line %d.\n", iline );
     return mpssyntaxerr;
-  } else if ( (len = strlen(codef)) > word_max) {
-    fprintf( stderr, "Row type too long on line %d.\n", iline );
+  } else if ( 0 != word_copy(code, codef) ) {
     return mpssyntaxerr;
-  } else {
-    memcpy(code, codef, len + 1);
   }
   
   namef = strtok_r( NULL, " \t", &endp);
   if (!namef) {
     fprintf( stderr, "Empty row name field on line %d.\n", iline );
     return mpssyntaxerr;
-  } else if ( (len = strlen(namef)) > word_max ) {
-    fprintf( stderr, "Row name too long on line %d.\n", iline );
+  } else if ( 0 != word_copy(name1, namef) ) {
     return mpssyntaxerr;
-  } else {
-    memcpy(name1, namef, len + 1);
   }
     
   return mpsok;

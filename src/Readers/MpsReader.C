@@ -101,7 +101,7 @@ void MpsReader::readColsSection( double c[],
 				 char line[],
                                  int& ierr, int& kindOfLine )
 {
-  char   blank[4], colname[16], row[2][16];
+  Word   blank, colname, row[2];
   double val[2];
   int    hasSecondValue;
 
@@ -136,7 +136,7 @@ void MpsReader::readColsSection( double c[],
 
     if (strcmp(oldColumnName, colname) != 0) {
       // we are not already working on this column
-      strncpy( oldColumnName, colname, 16 );
+      word_copy( oldColumnName, colname );
       colnum = GetIndex( colTable, colname );
       assert( colnum >= 0 );
     }
@@ -271,10 +271,10 @@ void MpsReader::readRHSSection( double b[],
     }
   }
 
-  char currentRHS[16] = "";
+  Word currentRHS = "";
   char blank[4];
-  char rhsName[16]="";
-  char row[2][16];
+  Word rhsName ="";
+  Word row[2];
   double val[2];
   int hasSecondValue;
   while( DATALINE == (kindOfLine = this->GetLine( line ) ) ) {
@@ -288,7 +288,7 @@ void MpsReader::readRHSSection( double b[],
     } */
     if( 0 != strcmp( rhsName, currentRHS ) ) {
       if( 0 == strcmp( currentRHS, "" ) ) {
-	strncpy( currentRHS, rhsName, 16 );
+	word_copy( currentRHS, rhsName );
       } else { 
 	fprintf( stderr, "Multiple rhs were specified.\n"
 		 "The first rhs, \"%s\", will be used.\n",
@@ -380,21 +380,17 @@ void MpsReader::readRHSSection( OoqpVector& b_,
 void MpsReader::readRangesSection( SimpleVector& clow, SimpleVector& cupp,
 				   char line[], int& iErr, int& kindOfLine )
 {
-  double *dclow = 0, *dcupp = 0;
-  
-  if( clow.n > 0 ) dclow = &clow[0];
-  if( cupp.n > 0 ) dcupp = &cupp[0];
-
-  this->readRangesSection( dclow, dcupp, line, iErr, kindOfLine );
+  this->readRangesSection( clow.elements(), cupp.elements(),
+			   line, iErr, kindOfLine );
 }
 
 void MpsReader::readRangesSection( double clow[], double cupp[],
 				   char line[], int& iErr, int& kindOfLine )
 {
-  char currentRange[16] = "";
+  Word currentRange = "";
   // The ranges section has already been scanned. Any syntax errors
   // left are programming errors
-  char blank[4], rangeName[16]="", row[2][16];
+  Word blank, rangeName="", row[2];
   double val[2];
   int hasSecondValue;
   while( DATALINE == (kindOfLine = this->GetLine( line ) ) ) {
@@ -409,7 +405,7 @@ void MpsReader::readRangesSection( double clow[], double cupp[],
       // This is a new section of range values
       if( 0 == strcmp( currentRange, "" ) ) { 
 	// This is the first range
-	strncpy( currentRange, rangeName, 16 );
+	word_copy(currentRange, rangeName);
       } else {
 	// This is the second range we have seen. We support only
 	// one range, so skip the rest of the section
@@ -712,7 +708,7 @@ void MpsReader::scanRangesSection( char line[],
       // This is a new section of range values
       if( 0 == strcmp( currentRange, "" ) ) { 
 	// This is the first range
-	strncpy( currentRange, rangeName, 16 );
+	word_copy( currentRange, rangeName );
       } else {
 	// This is the second range we have seen. We support only
 	// one range, so skip the rest of the section
@@ -867,7 +863,7 @@ void MpsReader::scanHessSection( char line[],
 	  iErr = mpssyntaxerr; break;
         }
         // Mark this column as seen
-        strncpy( oldColName, colname, 16 );
+        word_copy( oldColName, colname );
       }
       nvals = (hasSecondValue) ? 2 : 1;
       for( i = 0; i < nvals; i++ ) {
@@ -1664,7 +1660,7 @@ int MpsReader::ParseBoundsLine2( char line[], int& code, char name1[],
 
     *val = 0.0;
 
-    strncpy( tempLine, line, 200);
+    memcpy( tempLine, line, 200);
 
     token = strtok( tempLine, " ");
     arrayOfTokens[0] = token;
@@ -1880,7 +1876,7 @@ char * MpsReader::defaultOutputFilename( int& iErr )
     // apparently there is a suffix; strip it off
     int len = strlen(infilename) - strlen(suffix);
     outfilename = new char[ len + 5 ];
-    strncpy(outfilename, infilename, len);
+    memcpy(outfilename, infilename, len);
     outfilename[len] = '\0';
   } else {
     int len = strlen(infilename);

@@ -223,7 +223,6 @@ public:
    * @param nnzC the number of non-zeros in C
    */
   void numberOfNonZeros( int& nnzQ, int& nnzA, int& nnzC );
-  void numbersOfNonZeros( int nnzQ[], int nnzA[], int nnzC[] );
   /**
    * Reads the various components of a QP in the "general" formulation
    * into their respective matrices and vectors, stored as objects

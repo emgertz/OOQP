@@ -686,16 +686,15 @@ void MpsReader::scanRangesSection( char line[],
 {
   // currentRange holds the name of the current range. There is no
   // current range at this point, so set it to empty.
-  char currentRange[16] = "";
-  char blank[4];
-  char rangeName[16]="", row[2][16];
+  Word currentRange = "";
+  Word blank;
+  Word rangeName ="", row[2];
   int hasSecondValue;
   double val[2];
   int nvals;
 
   
   char * seenRow = new char[totalRows];
-  if( !seenRow ) { iErr = mpsmemoryerr; return; };
 
   int i;
   for( i = 0; i < totalRows; i++ ) seenRow[i] = 0;
@@ -827,10 +826,10 @@ int MpsReader::acceptHeader2( int lineType, const char acceptName[],
 void MpsReader::scanHessSection( char line[], 
                                  int& iErr, int& linetype )
 {
-  char code[4], name[2][16], colname[16];
+  Word code, name[2], colname;
   double val[2];
   int hasSecondValue;
-  char oldColName[16] = "";
+  Word oldColName = "";
   int colnum = -1;
 
   int  * lastSeenRow = 0;
@@ -1376,22 +1375,6 @@ void MpsReader::getSizes( int& nx_, int& my_, int& mz_ )
   mz_ = mz;
 }
 
-void MpsReader::numbersOfNonZeros( int lnnzQ[], int lnnzA[], int lnnzC[] )
-{
-    int i;
-    for( i = 0; i < totalRows; i++ ) {
-      if( rowInfo[i].kind == kEqualRow ) {
-	lnnzA[ rowRemap[i] ] = rowInfo[i].nnz;
-      } else if ( rowInfo[i].kind == kFreeRow ) {
-	// Do nothing
-      } else {
-	lnnzC[ rowRemap[i] ] = rowInfo[i].nnz;
-      }
-    }
-    for( i = 0; i < totalCols; i++ ) {
-      lnnzQ[i] = colInfo[i].nnz;
-    }
-}
 
 void MpsReader::numberOfNonZeros( int& nnzQ_, int& nnzA_, int& nnzC_ )
 {

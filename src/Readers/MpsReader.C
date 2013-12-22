@@ -34,7 +34,21 @@ struct MpsColInfo {
   int  nnz;
 };
 
-int MpsRowTypeFromCode2( char * code );
+
+int MpsRowTypeFromCode2( char * code )
+{
+  if (1 != strlen(code))
+      return kBadRowType;
+
+  switch ( code[0] ) {
+  case 'N' : case 'n' : return kFreeRow;    break;
+  case 'L' : case 'l' : return kLessRow;    break;
+  case 'G' : case 'g' : return kGreaterRow; break;
+  case 'E' : case 'e' : return kEqualRow;  break;
+  default: return kBadRowType; break;
+  }
+}
+
 
 void doubleLexSort( int first[], int n, int second[], double data[] );
 
@@ -271,7 +285,7 @@ void MpsReader::readRHSSection( double b[],
   }
 
   Word currentRHS = "";
-  char blank[4];
+  Word blank;
   Word rhsName ="";
   Word row[2];
   double val[2];
@@ -280,11 +294,7 @@ void MpsReader::readRHSSection( double b[],
     ierr = this->ParseDataLine2( line, blank, rhsName, row[0], &val[0],
 				hasSecondValue, row[1], &val[1] ); 
     if( ierr != mpsok ) return;
-    /* if( !isOnlySpaces( blank, 0, 1 ) ) {
-      fprintf( stderr, "A code field is unexpected on line %d.\n", iline );
-      ierr = mpssyntaxerr;
-      return;
-    } */
+
     if( 0 != strcmp( rhsName, currentRHS ) ) {
       if( 0 == strcmp( currentRHS, "" ) ) {
 	word_copy( currentRHS, rhsName );
@@ -1647,123 +1657,88 @@ int MpsReader::ParseRowsLine2( char line[],  char code[], char name1[] )
 
 int MpsReader::ParseBoundsLine2( char line[], int& code, char name1[],
 				char name2[], double * val )
-    {
-    int i = 0;
-    char *token;
-    char *arrayOfTokens[4];
-    int ierr =0;
-    char tempLine[200];
-    char *endptr;
-    char codeStr[4];
-    bool boundsLabelPresent = false;
+{
+  int i = 0;
+  char *token;
+  char *arrayOfTokens[4] = { NULL };
+  
+  *val = 0.0;
 
-    *val = 0.0;
+  // Split the extracted line into tokens delimited by space...
+  token = strtok( line, " \t");
+  i = 0;
+  do {
+    if (token == NULL)
+      break;
+    arrayOfTokens[i++] = token;
+    token = strtok( NULL, " \t");
+  } while (i < 4);
+    
+  // Field 1: Specifies the types of bound
+  if( arrayOfTokens[0] == NULL){
+    fprintf( stderr, "Empty bound type on line %d.\n", iline );
+    return mpssyntaxerr;
+  }
+  
+  /* Convert the code to upper case if needed */
+  char * codeStr = arrayOfTokens[0];
+  codeStr[0] = toupper( codeStr[0] );
+  codeStr[1] = toupper( codeStr[1] );
+  
+  if( 0 == strcmp( codeStr, "LO" ) ) {
+    code = kLowerBound;
+  } else if ( 0 == strcmp( codeStr, "UP" ) ) {
+    code = kUpperBound;
+  } else if ( 0 == strcmp( codeStr, "FX" ) ) {
+    code = kFixedBound;
+  } else if ( 0 == strcmp( codeStr, "FR" ) ) {
+    code = kFreeBound;
+  } else if ( 0 == strcmp( codeStr, "MI" ) ) {
+    code = kMInftyBound;
+  } else if ( 0 == strcmp( codeStr, "PL" ) ) {
+    code = kPInftyBound;
+  } else {
+    fprintf( stderr, "Bad type of bound specified on line %d.\n", iline );
+    return mpssyntaxerr;
+  }
 
-    memcpy( tempLine, line, 200);
-
-    token = strtok( tempLine, " ");
-    arrayOfTokens[0] = token;
-
-    // Split the extracted line into tokens delimited by space...
-    for( i = 1; i < 4; i++){       
-        arrayOfTokens[i] = strtok( NULL, " ");
-        }
-
-    // Field 1: Specifies the types of bound
-    if( arrayOfTokens[0] != NULL){
-        strcpy(codeStr, arrayOfTokens[0]);         
-        }
-    else{
-        fprintf( stderr, "Empty bound type on line %d.\n", iline );
-        return mpssyntaxerr;
-        }
-
-    /* Convert the code to upper case if needed */
-    codeStr[0] = toupper( codeStr[0] );
-    codeStr[1] = toupper( codeStr[1] );
-
-    if( 0 == strcmp( codeStr, "LO" ) ) {
-      code = kLowerBound;
-    } else if ( 0 == strcmp( codeStr, "UP" ) ) {
-      code = kUpperBound;
-    } else if ( 0 == strcmp( codeStr, "FX" ) ) {
-      code = kFixedBound;
-    } else if ( 0 == strcmp( codeStr, "FR" ) ) {
-      code = kFreeBound;
-    } else if ( 0 == strcmp( codeStr, "MI" ) ) {
-      code = kMInftyBound;
-    } else if ( 0 == strcmp( codeStr, "PL" ) ) {
-      code = kPInftyBound;
-    } else {
-      fprintf( stderr, "Bad type of bound specified on line %d.\n", iline );
-      return mpssyntaxerr;
-    }
-
-	// The presence of kFreeBound, kMInftyBound or kPInftyBound and 3 tokens indicates
-	// that a bounds label is present.
-	if( (code == kFreeBound) || (code == kMInftyBound) || (code == kPInftyBound)){
-		if( arrayOfTokens[2] != NULL)
-			boundsLabelPresent = true;
-		}
-	// The presence of kLowerBound, kUpperBound or kFixedBound and 4 tokens indicates 
-	// that a bounds label is present
-	else if( (code == kLowerBound) || (code == kUpperBound) || (code == kFixedBound)){
-		if( arrayOfTokens[3] != NULL)
-			boundsLabelPresent = true;
-		}
-
-    // Field 2: Bounds Label
-    if( boundsLabelPresent){
-	if( arrayOfTokens[1] != NULL){
-		strcpy(name1, arrayOfTokens[1]);        
-		}
-	else{
-		fprintf( stderr, "Empty first name field on line %d.\n", iline );
-		return mpssyntaxerr;
-		}
-	}
-
-	// Set the token index dynamically depending on whether or not the Bounds label is present
-	int tokIndex = 1;
-	if( boundsLabelPresent){
-		tokIndex = 2;
-		}
-
-    // Field 3: Column Label
-    if( arrayOfTokens[tokIndex] != NULL){
-        strcpy(name2, arrayOfTokens[tokIndex]); 
-		tokIndex++;
-        }
-    else{
-        fprintf( stderr, "Empty second name field on line %d.\n", iline );
-        return mpssyntaxerr;
-        }
-
+  int tokIndex = 1;
+  // Field 2: Optional bounds Label
+  // The presence of kFreeBound, kMInftyBound or kPInftyBound and 3
+  // tokens indicates that a bounds label is present.
+  if( (code == kFreeBound) || (code == kMInftyBound) || 
+      (code == kPInftyBound) ){
+    if( arrayOfTokens[2] != NULL)
+      word_copy(name1, arrayOfTokens[tokIndex++]);
+  }
+  // The presence of kLowerBound, kUpperBound or kFixedBound and 4
+  // tokens indicates that a bounds label is present
+  else if( (code == kLowerBound) || 
+	   (code == kUpperBound) || (code == kFixedBound)){
+    if( arrayOfTokens[3] != NULL)
+      word_copy(name1, arrayOfTokens[tokIndex++]);        
+  }
+  
+  word_copy(name2, arrayOfTokens[tokIndex++]); 
+  
   switch( code ) {
   case kFreeBound:
   case kMInftyBound:
   case kPInftyBound:
     // this is it, nothing else may be specified
     break;
-
+   
   default:
 
     // Field 4 (Optional): Bound value
-    if( arrayOfTokens[tokIndex] != NULL){
-        *val = strtod( arrayOfTokens[tokIndex], &endptr );
-
-        if( endptr[0] != ' ' && endptr[0] != '\0')
-            ierr = 1; // This works because we have already tokenized based on space delimiters
-
-		if( 0 != ierr ){
-            fprintf( stderr, "Value doesn't parse as number on line %d.\n", iline );
-            return mpssyntaxerr;
-            }
-        }
+    if( arrayOfTokens[tokIndex] != NULL) {
+      if (0 != parse_double(arrayOfTokens[tokIndex], *val) )
+	fprintf( stderr, "Value doesn't parse as number on line %d.\n", iline );
+	return mpssyntaxerr;
+    }
     break;
   }
-
-return mpsok;
+  return mpsok;
 }
 
 
@@ -1833,21 +1808,6 @@ int MpsReader::ParseDataLine2( char line[],  char /* code */[],
 	  return mpssyntaxerr;
     }
     return mpsok;
-}
-
-
-int MpsRowTypeFromCode2( char * code )
-{
-  if (1 != strlen(code))
-      return kBadRowType;
-
-  switch ( code[0] ) {
-  case 'N' : case 'n' : return kFreeRow;    break;
-  case 'L' : case 'l' : return kLessRow;    break;
-  case 'G' : case 'g' : return kGreaterRow; break;
-  case 'E' : case 'e' : return kEqualRow;  break;
-  default: return kBadRowType; break;
-  }
 }
 
 

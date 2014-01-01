@@ -96,7 +96,6 @@ double   dC[]  = { 2,   1,  -1,   2};
 int main()
 {
   int ierr;
-  int i;
 
   /* x, y and z are vectors of Lagrange multipliers */ 
 
@@ -136,6 +135,8 @@ int main()
     fprintf( stderr, "Couldn't solve it.\n" );
     return 1;
   } else {
+    int i;
+
     printf(" Final Objective: %g\n\n", ObjVal);
     printf( "Solution:...\n" );
     for( i = 0; i < nx; i++ ) {

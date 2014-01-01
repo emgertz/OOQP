@@ -122,13 +122,6 @@ public:
   {
     this->obj = sp.ptr();
   };
-#ifdef HAVE_MEMBER_TEMPLATES
-  template <class S>
-  SmartPointer( const SmartPointer<S>& sp )
-  {
-    this->obj = sp.ptr();
-  }
-#endif
   //@}
   //@{
   /** Dereferencing operation. Return a reference to the object. */
@@ -149,18 +142,6 @@ public:
     
     return *this;
   };
-#ifdef HAVE_MEMBER_TEMPLATES
-  template <class S>
-  SmartPointer<T>& operator=(const SmartPointer<S>& sp)
-  {
-    S * ptrin = sp.ptr();
-    if( this->obj ) IotrRelease( &this->obj );
-    
-    this->obj = ptrin;
-    
-    return *this;
-  }
-#endif
   //@}
   /** Destructor; release the object (through a call to IotrRelease()) if the
    *  object is not nil.

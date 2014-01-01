@@ -39,8 +39,11 @@ Ma27Solver::Ma27Solver( SparseSymMatrix * sgm ) :
 }
 
 Ma27SolverBase::Ma27SolverBase( int n_in, int nnz_in ) :
+  icntl(), info(), cntl(),
   precision(kInitPrecision), irowM(0), jcolM(0), fact(0),
-  n(n_in), nnz(nnz_in), ipessimism(1.2), rpessimism(1.2) 
+  n(n_in), nnz(nnz_in), la(0), 
+  ikeep(0), iw(0), liw(0), iw1(0), iw2(0), nsteps(0), maxfrt(0),
+  w(0), ipessimism(1.2), rpessimism(1.2)
 {
   ma27id_(icntl, cntl);
   // set initial value of "Treat As Zero" parameter

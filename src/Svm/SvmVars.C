@@ -13,7 +13,8 @@ using namespace std;
 #include "SimpleVector.h"
 #include "DoubleMatrix.h"
 
-SvmVars::SvmVars(int hyperplanedim_in, int nobservations_in)
+SvmVars::SvmVars(int hyperplanedim_in, int nobservations_in) :
+    beta(0)
 {
   hyperplanedim = hyperplanedim_in;
   nobservations = nobservations_in;

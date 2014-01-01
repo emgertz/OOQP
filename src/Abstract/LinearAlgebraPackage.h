@@ -29,10 +29,6 @@ public:
   virtual GenMatrix * newGenMatrix( int m, int n, int nnz ) = 0;
   /** Create a new vector (of appropriate type.) */
   virtual OoqpVector * newVector( int n ) = 0;
-  /** Get a string indicating the type of this object
-   *  (for debugging purposes.)
-   */
-  virtual void whatami( char type[32] ) = 0;
 };
 
 /**

@@ -713,7 +713,10 @@ void SparseStorage::symmetrize( int& info)
       } // End not a diagonal element
     } // End loop over elements of column j
   } // End for all columns
-  if( info != 0 ) return;
+  if( info != 0 ) {
+    delete [] irowM;
+    return;
+  }
   nnz = ku;
 
   doubleLexSort( irowM, nnz, jcolM, M );

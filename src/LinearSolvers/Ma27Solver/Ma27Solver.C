@@ -250,8 +250,8 @@ void Ma27SolverBase::matrixChanged()
 
 void Ma27SolverBase::basicSolve( double * drhs, int nn )
 {
-  int print_level = gOoqpPrintLevel;
 #ifdef HAVE_GETRUSAGE
+  int print_level = gOoqpPrintLevel;
   rusage before;
   if( print_level >= 100 ) {
     getrusage( RUSAGE_SELF, &before );

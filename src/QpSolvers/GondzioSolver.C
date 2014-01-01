@@ -24,7 +24,8 @@ double gmu;
 // double grnorm;
 extern int gOoqpPrintLevel;
 
-GondzioSolver::GondzioSolver( ProblemFormulation * of, Data * prob )
+GondzioSolver::GondzioSolver( ProblemFormulation * of, Data * prob ) :
+    NumberGondzioCorrections(0)
 {
   factory              = of;
   step                 = factory->makeVariables( prob );

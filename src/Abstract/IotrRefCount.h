@@ -62,6 +62,7 @@ private:
    *  copied, the reference count is not! In general, IotrRefCount objects 
    *  should not be copied this way, which is why this operator is private.
    */
+  // cppcheck-suppress operatorEqVarError
   IotrRefCount& operator=( const IotrRefCount & )
   {
     // mRefs = mRefs;

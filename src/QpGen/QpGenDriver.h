@@ -10,7 +10,6 @@
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
-using namespace std;
 #include <cstdlib>
 
 #ifdef HAVE_GETRUSAGE
@@ -83,8 +82,9 @@ int qpgen_solve( int argc, char * argv[],
 #endif
     MpsReader * reader  = MpsReader::newReadingFile( filename, iErr );
     if( !reader ) {
-      cerr << "Couldn't read file " << filename << endl 
-	   << "For what it is worth, the error number is " << iErr << endl;
+      std::cerr << "Couldn't read file " << filename << std::endl
+		<< "For what it is worth, the error number is "
+		<< iErr << std::endl;
       return 1;
     }
     
@@ -104,8 +104,8 @@ int qpgen_solve( int argc, char * argv[],
 
     prob->datainput( reader, iErr );
     if( 0 != iErr ) {
-      cerr << "Couldn't read file " << filename << endl
-	   << "For what it is worth, the error number is " << iErr << endl;
+      std::cerr << "Couldn't read file " << filename << std::endl
+	   << "For what it is worth, the error number is " << iErr << std::endl;
       return 1;
     }
     reader->releaseFile( iErr );
@@ -115,8 +115,8 @@ int qpgen_solve( int argc, char * argv[],
 #endif
 
     if( 0 != iErr ) {
-      cerr << "Couldn't close file " << filename << endl 
-	   << "For what it is worth, the error number is " << iErr << endl;
+      std::cerr << "Couldn't close file " << filename << std::endl
+	   << "For what it is worth, the error number is " << iErr << std::endl;
       return 1;
     }
     
@@ -156,7 +156,7 @@ int qpgen_solve( int argc, char * argv[],
 	   << m2  << " inequality constraints.\n";
       
       cout << " Iterates: " << s->iter
-	   <<",    Optimal Solution:  " << objective << endl;
+	   <<",    Optimal Solution:  " << objective << std::endl;
       }
       vars->printSolution(reader, prob, iErr);
     } else {
@@ -179,9 +179,9 @@ int qpgen_solve( int argc, char * argv[],
 
     return result;
   } 
-  catch(const exception & e) {
-    cerr << "\nOops, fatal error:\n";
-    cerr << e.what() << endl;
+  catch(const std::exception & e) {
+    std::cerr << "\nOops, fatal error:\n";
+    std::cerr << e.what() << std::endl;
     return -1;
   }
 }

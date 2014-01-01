@@ -6,7 +6,7 @@
 
 void doubleLexSort( int first[], int n, int second[], double data[] )
 {
-  int fi, se, j, k, kinc, inc;
+  int fi, se, j, k, kinc;
   double dtemp;
   const int incs[]  = {1, 5, 19, 41, 109, 209, 505,
 		       929, 2161, 3905, 8929, 16001, INT_MAX};
@@ -20,7 +20,7 @@ void doubleLexSort( int first[], int n, int second[], double data[] )
 
   for( ; kinc >= 0; kinc-- ) {
     // Loop over all increments
-    inc = incs[kinc];
+    int inc = incs[kinc];
 
     for ( k = inc; k < n; k++ ) {
       dtemp = data[k];

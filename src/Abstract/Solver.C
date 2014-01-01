@@ -98,8 +98,7 @@ void Solver::stevestart(  ProblemFormulation * /* formulation */,
   // do Mehrotra-type adjustment
 
   double mutemp = iterate->mu();
-  double xsnorm = 0.0;
-  xsnorm = iterate->onenorm();
+  double xsnorm =  iterate->onenorm();
   double delta = 0.5 * iterate->nComplementaryVariables * mutemp / xsnorm;
   iterate->shiftBoundVariables( delta, delta );
 }

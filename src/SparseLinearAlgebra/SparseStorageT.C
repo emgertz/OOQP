@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstring>
 #include <cassert>
+#include <ostream>
 
 #include "SparseStorageT.h"
 #include "OoqpVector.h"
@@ -227,7 +228,7 @@ void SparseStorageT<SCALAR>::fromGetDense( int row, int col, double * A, int lda
 
 template <typename SCALAR>
 void SparseStorageT<SCALAR>::atPutSpRow( int row, double A[], int lenA,
-				    int jcolA[], int& info )
+				         int jcolA[], int& info )
 {
   int ka    = lenA - 1;
   int km_f  = krowM[row + 1] - 1;
@@ -500,13 +501,13 @@ void SparseStorageT<SCALAR>::fromGetSpRow( int row, int col,
 }
 
 template <typename SCALAR>
-void SparseStorageT<SCALAR>::writeToStream(ostream& out) const
+void SparseStorageT<SCALAR>::writeToStream(std::ostream& out) const
 {
   int i, k;
 
   for( i = 0; i < m; i++ ) {
     for ( k = krowM[i]; k < krowM[i+1]; k++ ) {
-      out << i << '\t' << jcolM[k] << '\t' << M[k] << endl;
+      out << i << '\t' << jcolM[k] << '\t' << M[k] << std::endl;
     }
   }
 }

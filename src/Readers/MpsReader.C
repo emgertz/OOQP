@@ -293,7 +293,8 @@ void MpsReader::readRHSSection( double b[],
   while( DATALINE == (kindOfLine = this->GetLine( line ) ) ) {
     ierr = this->ParseDataLine2( line, blank, rhsName, row[0], &val[0],
 				hasSecondValue, row[1], &val[1] ); 
-    if( ierr != mpsok ) return;
+    if( ierr != mpsok )
+      goto finished;
 
     if( 0 != strcmp( rhsName, currentRHS ) ) {
       if( 0 == strcmp( currentRHS, "" ) ) {
@@ -304,7 +305,7 @@ void MpsReader::readRHSSection( double b[],
 		 currentRHS );
 	// Skip the rest.
 	while( DATALINE == (kindOfLine = this->GetLine( line ) ) ) ;
-	return;
+	goto finished;
       }
     }
       
@@ -317,13 +318,13 @@ void MpsReader::readRHSSection( double b[],
 	fprintf( stderr, "Unrecognized row name, \"%s\", on line %d.\n",
 		 row[i], iline );
 	ierr = mpssyntaxerr;
-	return;
+	goto finished;
       }
       if( seenRow[rownum] ) {
 	fprintf( stderr, "Multiple rhs were specified for row %s, "
 		 "most recently at line %d.\n", rowInfo[i].name, iline );
 	ierr = mpssyntaxerr;
-	return;
+	goto finished;
       }
       seenRow[rownum] = 1;
       
@@ -353,6 +354,7 @@ void MpsReader::readRHSSection( double b[],
       }
     } // end for all values specified.
   }
+ finished:
   delete [] seenRow;
 }
 
@@ -527,13 +529,14 @@ void MpsReader::readBoundsSection( double xlow[], char ixlow[],
     ierr = this->ParseBoundsLine2( line, code, bound, col, &val );
 
     // we are reading datalines
-    if( ierr != mpsok ) return;
+    if( ierr != mpsok ) 
+      goto finished;
 
     int colnum = GetIndex( colTable, col );
     if( colnum < 0 ) {
       fprintf( stderr, "Unrecognized column name on line %d.\n", iline );
       ierr = mpssyntaxerr;
-      return;
+      goto finished;
     }
     int conflictingBound = 0;
     switch( code ) {
@@ -594,7 +597,7 @@ void MpsReader::readBoundsSection( double xlow[], char ixlow[],
 	       "may conflict with some eariler bound on the same variable.\n",
 	       iline, col );
       ierr = mpssyntaxerr;
-      return;
+      goto finished;
     }
   } // end while we are reading datalines
 
@@ -603,10 +606,10 @@ void MpsReader::readBoundsSection( double xlow[], char ixlow[],
       fprintf( stderr, "The lower bound for variable \"%s\" is greater than\n"
 	       "its upper bound.\n", colInfo[i].name );
       ierr = mpssyntaxerr;
-      return;
+      goto finished;;
     }
   }
-
+ finished:
   delete [] lboundSpecified;
   delete [] uboundSpecified;
 }
@@ -697,8 +700,6 @@ void MpsReader::scanRangesSection( char line[],
   Word rangeName ="", row[2];
   int hasSecondValue;
   double val[2];
-  int nvals;
-
   
   char * seenRow = new char[totalRows];
 
@@ -727,7 +728,7 @@ void MpsReader::scanRangesSection( char line[],
 	break;
       } // end else this is the second range we have seen
     } // end if this is a new section of range values
-    nvals = (hasSecondValue) ? 2 : 1;
+    int nvals = (hasSecondValue) ? 2 : 1;
     for( i = 0; i < nvals; i++ ) {
       // all rows specified
       int rownum = GetIndex( rowTable, row[i] );
@@ -832,27 +833,26 @@ int MpsReader::acceptHeader2( int lineType, const char acceptName[],
 void MpsReader::scanHessSection( char line[], 
                                  int& iErr, int& linetype )
 {
-  Word code, name[2], colname;
-  double val[2];
-  int hasSecondValue;
-  Word oldColName = "";
-  int colnum = -1;
-
   int  * lastSeenRow = 0;
   linetype = mpssyntaxerr; // If this doesn't get set to something else,
   // it is an error
-  
-  int i, nvals;
   iErr = mpsok;
 
   lastSeenRow  = new int[totalCols];
   if( !lastSeenRow ) {
     iErr = mpsmemoryerr;
   } else {
-    for( i = 0; i < totalCols; i++ ) {
+    for( int i = 0; i < totalCols; i++ ) {
       lastSeenRow[i] = -1;
     }
     while((linetype = this->GetLine(line)) == DATALINE ) {
+      Word code, name[2], colname;
+      double val[2];
+
+      int hasSecondValue, nvals;
+      Word oldColName = "";
+      int colnum = -1;
+
       // we are reading data lines
       iErr = this->ParseDataLine2(line, code, colname, name[0], &val[0],
                                  hasSecondValue, name[1], &val[1] );
@@ -875,7 +875,7 @@ void MpsReader::scanHessSection( char line[],
         word_copy( oldColName, colname );
       }
       nvals = (hasSecondValue) ? 2 : 1;
-      for( i = 0; i < nvals; i++ ) {
+      for( int i = 0; i < nvals; i++ ) {
         int rownum = GetIndex( colTable, name[i] );
         if( rownum < 0 ) {
           fprintf( stderr, 
@@ -1114,7 +1114,6 @@ void MpsReader::readRowsSection( char line[],
 
   int lrowInfo   = 1000; 	// Initial guess
   totalRows      = 0;
-  rowInfo        = 0;
   rowTable       = 0;
 
   // Remember code for rhs and bound
@@ -1599,10 +1598,8 @@ MpsReader::~MpsReader()
 
 int MpsReader::GetLine(char * line )
 {
-  int i;
-  
   do {
-    int c;
+    int i, c;
     
     iline++;
     
@@ -1658,7 +1655,7 @@ int MpsReader::ParseRowsLine2( char line[],  char code[], char name1[] )
 int MpsReader::ParseBoundsLine2( char line[], int& code, char name1[],
 				char name2[], double * val )
 {
-  int i = 0;
+  int ntokens = 0;
   char *token;
   char *arrayOfTokens[4] = { NULL };
   
@@ -1666,16 +1663,16 @@ int MpsReader::ParseBoundsLine2( char line[], int& code, char name1[],
 
   // Split the extracted line into tokens delimited by space...
   token = strtok( line, " \t");
-  i = 0;
+  ntokens = 0;
   do {
     if (token == NULL)
       break;
-    arrayOfTokens[i++] = token;
+    arrayOfTokens[ntokens++] = token;
     token = strtok( NULL, " \t");
-  } while (i < 4);
+  } while (ntokens < 4);
     
   // Field 1: Specifies the types of bound
-  if( arrayOfTokens[0] == NULL){
+  if( ntokens == 0){
     fprintf( stderr, "Empty bound type on line %d.\n", iline );
     return mpssyntaxerr;
   }
@@ -1708,15 +1705,27 @@ int MpsReader::ParseBoundsLine2( char line[], int& code, char name1[],
   // tokens indicates that a bounds label is present.
   if( (code == kFreeBound) || (code == kMInftyBound) || 
       (code == kPInftyBound) ){
-    if( arrayOfTokens[2] != NULL)
+    if( ntokens == 3 ) {
       word_copy(name1, arrayOfTokens[tokIndex++]);
+    } else if (ntokens != 2) {
+      fprintf( stderr, 
+	       "Bad bounds line %d, expected 2 or 3 tokens, got %d.\n", 
+	       iline, ntokens);
+      return mpssyntaxerr;
+    }
   }
   // The presence of kLowerBound, kUpperBound or kFixedBound and 4
   // tokens indicates that a bounds label is present
   else if( (code == kLowerBound) || 
 	   (code == kUpperBound) || (code == kFixedBound)){
-    if( arrayOfTokens[3] != NULL)
+    if( ntokens == 4 ) {
       word_copy(name1, arrayOfTokens[tokIndex++]);        
+    } else if (ntokens != 3) {
+      fprintf( stderr, 
+	       "Bad bounds line %d, expected 3 or 4 tokens, got %d.\n", 
+	       iline, ntokens);
+      return mpssyntaxerr;
+    }
   }
   
   word_copy(name2, arrayOfTokens[tokIndex++]); 
@@ -1748,7 +1757,6 @@ int MpsReader::ParseDataLine2( char line[],  char /* code */[],
 			       int& hasSecondValue,
 			       char name3[], double * val2)
 {
-    int i = 0;
     char *token, *endptr;
     char *arrayOfTokens[5] = {NULL,};
 
@@ -1768,7 +1776,7 @@ int MpsReader::ParseDataLine2( char line[],  char /* code */[],
     
     // An even number of tokens indicates that name1 is missing
     if (numberOfTokens % 2 == 0) {
-      for (i = numberOfTokens;  i > 0;  i--)
+      for (int i = numberOfTokens;  i > 0;  i--)
 	arrayOfTokens[i] = arrayOfTokens[i-1];
       arrayOfTokens[0] = NULL;
       numberOfTokens++;
@@ -1917,13 +1925,14 @@ void MpsReader::printSolution( double x[],      int     nx,
   
   // print column information for equality constrained rows first,
   // then for the rows with upper and lower bounds
-  int i_equalities=0, i_inequalities=0;
   
   fprintf(outfile, "\n\n CONSTRAINTS\n\n");
 
   // first the equality constraints 
     
   if(mA >0) {
+    int i_equalities=0;
+
     fprintf(outfile, " Equality Constraints: %d\n\n", mA);
     fprintf(outfile, "        Name      Multiplier\n");
     for(int i=0; i<mA; i++) {
@@ -1942,6 +1951,8 @@ void MpsReader::printSolution( double x[],      int     nx,
   // now the inequality constraints
 
   if(mC >0) {
+    int i_inequalities=0;
+
     fprintf(outfile, " Inequality Constraints: %d\n\n", mC);
     fprintf(outfile, "       Name      Value "
 	    "            Lower Bound      Upper Bound      Multiplier\n\n");

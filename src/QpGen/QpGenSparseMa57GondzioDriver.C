@@ -12,6 +12,9 @@ int main( int argc, char *argv[] )
   QpGenSparseMa57 * qpgen = 0;
   int result = qpgen_solve( argc, argv, solver, qpgen );
   
-  return 0;
-
+  if (result == 0) {
+      return 0;
+  } else {
+      return 1;
+  }
 }

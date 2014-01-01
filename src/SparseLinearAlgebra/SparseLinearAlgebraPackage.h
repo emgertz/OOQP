@@ -33,7 +33,6 @@ public:
   virtual SymMatrix * newSymMatrix( int size, int nnz );
   virtual GenMatrix * newGenMatrix( int m, int n, int nnz );
   virtual OoqpVector * newVector( int n );
-  virtual void whatami( char type[32] );
 
 };
 

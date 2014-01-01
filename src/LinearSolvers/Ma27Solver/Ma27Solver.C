@@ -283,11 +283,10 @@ void Ma27Solver::solve( OoqpVector& rhs_in )
 
   double * drhs = rhs.elements();
   double * dresid = resid->elements();
-  double rhsnorm=0.0, rnorm=0.0;
 
   rhsSave->copyFrom(rhs);
   resid->copyFrom(rhs);
-  rhsnorm = rhs.infnorm();
+  double rhsnorm = rhs.infnorm();
 
   // compute norm of rhs, and save it
   //  double * resids_ma27 = new double[n];
@@ -309,7 +308,7 @@ void Ma27Solver::solve( OoqpVector& rhs_in )
     //    for(ii=0, rnorm=0.0; ii<n; ii++) 
     //        rnorm += resids_ma27[ii] * resids_ma27[ii]; 
     //    rnorm = sqrt(rnorm);
-    rnorm = resid->infnorm();
+    double rnorm = resid->infnorm();
     //    cout << "relative norm of residuals for linear system: " 
     //	 << rnorm/rhsnorm << endl;
     

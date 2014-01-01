@@ -40,7 +40,7 @@ void SvmResiduals::calcresids(Data *prob_in, Variables *vars_in )
 {
   SvmData *prob = (SvmData *) prob_in;
   SvmVars *vars = (SvmVars *) vars_in;
-  double gap = 0.0, norm = 0.0;
+  double gap;
 
   SimpleVector & wVar    = *vars->w;
   SimpleVector & vVar    = *vars->v;
@@ -74,7 +74,7 @@ void SvmResiduals::calcresids(Data *prob_in, Variables *vars_in )
   sRes->axpy( -1.0, sVar );
 
   // calculate the norm of the (r1,r2) residual component
-  norm = fabs( betaRes );
+  double norm = fabs( betaRes );
   double componentNorm;
   componentNorm = wRes->infnorm();
   if( norm < componentNorm ) norm = componentNorm;

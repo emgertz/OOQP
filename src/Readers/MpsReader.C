@@ -45,8 +45,8 @@ int MpsRowTypeFromCode2( char * code )
   case 'L' : case 'l' : return kLessRow;    break;
   case 'G' : case 'g' : return kGreaterRow; break;
   case 'E' : case 'e' : return kEqualRow;  break;
-  default: return kBadRowType; break;
   }
+  return kBadRowType;
 }
 
 

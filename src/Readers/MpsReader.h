@@ -88,11 +88,6 @@ private:
   HashTable *colTable;
 
   double objminus;
-  /** protected constructor. Call the class method MpsReader::newReadingFile 
-   *  to obtain a new, initalized MpsReader. 
-   *  @see MpsReader::newReadingFile
-   */
-  MpsReader() {};
   
   /** protected constructor. Call the class method MpsReader::newReadingFile 
    *  to obtain a new, initalized MpsReader. 
@@ -182,14 +177,6 @@ private:
 				char line[], int& ierr, int& kindOfLine );
 
 public:
-  /**
-   * The scaling option allows solution of problems in which
-   * the variables or equations have a vast range of values.
-   * By default, we do not scale unless the user requests it
-   * via the commandline argument.
-   */
-  int scalingOption; 
-
   /**
    * Objective sense is either MAX or MIN 
    */

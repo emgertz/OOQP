@@ -96,13 +96,7 @@ int qpgen_solve( int argc, char * argv[],
       = new FORMULATION( n1, m1, m2, nnzQ, nnzA, nnzC );
     QpGenData * prob = (QpGenData * ) qp->makeData();
  
-    /* Set the scaling option */
-    if( scale == 1)
-        reader->scalingOption = 1;
-    else
-        reader->scalingOption = 0;
-
-    prob->datainput( reader, iErr );
+    prob->datainput( reader, scale, iErr );
     if( 0 != iErr ) {
       cerr << "Couldn't read file " << filename << endl
 	   << "For what it is worth, the error number is " << iErr << endl;
@@ -158,7 +152,7 @@ int qpgen_solve( int argc, char * argv[],
       cout << " Iterates: " << s->iter
 	   <<",    Optimal Solution:  " << objective << endl;
       }
-      vars->printSolution(reader, prob, iErr);
+      vars->printSolution(reader, prob, scale, iErr);
     } else {
       if ( gOoqpPrintLevel > 0 ) {
 	cout << "Could not solve this QP.\n";

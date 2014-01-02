@@ -787,8 +787,8 @@ sxlow.componentMult(data->scale());
 sxupp.componentMult(data->scale());
 }
 
-void QpGenVars::printSolution( MpsReader * reader, QpGenData * data,
-			       int& iErr )
+void QpGenVars::printSolution( MpsReader * reader, QpGenData * data, 
+			       int scale, int& iErr )
 {
   assert( x->isKindOf( kSimpleVector ) ); // Otherwise this routine
   // cannot be used.
@@ -851,7 +851,7 @@ void QpGenVars::printSolution( MpsReader * reader, QpGenData * data,
     }
   }
 
-  if( reader->scalingOption == 1){
+  if( scale ) {
       // Unscale the solution and bounds before printing
       this->unscaleSolution( data);
       this->unscaleBounds( data);

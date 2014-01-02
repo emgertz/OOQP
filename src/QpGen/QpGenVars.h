@@ -136,7 +136,7 @@ public:
 
   virtual void print();
   virtual void printSolution( MpsReader * reader, QpGenData * prob,
-			      int& iErr );
+			      int scalingOption, int& iErr );
 
   virtual void unscaleSolution( QpGenData * data);
   virtual void unscaleBounds  ( QpGenData * data);

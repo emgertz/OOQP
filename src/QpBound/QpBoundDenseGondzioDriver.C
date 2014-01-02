@@ -15,7 +15,6 @@ using namespace std;
 
 
 // void QPDataPrint(QPData *prob);
-extern int DenseStorageInstances;
 extern int gOoqpPrintLevel;
 
 int main( int argc, char *argv[] )

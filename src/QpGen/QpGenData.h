@@ -152,7 +152,7 @@ public:
 
   virtual double datanorm();
   virtual void datainput() {};
-  virtual void datainput( MpsReader * reader, int& iErr );
+  virtual void datainput( MpsReader * reader, int scale, int& iErr );
   /** Create a random problem 
    *  @param (x,y,z,s) the solution to the random problem
    */

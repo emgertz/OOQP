@@ -155,13 +155,13 @@ double QpGenData::datanorm()
   return norm;
 }
 
-void QpGenData::datainput( MpsReader * reader, int& iErr ) 
+void QpGenData::datainput( MpsReader * reader, int scale, int& iErr )
 {
     reader->readQpGen( *g, *Q, *blx, *ixlow, *bux, *ixupp,
 		     *A, *bA,
 		     *C, *bl, *iclow, *bu, *icupp, iErr );
 
-    if( reader->scalingOption == 1){
+    if( scale ){
         // Create the scaling vector
         this->createScaleFromQ();
 

@@ -14,8 +14,6 @@ extern int DenseStorageInstances;
  *  @ingroup DenseLinearAlgebra
  */
 class DenseStorage : public DoubleStorage {
-private:
-  DenseStorage() {};
 protected:
   int neverDeleteElts;
 public:

@@ -12,9 +12,11 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <unistd.h>
-#endif
 
 extern int gOoqpPrintLevel;
+
+#endif
+
 
 Ma57Solver::Ma57Solver( SparseSymMatrix * sgm ) :
   icntl(), info(), cntl(), rinfo(), lkeep(0), keep(0),

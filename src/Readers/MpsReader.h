@@ -67,10 +67,6 @@ private:
   /** the file to be read */
   FILE * file;
 
-  /** the type of bound on each variable, normal, free, upper, lower,
-   * upperlower, fix, minfty */
-  char    *boundType;
-
   MpsRowInfo * rowInfo;
   int * rowRemap;
   int totalRows;

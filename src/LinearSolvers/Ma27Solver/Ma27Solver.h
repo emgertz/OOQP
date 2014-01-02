@@ -47,8 +47,6 @@ extern "C" {
  */
 class Ma27SolverBase : public DoubleLinearSolver {
 protected:
-  Ma27SolverBase() {};
-protected:
   int     icntl[30];
   int     info[20];
   double  cntl[5];
@@ -167,8 +165,6 @@ public:
  */
 class Ma27Solver : public Ma27SolverBase {
 protected:
-  Ma27Solver() {};
-
   /** store as a sparse symmetric matrix */
   SparseSymMatrixHandle mMat;
 

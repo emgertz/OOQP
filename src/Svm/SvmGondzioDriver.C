@@ -19,7 +19,6 @@ using namespace std;
 
 //extern "C" void GetTime( double  * utime, double * stime );
 
-extern int DenseStorageInstances; 
 extern int gOoqpPrintLevel;
 
 int main( int argc, char *argv[] )

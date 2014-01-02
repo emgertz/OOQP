@@ -17,7 +17,6 @@
 class SparseGenMatrix : public GenMatrix {
 protected:
   SparseStorageHandle mStorage;
-  int size;
 
 public:
   SparseGenMatrix( int rows, int cols, int nnz );

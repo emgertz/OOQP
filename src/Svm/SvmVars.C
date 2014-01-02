@@ -30,7 +30,8 @@ SvmVars::SvmVars(int hyperplanedim_in, int nobservations_in) :
 
 SvmVars::SvmVars(int hyperplanedim_in, int nobservations_in,
 		 double w_in[], double v_in[],
-		 double z_in[], double u_in[], double s_in[] )
+		 double z_in[], double u_in[], double s_in[] ) :
+    beta(0)
 {
   hyperplanedim = hyperplanedim_in;
   nobservations = nobservations_in;

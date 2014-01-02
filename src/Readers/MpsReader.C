@@ -63,10 +63,14 @@ MpsReader::MpsReader( FILE * file_ )
   rowTable    = 0;
   colTable    = 0;
   infilename  =  0;
+  columnFilePosition = 0;
+  firstColumnLine = 0;
   // -1 indicates that we have not yet determined these values
   nnzA = -1; nnzC = -1; nnzQ = -1;
   my   = -1; mz   = -1;
+  totalRows = totalCols = 0;
   memcpy(this->objectiveSense, "MIN", 3);
+  objminus = 0.0;
 }
 
 

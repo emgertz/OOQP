@@ -1733,9 +1733,10 @@ int MpsReader::ParseBoundsLine2( char line[], int& code, char name1[],
 
     // Field 4 (Optional): Bound value
     if( arrayOfTokens[tokIndex] != NULL) {
-      if (0 != parse_double(arrayOfTokens[tokIndex], *val) )
+      if (0 != parse_double(arrayOfTokens[tokIndex], *val) ) {
 	fprintf( stderr, "Value doesn't parse as number on line %d.\n", iline );
 	return mpssyntaxerr;
+      }
     }
     break;
   }

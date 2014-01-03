@@ -20,7 +20,6 @@ public:
   typedef SmartPointer<SparseStorageT<SCALAR> > SparseStorageHandleT;
 protected:
   SparseStorageHandleT mStorage;
-  int size;
 
 public:
   typedef SCALAR scalarT;

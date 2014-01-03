@@ -27,7 +27,7 @@ int main()
   double *x = 0, *gamma = 0, *phi = 0;
   double *y = 0, *z = 0,     *lambda = 0 , *pi = 0;
 
-  int i, ierr;
+  int ierr;
   void * mps;
 
   mps = newCMpsReader( filename, &ierr );
@@ -85,6 +85,8 @@ int main()
     fprintf( stderr, "Couldn't solve it.\n" );
     return 1;
   } else {
+    int i;
+
     printf(" Final Objective Value: %g\n\n", objval + objconst);
     printf( "Solution:...\n" );
     for( i = 0; i < nx; i++ ) {

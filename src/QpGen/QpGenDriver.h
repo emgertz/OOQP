@@ -9,7 +9,6 @@
 #include <cstring>
 #include <iostream>
 #include <fstream>
-using namespace std;
 #include <cstdlib>
 
 #ifdef HAVE_GETRUSAGE
@@ -82,8 +81,9 @@ int qpgen_solve( int argc, char * argv[],
 #endif
     MpsReader * reader  = MpsReader::newReadingFile( filename, iErr );
     if( !reader ) {
-      cerr << "Couldn't read file " << filename << endl 
-	   << "For what it is worth, the error number is " << iErr << endl;
+      std::cerr << "Couldn't read file " << filename << std::endl
+		<< "For what it is worth, the error number is "
+		<< iErr << std::endl;
       return 1;
     }
     
@@ -97,8 +97,8 @@ int qpgen_solve( int argc, char * argv[],
  
     prob->datainput( reader, scale, iErr );
     if( 0 != iErr ) {
-      cerr << "Couldn't read file " << filename << endl
-	   << "For what it is worth, the error number is " << iErr << endl;
+      std::cerr << "Couldn't read file " << filename << std::endl
+	   << "For what it is worth, the error number is " << iErr << std::endl;
       return 1;
     }
     reader->releaseFile( iErr );
@@ -108,8 +108,8 @@ int qpgen_solve( int argc, char * argv[],
 #endif
 
     if( 0 != iErr ) {
-      cerr << "Couldn't close file " << filename << endl 
-	   << "For what it is worth, the error number is " << iErr << endl;
+      std::cerr << "Couldn't close file " << filename << std::endl
+	   << "For what it is worth, the error number is " << iErr << std::endl;
       return 1;
     }
     
@@ -149,7 +149,7 @@ int qpgen_solve( int argc, char * argv[],
 	   << m2  << " inequality constraints.\n";
       
       cout << " Iterates: " << s->iter
-	   <<",    Optimal Solution:  " << objective << endl;
+	   <<",    Optimal Solution:  " << objective << std::endl;
       }
       vars->printSolution(reader, prob, scale, iErr);
     } else {
@@ -173,7 +173,7 @@ int qpgen_solve( int argc, char * argv[],
     return result;
   } 
   catch( ... ) {
-    cerr << "\nOops, out of memory\n";
+    std::cerr << "\nOops, out of memory\n";
     return -1;
   }
 }

@@ -37,8 +37,11 @@ Ma27Solver::Ma27Solver( SparseSymMatrix * sgm ) :
 }
 
 Ma27SolverBase::Ma27SolverBase( int n_in, int nnz_in ) :
+  icntl(), info(), cntl(),
   precision(kInitPrecision), irowM(0), jcolM(0), fact(0),
-  n(n_in), nnz(nnz_in), ipessimism(1.2), rpessimism(1.2) 
+  n(n_in), nnz(nnz_in), la(0), 
+  ikeep(0), iw(0), liw(0), iw1(0), iw2(0), nsteps(0), maxfrt(0),
+  w(0), ipessimism(1.2), rpessimism(1.2)
 {
   ma27id_(icntl, cntl);
   // set initial value of "Treat As Zero" parameter
@@ -244,8 +247,8 @@ void Ma27SolverBase::matrixChanged()
 
 void Ma27SolverBase::basicSolve( double * drhs, int nn )
 {
-  int print_level = gOoqpPrintLevel;
 #ifdef HAVE_GETRUSAGE
+  int print_level = gOoqpPrintLevel;
   rusage before;
   if( print_level >= 100 ) {
     getrusage( RUSAGE_SELF, &before );
@@ -280,11 +283,10 @@ void Ma27Solver::solve( OoqpVector& rhs_in )
 
   double * drhs = rhs.elements();
   double * dresid = resid->elements();
-  double rhsnorm=0.0, rnorm=0.0;
 
   rhsSave->copyFrom(rhs);
   resid->copyFrom(rhs);
-  rhsnorm = rhs.infnorm();
+  double rhsnorm = rhs.infnorm();
 
   // compute norm of rhs, and save it
   //  double * resids_ma27 = new double[n];
@@ -306,7 +308,7 @@ void Ma27Solver::solve( OoqpVector& rhs_in )
     //    for(ii=0, rnorm=0.0; ii<n; ii++) 
     //        rnorm += resids_ma27[ii] * resids_ma27[ii]; 
     //    rnorm = sqrt(rnorm);
-    rnorm = resid->infnorm();
+    double rnorm = resid->infnorm();
     //    cout << "relative norm of residuals for linear system: " 
     //	 << rnorm/rhsnorm << endl;
     

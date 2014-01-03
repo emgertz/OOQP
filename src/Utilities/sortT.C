@@ -7,7 +7,7 @@
 template <typename SC>
 void doubleLexSort( int first[], int n, int second[], SC data[] )
 {
-  int fi, se, j, k, kinc, inc;
+  int fi, se, j, k, kinc;
   SC dtemp;
   const int incs[]  = {1, 5, 19, 41, 109, 209, 505,
 		       929, 2161, 3905, 8929, 16001, INT_MAX};
@@ -21,7 +21,7 @@ void doubleLexSort( int first[], int n, int second[], SC data[] )
 
   for( ; kinc >= 0; kinc-- ) {
     // Loop over all increments
-    inc = incs[kinc];
+    int inc = incs[kinc];
 
     for ( k = inc; k < n; k++ ) {
       dtemp = data[k];

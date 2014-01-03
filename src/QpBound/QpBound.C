@@ -10,7 +10,7 @@
 #include "DoubleMatrix.h"
 #include "LinearAlgebraPackage.h"
 
-QpBound::QpBound(int nx_)
+QpBound::QpBound(int nx_) : la(0)
 {
   nx = nx_;
 }

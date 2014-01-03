@@ -138,10 +138,10 @@ QpGenVars::QpGenVars( LinearAlgebraPackage * la,
 
 double QpGenVars::mu()
 {
-  double mu  = 0.0;
   if ( nComplementaryVariables == 0 ) {
     return 0.0;
   } else {
+    double mu  = 0.0;
     if( mclow > 0 ) mu += t->dotProductWith( *lambda );
     if( mcupp > 0 ) mu += u->dotProductWith( *pi );
     if( nxlow > 0 ) mu += v->dotProductWith( *gamma );
@@ -156,10 +156,10 @@ double QpGenVars::mu()
 double QpGenVars::mustep(Variables * step_in, double alpha)
 {
   QpGenVars * step = (QpGenVars *) step_in;
-  double mu  = 0.0;
   if ( nComplementaryVariables == 0 ) {
     return 0.0;
   } else {
+    double mu  = 0.0;
     if( mclow > 0 ) {
       mu += t->shiftedDotProductWith( alpha, *step->t,
 				      *lambda,

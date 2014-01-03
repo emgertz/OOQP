@@ -367,7 +367,7 @@ extern int gOoqpPrintLevel;
 SvmLinearSolver::SvmLinearSolver(int m, int n, int usingDirectSolve):
   hyperplanedim(n), nobservations(m),
   mSvmmaxits(40),  mSolvestep(-1),
-  mY(0), mYd(0), mDinv(0), mSvmPrecond(0),
+  mY(0), mYd(0), mDinv(0), mGamma(0), mMu(0), mSvmPrecond(0),
   mScaleSvmTolMax(10000)
 {
   mSvmPrecond

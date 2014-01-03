@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstring>
 #include <cassert>
+#include <ostream>
 
 #include "SparseStorageT.h"
 #include "OoqpVector.h"
@@ -192,14 +193,14 @@ template <typename SCALAR>
 void SparseStorageT<SCALAR>::fromGetDense( int row, int col, double * A, int lda,
 				      int rowExtent, int colExtent )
 {
-  int i, j, k, jcurrent;
+  int i, j, k;
   
   assert( row >= 0 && row + rowExtent <= m );
   assert( col >= 0 && col + colExtent <= n );
   
   for ( i = row; i < row + rowExtent; i++ ) {
     // Loop over all rows in range
-    jcurrent = col - 1;
+    int jcurrent = col - 1;
     for( k = krowM[i]; k < krowM[i+1]; k++ ) {
       // Loop over the elements of the sparse row
       j = jcolM[k];
@@ -227,9 +228,8 @@ void SparseStorageT<SCALAR>::fromGetDense( int row, int col, double * A, int lda
 
 template <typename SCALAR>
 void SparseStorageT<SCALAR>::atPutSpRow( int row, double A[], int lenA,
-				    int jcolA[], int& info )
+				         int jcolA[], int& info )
 {
-  int ik;
   int ka    = lenA - 1;
   int km_f  = krowM[row + 1] - 1;
   int km    = km_f;
@@ -268,7 +268,7 @@ void SparseStorageT<SCALAR>::atPutSpRow( int row, double A[], int lenA,
   if ( 0 == info ) {
     ka    = lenA - 1;
     km    = km_f;
-    ik    = krowM[row + 1] - 1;
+    int ik    = krowM[row + 1] - 1;
 
     while ( ka >= 0 ) {
       if ( km < km_s ) {
@@ -306,18 +306,18 @@ template <typename SCALAR>
 void SparseStorageT<SCALAR>:: atPutDense( int row, int col, double * A, int lda,
 				     int rowExtent, int colExtent )
 { 
-  int info, count;
-  int i, km_f, km, ka, k;
+  int info;
+  int i;
 
   assert( row >= 0 && row + rowExtent <= m );
   assert( col >= 0 && col + colExtent <= n );
 
   for ( i = row; i < row + rowExtent; i++) {
     // Loop over all rows in range.
-    km_f = krowM[i + 1] - 1;
-    km   = km_f;
-    ka   = colExtent - 1;
-    count = 0;
+    int km_f = krowM[i + 1] - 1;
+    int km   = km_f;
+    int ka   = colExtent - 1;
+    int count = 0;
     while( km >= krowM[i] || ka >= 0 ) {
       // The current row in M and the current row in A are not
       // both empty
@@ -358,7 +358,7 @@ void SparseStorageT<SCALAR>:: atPutDense( int row, int col, double * A, int lda,
     }
 	
     km = km_f;
-    k  = krowM[i + 1] - 1;
+    int k  = krowM[i + 1] - 1;
     ka = colExtent - 1;
 
     while( km >= krowM[i] || ka >= 0 ) {
@@ -474,14 +474,14 @@ void SparseStorageT<SCALAR>::fromGetSpRow( int row, int col,
   assert( col >= 0 && col < n );
   assert( row >= 0 && row < m );
   assert( col + colExtent <= n );
-  int km, colm;
+  int km;
   int ka = 0;
   int lastCol = col + colExtent - 1;
 
   info = 0;
   
   for ( km = krowM[row]; km < krowM[row+1]; km++ ) {
-    colm = jcolM[km];
+    int colm = jcolM[km];
     if ( colm >= col ) {
       if ( colm <= lastCol ) {
 	if( ka < lenA ) {
@@ -501,13 +501,13 @@ void SparseStorageT<SCALAR>::fromGetSpRow( int row, int col,
 }
 
 template <typename SCALAR>
-void SparseStorageT<SCALAR>::writeToStream(ostream& out) const
+void SparseStorageT<SCALAR>::writeToStream(std::ostream& out) const
 {
   int i, k;
 
   for( i = 0; i < m; i++ ) {
     for ( k = krowM[i]; k < krowM[i+1]; k++ ) {
-      out << i << '\t' << jcolM[k] << '\t' << M[k] << endl;
+      out << i << '\t' << jcolM[k] << '\t' << M[k] << std::endl;
     }
   }
 }
@@ -515,7 +515,7 @@ void SparseStorageT<SCALAR>::writeToStream(ostream& out) const
 void indexedLexSort( int first[], int n, int swapFirst,
 		     int second[], int swapSecond, int index[] )
 {
-  int fi, se, j, k, kinc, inc, ktemp;
+  int fi, se, j, k, kinc, ktemp;
   const int nincs = 12;
   const int incs[]  = {1, 5, 19, 41, 109, 209, 505,
 		       929, 2161, 3905, 8929, 16001};
@@ -535,7 +535,7 @@ void indexedLexSort( int first[], int n, int swapFirst,
 
   for( ; kinc >= 0; kinc-- ) {
     // Loop over all increments
-    inc = incs[kinc];
+    int inc = incs[kinc];
 
     if ( !swapFirst && !swapSecond ) {
       for ( k = inc; k < n; k++ ) {
@@ -736,7 +736,10 @@ void SparseStorageT<SCALAR>::symmetrize( int& info)
       } // End not a diagonal element
     } // End loop over elements of column j
   } // End for all columns
-  if( info != 0 ) return;
+  if( info != 0 ) {
+    delete [] irowM;
+    return;
+  }
   nnz = ku;
 
   doubleLexSort( irowM, nnz, jcolM, M );
@@ -758,12 +761,12 @@ void SparseStorageT<SCALAR>::getTransposePat( int row, int col,
 					 int rowExtent, int colExtent,
 					 int kpat[], int kcolM[], int irowM[] )
 {
-  int i, j, k, kin, kout;
+  int i, j, k, kout;
   const int dontPermuteCols = 0, doPermuteRows = 1;
   
   kout = 0;
   for( i = row; i < row + rowExtent; i++ ) {
-    kin = krowM[i];
+    int kin = krowM[i];
     while( kin < krowM[i+1] && jcolM[kin] < col ) {
       kin++;
     }
@@ -804,7 +807,6 @@ template <typename SCALAR>
 void SparseStorageT<SCALAR>::randomize( double alpha, double beta, double * seed )
 {
   int  i, k, NN, chosen, icurrent;
-  double r;
 
   double scale = beta - alpha;
   double shift = alpha/scale;
@@ -818,7 +820,7 @@ void SparseStorageT<SCALAR>::randomize( double alpha, double beta, double * seed
   icurrent  = 0;
   krowM[0]  = 0;
   for ( k = 0; k < NN; k++ ) {
-    r = drand( seed );
+    double r = drand( seed );
 	
     if( (NN - k) * r < length - chosen ) {
       jcolM[chosen] = k % n;
@@ -848,9 +850,8 @@ double SparseStorageT<SCALAR>::abmaxnorm()
   int nnz = this->numberOfNonZeros();
   
   int i;
-  double fabsMi;
   for( i = 0; i < nnz; i++ ) {
-    fabsMi = fabs( M[i] );
+    double fabsMi = fabs( M[i] );
     if ( fabsMi > norm ) norm = fabsMi;
   }
   return norm;

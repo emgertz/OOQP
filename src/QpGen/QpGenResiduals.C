@@ -62,13 +62,13 @@ void QpGenResiduals::calcresids(Data *prob_in, Variables *vars_in)
   QpGenVars * vars = (QpGenVars *) vars_in;
   QpGenData * prob = (QpGenData *) prob_in;
 
-  double componentNorm, norm=0.0, gap=0.0;
+  double componentNorm, norm=0.0;
 
   prob->getg( *rQ );
   prob->Qmult( 1.0, *rQ,  1.0, *vars->x );
 
   // calculate x^T (g+Qx) - contribution to the duality gap
-  gap = rQ->dotProductWith(*vars->x);
+  double gap = rQ->dotProductWith(*vars->x);
 
   prob->ATransmult( 1.0, *rQ, -1.0, *vars->y );
   prob->CTransmult( 1.0, *rQ, -1.0, *vars->z );

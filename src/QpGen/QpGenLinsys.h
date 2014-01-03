@@ -42,8 +42,6 @@ protected:
 
   QpGen * factory;
 
-  QpGenLinsys() {};
-
   /** dimensions of the vectors in the general QP formulation */
   int nx, my, mz;
 

@@ -89,7 +89,7 @@ double QpBoundVars::mu()
 double QpBoundVars::mustep(Variables *step_in, double alpha)
 {
   QpBoundVars *step = (QpBoundVars *) step_in;
-  double temp = 0.0;
+  double temp;
 
   temp  =  t->shiftedDotProductWith( alpha, *step->t,
 				     *tau,

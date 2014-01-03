@@ -47,8 +47,6 @@ extern "C" {
  * @ingroup LinearSolvers 
  */
 class Ma57Solver : public DoubleLinearSolver {
-private:
-  Ma57Solver() {};
 protected:
   int     icntl[20];
   int     info[40];

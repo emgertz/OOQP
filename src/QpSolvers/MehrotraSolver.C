@@ -59,7 +59,7 @@ MehrotraSolver::MehrotraSolver( ProblemFormulation * opt, Data * prob )
 int MehrotraSolver::solve(Data *prob, Variables *iterate, Residuals * resid )
 {
   int done;
-  double mu, alpha = 1, sigma = 1, muaff;
+  double mu, alpha = 1, sigma = 1;
   int status_code;
 
   gmu = 1000;
@@ -100,7 +100,7 @@ int MehrotraSolver::solve(Data *prob, Variables *iterate, Residuals * resid )
       alpha = iterate->stepbound(step);
 
       // calculate centering parameter 
-      muaff = iterate->mustep(step, alpha);
+      double muaff = iterate->mustep(step, alpha);
       sigma = pow(muaff/mu, tsig);
 
       // *** Corrector step ***

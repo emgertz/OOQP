@@ -32,17 +32,3 @@ OoqpVector * SparseLinearAlgebraPackage::newVector( int n )
 {
   return new SimpleVector(n);
 }
- 
-void SparseLinearAlgebraPackage::whatami( char type[32] )
-{
-  char type_[] = "SparseLinearAlgebraPackage";
-
-  int i = 0;
-  
-  type[0] = type_[0];
-  while( type[i] != 0 && i < 31 ) {
-    ++i;
-    type[i] = type_[i];
-  }
-}
-

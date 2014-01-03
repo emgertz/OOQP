@@ -17,8 +17,6 @@ using namespace std;
 #include <cstdio>
 #include <cstdlib>
 
-extern int DenseStorageInstances;
-
 int main( int argc, char *argv[] )
 {
   Huber     * huber = new Huber;

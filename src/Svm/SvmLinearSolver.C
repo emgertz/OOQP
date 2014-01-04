@@ -534,7 +534,8 @@ int SvmLinearSolver::converged()
 ////////////////////////////////////////////////////////////////
 void SvmLinearSolver::matMult(SimpleVector & avec, SimpleVector & yvec)
 {
-  const int binsize = 8 * 1024;
+  //TODO: either enable binning and test, or remove the logic.
+  //const int binsize = 8 * 1024;
 
   /* remember mY is stored in transposed format */
   /* y =  mY'*W*mY*a - (1/gamma)*mYd*mYd'*a + 2a */
@@ -565,14 +566,15 @@ void SvmLinearSolver::matMult(SimpleVector & avec, SimpleVector & yvec)
       double prod = spdot(avec.elements(), row, jcol, nnz);
       prod *= dinv[j];
       spaxpy(prod, row, jcol, nnz, yvec_copy.elements());
-      if (j + 1 % binsize == 0) {
-        yvec.axpy(1.0, yvec_copy);
-        yvec_copy.setToZero();
-      }
-    }
-    if (j % binsize != 0.0) {
+      //if ((j + 1) % binsize == 0) {
+      //Previously if (j + 1 % binsize == 0) { which is a bug
       yvec.axpy(1.0, yvec_copy);
+      yvec_copy.setToZero();
+      //}
     }
+    //if (j % binsize != 0.0) {
+    yvec.axpy(1.0, yvec_copy);
+    //}
   } // end scopy of yvec_copy
 
   {

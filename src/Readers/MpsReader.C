@@ -69,7 +69,7 @@ MpsReader::MpsReader( FILE * file_ )
   nnzA = -1; nnzC = -1; nnzQ = -1;
   my   = -1; mz   = -1;
   totalRows = totalCols = 0;
-  memcpy(this->objectiveSense, "MIN", 3);
+  this->objectiveSense = kMinimize;
   objminus = 0.0;
 }
 
@@ -338,8 +338,8 @@ void MpsReader::readRHSSection( double b[],
 	if( 0 == strcmp( objectiveName, rowInfo[rownum].name ) ) {
 	  objminus = val[i];
 
-        if( !strncmp( this->objectiveSense, "MAX", 3))
-		objminus *= -1.0;
+	  if( !this->doMinimize() )
+	      objminus *= -1.0;
 	}
 	break;
       case kLessRow: 
@@ -1027,14 +1027,16 @@ void MpsReader::readObjectiveSense( char line[], int& iErr, int kindOfLine )
   char * endptr;
 
   iErr = mpssyntaxerr;
-  objectiveSense[0] ='\0';
 
   if (DATALINE == kindOfLine) {
     char * token = strtok_r(line, " \t", &endptr);
     if (token) {
-      if (0 == strcmp("MAX", token) || 0 == strcmp("MIN", token)) {
+      if (0 == strcmp("MAX", token)) {
+	objectiveSense = kMaximize;
 	iErr = mpsok;
-	memcpy(objectiveSense, token, 4);
+      } else if (0 == strcmp("MIN", token)) {
+	objectiveSense = kMinimize;
+	iErr = mpsok;
       }
     }
   }

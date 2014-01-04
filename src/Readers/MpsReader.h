@@ -76,10 +76,10 @@ private:
   int firstColumnLine;
   int columnFilePosition;
 
-  char problemName[word_max+1];
-  char objectiveName[word_max+1];
-  char RHSName[word_max+1];
-  char boundName[word_max+1];
+  Word problemName;
+  Word objectiveName;
+  Word RHSName;
+  Word boundName;
 
   /** hash tables containing row names */
   HashTable *rowTable;
@@ -176,12 +176,15 @@ private:
   virtual void readHessSection( int irowQ[], int jcolQ[], double dQ[],
 				char line[], int& ierr, int& kindOfLine );
 
+  enum { kMinimize = 0, kMaximize };
+
+  int objectiveSense; /* MAX or MIN */
+
 public:
   /**
    * Objective sense is either MAX or MIN 
    */
-  char objectiveSense[4]; /* MAX or MIN */
-
+  int doMinimize() { return objectiveSense == kMinimize; }
    
   /** Creates a new MpsReader that initializes itself from the data
    *  in a file.

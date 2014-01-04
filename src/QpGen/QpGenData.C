@@ -175,7 +175,7 @@ void QpGenData::datainput( MpsReader * reader, int scale, int& iErr )
         }
 
     /* If objective sense is "MAX", flip the C and Q matrices */
-    if( !strncmp( reader->objectiveSense, "MAX", 3)){
+    if( !reader->doMinimize() ) {
         this->flipg();
         this->flipQ();
         }  

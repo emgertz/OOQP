@@ -969,18 +969,6 @@ void MpsReader::findFile( FILE*& file, char*& resolvedName,
     strcpy( resolvedName, filename );
     return;
   }
-  // Otherwise try with an .mps suffix
-
-  if( lfilename < 4 || 0 != strcmp( &filename[lfilename-4], ".mps") ) {
-    // the file doesn't already have an .mps suffix
-    // append one
-    resolvedName = new char[lfilename + 4];
-    strcat(resolvedName, ".mps");
-    file = fopen( resolvedName, "r" );
-    if( !file ) {
-      delete [] resolvedName; resolvedName = 0;
-    }
-  } // end if we didn't find the file.
 }
 
 

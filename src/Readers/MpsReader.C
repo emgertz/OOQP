@@ -169,7 +169,7 @@ void MpsReader::readColsSection( double c[],
 	// on the kind of row
       case kFreeRow:
 	if( 0 == strcmp( objectiveName, row[i] ) ) {
-	  // T`his free row is the objective
+	  // This free row is the objective
 	  c[colnum] = val[i];
 	} // otherwise, skip it.
 	break;
@@ -517,7 +517,7 @@ void MpsReader::readBoundsSection( double xlow[], char ixlow[],
 				   char line[], int& ierr, int& kindOfLine )
 {
   int code;
-  char bound[16], col[16];
+  Word bound, col;
   double val;
 
   char * lboundSpecified = new char[totalCols];
@@ -647,9 +647,9 @@ void MpsReader::readHessSection( SymMatrix& Q,
 void MpsReader::readHessSection( int irowQ[], int jcolQ[], double dQ[],
 				 char line[], int& ierr, int& kindOfLine )
 {
-  char colname[16];
-  char name[2][16];
-  char code[4];
+  Word colname;
+  Word name[2];
+  Word code;
   double val[2];
   int hasSecondValue;
   
@@ -664,7 +664,7 @@ void MpsReader::readHessSection( int irowQ[], int jcolQ[], double dQ[],
   }
 
   int neq     = 0; // nothing in there yet.
-  char oldColName[16] = "";
+  Word oldColName = "";
 
   int colnum = -1;
   while( DATALINE == (kindOfLine = this->GetLine( line ) ) ) {
@@ -824,7 +824,7 @@ void MpsReader::expectHeader2( int lineType, const char expectName[],
 int MpsReader::acceptHeader2( int lineType, const char acceptName[],
 			     char line[], int& ierr )
 {
-    ierr = 0;
+  ierr = 0;
   if( lineType == DATALINE) {
     fprintf( stderr, "Expected a new section to start at line %d.\n", iline );
     ierr = mpssyntaxerr;

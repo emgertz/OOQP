@@ -1003,7 +1003,8 @@ void MpsReader::readProblemName2( char line[], int& iErr, int kindOfLine )
   
     len = word_max;
   }
-  memcpy(problemName, fname, len + 1);
+  memcpy(problemName, fname, len);
+  problemName[len] = '\0';
 
   iErr = mpsok;
 }

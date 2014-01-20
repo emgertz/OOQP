@@ -20,8 +20,6 @@ enum{ kBadRowType = -1, kFreeRow, kLessRow, kGreaterRow, kEqualRow,
         kLessRowWithRange, kGreaterRowWithRange };
 enum { kLowerBound, kUpperBound, kFixedBound, kFreeBound, kMInftyBound, kPInftyBound };
  
-const int READERROR = mpsioerr;
-
 struct MpsRowInfo {
   MpsReader::Word name;
   int  kind;
@@ -301,7 +299,7 @@ void MpsReader::readRHSSection( double b[],
       goto finished;
 
     if( 0 != strcmp( rhsName, currentRHS ) ) {
-      if( 0 == strcmp( currentRHS, "" ) ) {
+      if( currentRHS[0] == '\0' ) {
 	word_copy( currentRHS, rhsName );
       } else { 
 	fprintf( stderr, "Multiple rhs were specified.\n"
@@ -418,7 +416,7 @@ void MpsReader::readRangesSection( double clow[], double cupp[],
 
     if( 0 != strcmp( rangeName, currentRange) ) {
       // This is a new section of range values
-      if( 0 == strcmp( currentRange, "" ) ) { 
+      if( currentRange[0] == '\0' ) {
 	// This is the first range
 	word_copy(currentRange, rangeName);
       } else {
@@ -502,6 +500,7 @@ void MpsReader::defaultBounds( OoqpVector& xlow_, OoqpVector& ixlow_,
   delete [] ixupp;
 }
 
+
 void MpsReader::defaultBounds( double xlow[], char ixlow[],
 			      double xupp[], char ixupp[] )
 {
@@ -511,6 +510,8 @@ void MpsReader::defaultBounds( double xlow[], char ixlow[],
     xupp[i] = 0.0; ixupp[i] = 0; // but no upper bound
   }
 }
+
+
 void MpsReader::readBoundsSection( double xlow[], char ixlow[],
 				   double xupp[], char ixupp[],
 				   char line[], int& ierr, int& kindOfLine )
@@ -1615,11 +1616,11 @@ int MpsReader::GetLine(char * line )
     
     // Line too long; Ok if EOF
     if ( c != '\n' && (i != bufsz - 1 || !feof(file)) ) {
-      return READERROR;
+      return mpsioerr;
     }
     
     if (i == 0) 		// Empty line is an error
-      return READERROR;
+      return mpsioerr;
   } while ( line[0] == '*' ); // Disgard comment lines
   
   return line[0] == ' ' ? DATALINE : HEADERLINE;

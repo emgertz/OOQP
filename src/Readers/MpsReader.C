@@ -11,7 +11,6 @@
 #include <cerrno>
 #include <cassert>
 #include <cstdlib>
-#include <cctype>
 #include <cmath>
 
 extern int gOoqpPrintLevel;
@@ -1189,7 +1188,9 @@ void MpsReader::readRowsSection( char line[],
   }
   if( iErr != 0 ) {
     delete [] rowInfo;
+    rowInfo = 0;
     if( rowTable ) DeleteHashTable( rowTable );
+    rowTable = 0;
   }
 }
 
@@ -1321,6 +1322,7 @@ void MpsReader::scanColsSection( char line[],
   }
   if( iErr != 0 ) {
     delete [] rowInfo;
+    rowInfo = 0;
     if( rowTable) { DeleteHashTable( rowTable ); rowTable = 0; }
   }
 }

@@ -34,7 +34,9 @@ int main( int argc, char *argv[] )
       if( 0 == strcmp( argv[iarg], "-quiet" ) ||
 	  0 == strcmp( argv[iarg], "--quiet" ) ) {
 	quiet = 1;
-      } else if ( 0 == strcmp( argv[iarg], "-print_solution" ) ||
+      } else if ( 0 == strcmp( argv[iarg], "-print-solution" ) ||
+                  0 == strcmp( argv[iarg], "--print-solution" ) ||
+	          0 == strcmp( argv[iarg], "-print_solution" ) ||
 		  0 == strcmp( argv[iarg], "--print_solution" ) ) {
 
 	print_soln = 1;

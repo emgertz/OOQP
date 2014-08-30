@@ -2,6 +2,8 @@
  * Authors: E. Michael Gertz, Stephen J. Wright                       *
  * (C) 2001 University of Chicago. See Copyright Notification in OOQP */
 
+#include <stdexcept>
+
 #include "Ma27Solver.h"
 #include "SparseStorage.h"
 #include "SparseSymMatrix.h"
@@ -238,6 +240,7 @@ void Ma27SolverBase::matrixChanged()
       cout << "we are screwed; did not get a factorization after 10 tries " 
 	   << endl;
     }
+    throw std::runtime_error("MA27 cannot factor matrix");
   }
 
   // allocate w for subsequent calls to ma27cd_

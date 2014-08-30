@@ -9,6 +9,7 @@
 #include <cstring>
 #include <iostream>
 #include <fstream>
+#include <stdexcept>
 #include <cstdlib>
 
 #ifdef HAVE_GETRUSAGE
@@ -178,8 +179,9 @@ int qpgen_solve( int argc, char * argv[],
 
     return result;
   } 
-  catch( ... ) {
-    std::cerr << "\nOops, out of memory\n";
+  catch(const std::exception & e) {
+    std::cerr << "\nOops, fatal error:\n";
+    std::cerr << e.what() << std::endl;
     return -1;
   }
 }

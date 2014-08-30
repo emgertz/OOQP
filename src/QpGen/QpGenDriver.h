@@ -9,6 +9,7 @@
 #include <cstring>
 #include <iostream>
 #include <fstream>
+#include <stdexcept>
 using namespace std;
 #include <cstdlib>
 
@@ -178,8 +179,9 @@ int qpgen_solve( int argc, char * argv[],
 
     return result;
   } 
-  catch( ... ) {
-    cerr << "\nOops, out of memory\n";
+  catch(const exception & e) {
+    cerr << "\nOops, fatal error:\n";
+    cerr << e.what() << endl;
     return -1;
   }
 }

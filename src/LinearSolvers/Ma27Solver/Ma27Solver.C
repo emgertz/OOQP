@@ -60,18 +60,18 @@ Ma27SolverBase::Ma27SolverBase( int n_in, int nnz_in ) :
 
 void Ma27SolverBase::firstCall()
 {
-  irowM = new int[nnz];
-  jcolM = new int[nnz];
+  irowM = new int[nnz]();
+  jcolM = new int[nnz]();
 
   this->getIndices( irowM, jcolM );
 
   // set array lengths as recommended in ma27 docs
   liw = (int)(1.3 * (2*nnz + 3*n + 1));
-  iw = new int[liw];
-  iw1 = new int[2*n];
+  iw = new int[liw]();
+  iw1 = new int[2*n]();
 
   // define ikeep (which stores the pivot sequence)
-  ikeep = new int[3*n];
+  ikeep = new int[3*n]();
 
   // set iflag to zero to make ma27ad choose a pivot order.
   int iflag = 0;
@@ -110,16 +110,16 @@ void Ma27SolverBase::firstCall()
   la = (int) (1.2 *  this->minimumRealWorkspace());
   // allocate space to hold factors of M (increase this later if it
   // proves inadequate)
-  fact = new double[la];
+  fact = new double[la]();
 
   // set iw and iw1 in prep for calls to ma27bd and ma27cd
   liw = (int) (1.2 *  this->minimumIntWorkspace());
-  iw = new int[liw];
-  iw1 = new int[n];
-  iw2 = new int[nsteps];
+  iw = new int[liw]();
+  iw1 = new int[n]();
+  iw2 = new int[nsteps]();
 
   // allocate w too - since we know it needs at most n locations
-  w = new double[n];
+  w = new double[n]();
 
 }  
 
@@ -177,7 +177,7 @@ void Ma27SolverBase::matrixChanged()
       delete [] iw;
       liw = (this->ierror() > ipessimism * liw) ? 
 	this->ierror() : (int)(ipessimism * liw);
-      iw = new int[liw];
+      iw = new int[liw]();
       if( print_level >= 100 )
 	cout << " resetting to " << liw << endl;
 
@@ -189,7 +189,7 @@ void Ma27SolverBase::matrixChanged()
       delete [] fact;
       la = (this->ierror() > rpessimism * la)  ?
 	this->ierror() : (int) (rpessimism * la);
-      fact = new double [la];
+      fact = new double [la]();
       this->copyMatrixElements( fact, la );
       if( print_level >= 100 ) cout << " resetting to " << la << endl;
       rpessimism *= 1.1;

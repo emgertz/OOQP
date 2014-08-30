@@ -45,8 +45,10 @@ int main( int argc, char *argv[] )
 	iarg++;
 	gOoqpPrintLevel = atoi(argv[iarg] );
       } else if ( 0 == strcmp( argv[iarg], "-print-solution" ) ||
-		  0 == strcmp( argv[iarg], "--print-solution" ) ) {
-        
+                  0 == strcmp( argv[iarg], "--print-solution" ) ||
+	          0 == strcmp( argv[iarg], "-print_solution" ) ||
+		  0 == strcmp( argv[iarg], "--print_solution" ) ) {
+
 	print_soln = 1;
       } else if ( 0 == strcmp( argv[iarg], "-dense-input" ) ||
                   0 == strcmp( argv[iarg], "--dense-input" ) ) {

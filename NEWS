@@ -1,3 +1,10 @@
+Major Changes in OOQP 0.99.25 (August 30, 2014)
+
+- Throw an exception if MA27 cannot factor a matrix.  Previously,
+  OOQP would crash in this situation.
+
+- Have svm-gondzio.exe accept either --print_solution or --print-solution.
+
 Major Changes in OOQP 0.99.24 (October 15, 2012)
 
 - Initialize an array used by MA57 to zero, to prevent MA57 from using

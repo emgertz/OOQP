@@ -439,14 +439,14 @@ prefix/share/doc/packages/OOQP/reference-manual/classSolver-members.html
 prefix/share/doc/packages/OOQP/reference-manual/classSolver.html
 prefix/share/doc/packages/OOQP/reference-manual/classSolver.png
 prefix/share/doc/packages/OOQP/reference-manual/classSparseGenMatrixT-members.html
-prefix/share/doc/packages/OOQP/reference-manual/classSparseGenMatrixT.html
-prefix/share/doc/packages/OOQP/reference-manual/classSparseGenMatrixT.png
+prefix/share/doc/packages/OOQP/reference-manual/singletonSparseGenMatrixT.html
+prefix/share/doc/packages/OOQP/reference-manual/singletonSparseGenMatrixT.png
 prefix/share/doc/packages/OOQP/reference-manual/classSparseLinearAlgebraPackage-members.html
 prefix/share/doc/packages/OOQP/reference-manual/classSparseLinearAlgebraPackage.html
 prefix/share/doc/packages/OOQP/reference-manual/classSparseLinearAlgebraPackage.png
 prefix/share/doc/packages/OOQP/reference-manual/classSparseStorageT-members.html
-prefix/share/doc/packages/OOQP/reference-manual/classSparseStorageT.html
-prefix/share/doc/packages/OOQP/reference-manual/classSparseStorageT.png
+prefix/share/doc/packages/OOQP/reference-manual/singletonSparseStorageT.html
+prefix/share/doc/packages/OOQP/reference-manual/singletonSparseStorageT.png
 prefix/share/doc/packages/OOQP/reference-manual/classSparseSymMatrix-members.html
 prefix/share/doc/packages/OOQP/reference-manual/classSparseSymMatrix.html
 prefix/share/doc/packages/OOQP/reference-manual/classSparseSymMatrix.png
@@ -520,7 +520,6 @@ prefix/share/doc/packages/OOQP/reference-manual/doxygen.css
 prefix/share/doc/packages/OOQP/reference-manual/doxygen.png
 prefix/share/doc/packages/OOQP/reference-manual/files.html
 prefix/share/doc/packages/OOQP/reference-manual/ftv2blank.png
-prefix/share/doc/packages/OOQP/reference-manual/ftv2cl.png
 prefix/share/doc/packages/OOQP/reference-manual/ftv2doc.png
 prefix/share/doc/packages/OOQP/reference-manual/ftv2folderclosed.png
 prefix/share/doc/packages/OOQP/reference-manual/ftv2folderopen.png
@@ -528,9 +527,7 @@ prefix/share/doc/packages/OOQP/reference-manual/ftv2lastnode.png
 prefix/share/doc/packages/OOQP/reference-manual/ftv2link.png
 prefix/share/doc/packages/OOQP/reference-manual/ftv2mlastnode.png
 prefix/share/doc/packages/OOQP/reference-manual/ftv2mnode.png
-prefix/share/doc/packages/OOQP/reference-manual/ftv2mo.png
 prefix/share/doc/packages/OOQP/reference-manual/ftv2node.png
-prefix/share/doc/packages/OOQP/reference-manual/ftv2ns.png
 prefix/share/doc/packages/OOQP/reference-manual/ftv2plastnode.png
 prefix/share/doc/packages/OOQP/reference-manual/ftv2pnode.png
 prefix/share/doc/packages/OOQP/reference-manual/ftv2splitbar.png

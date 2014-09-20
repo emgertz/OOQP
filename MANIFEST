@@ -346,14 +346,14 @@ doc/reference-manual/classSolver-members.html
 doc/reference-manual/classSolver.html
 doc/reference-manual/classSolver.png
 doc/reference-manual/classSparseGenMatrixT-members.html
-doc/reference-manual/classSparseGenMatrixT.html
-doc/reference-manual/classSparseGenMatrixT.png
+doc/reference-manual/singletonSparseGenMatrixT.html
+doc/reference-manual/singletonSparseGenMatrixT.png
 doc/reference-manual/classSparseLinearAlgebraPackage-members.html
 doc/reference-manual/classSparseLinearAlgebraPackage.html
 doc/reference-manual/classSparseLinearAlgebraPackage.png
 doc/reference-manual/classSparseStorageT-members.html
-doc/reference-manual/classSparseStorageT.html
-doc/reference-manual/classSparseStorageT.png
+doc/reference-manual/singletonSparseStorageT.html
+doc/reference-manual/singletonSparseStorageT.png
 doc/reference-manual/classSparseSymMatrix-members.html
 doc/reference-manual/classSparseSymMatrix.html
 doc/reference-manual/classSparseSymMatrix.png
@@ -428,7 +428,6 @@ doc/reference-manual/doxygen.png
 doc/reference-manual/dynsections.js
 doc/reference-manual/files.html
 doc/reference-manual/ftv2blank.png
-doc/reference-manual/ftv2cl.png
 doc/reference-manual/ftv2doc.png
 doc/reference-manual/ftv2folderclosed.png
 doc/reference-manual/ftv2folderopen.png
@@ -436,9 +435,7 @@ doc/reference-manual/ftv2lastnode.png
 doc/reference-manual/ftv2link.png
 doc/reference-manual/ftv2mlastnode.png
 doc/reference-manual/ftv2mnode.png
-doc/reference-manual/ftv2mo.png
 doc/reference-manual/ftv2node.png
-doc/reference-manual/ftv2ns.png
 doc/reference-manual/ftv2plastnode.png
 doc/reference-manual/ftv2pnode.png
 doc/reference-manual/ftv2splitbar.png

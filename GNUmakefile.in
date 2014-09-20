@@ -1,3 +1,4 @@
+all:
 all-depend: depend all
 
 SHELL =    @SHELL@

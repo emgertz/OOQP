@@ -12,7 +12,7 @@ POD2TEXT    := $(shell if [ -x pod2txt ];\
 DOXYGEN     = doxygen
 OOQPUSERGUIDE = $(DOC)/ooqp-userguide.$(DVI)
 
-MODULES = Svm Huber QpBound QpGen
+MODULES = Svm Huber QpBound 
 MODULEHTML  = $(patsubst %,$(DOC)/formulations/%.html,$(MODULES))
 
 DISTRIBUTIONDOCS = README INSTALL README_Matlab README_Windows COPYRIGHT

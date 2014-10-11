@@ -1,4 +1,4 @@
-README:    Mike Gertz 5-Sep-2001
+README:    Mike Gertz 14-Oct-2013
 
 =head1 NAME
 
@@ -166,7 +166,7 @@ Ampl. Use of this solver is documented in the OOQP Users Guide.
 
 The examples/ directory contains sample data and example programs
 demonstrating the use of OOQP. See the
-L<examples/README|examples::README> file for information on the
+L<examplesE<sol>README|examples::README> file for information on the
 contents of the examples directory.
 
 The src/QpExample directory contains an implementation of the
@@ -197,13 +197,7 @@ of no interest to most users.
 
 =item examples/ 
 
-Example problems and programs. See L<examples/README|examples::README>.
-
-=item extras/
-
-Additional files that may help users work with OOQP and external
-packages.  For instance, the makefiles that we used to generate the
-MA27 libraries are located in subdirectories of this directory.
+Example problems and programs. See L<examplesE<sol>README|examples::README>.
 
 =item include/
 
@@ -229,9 +223,7 @@ OOQP is maintained by:
 
 =item E. Michael Gertz  
 
-Mathematics and Computer Science Division, 
-Argonne National Laboratory. 
-http://www.mcs.anl.gov/~gertz/
+emgertz@mac.com
 
 =item Stephen Wright
 

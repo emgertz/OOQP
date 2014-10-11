@@ -160,11 +160,6 @@ CONTENTS OF THE DISTRIBUTION
     examples/
         Example problems and programs. See examples/README.
 
-    extras/
-        Additional files that may help users work with OOQP and external
-        packages. For instance, the makefiles that we used to generate the
-        MA27 libraries are located in subdirectories of this directory.
-
     include/
         Header files for OOQP. The header files are copied from src/ into
         this directory as part of the installation process.
@@ -179,8 +174,7 @@ CREDITS
     OOQP is maintained by:
 
     E. Michael Gertz
-        Mathematics and Computer Science Division, Argonne National
-        Laboratory. http://www.mcs.anl.gov/~gertz/
+        emgertz@mac.com
 
     Stephen Wright
         Computer Sciences Department, University of Wisconsin, Madison.

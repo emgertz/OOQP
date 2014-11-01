@@ -105,7 +105,6 @@ prefix/share/doc/packages/OOQP/ooqp-userguide.pdf
 prefix/share/doc/packages/OOQP/index.html
 prefix/share/doc/packages/OOQP/formulations/Huber.html
 prefix/share/doc/packages/OOQP/formulations/QpBound.html
-prefix/share/doc/packages/OOQP/formulations/QpGen.html
 prefix/share/doc/packages/OOQP/formulations/Svm.html
 prefix/share/doc/packages/OOQP/distribution-docs/COPYRIGHT.html
 prefix/share/doc/packages/OOQP/distribution-docs/INSTALL.html
@@ -396,7 +395,6 @@ prefix/share/doc/packages/OOQP/reference-manual/classLinearAlgebraPackage.png
 prefix/share/doc/packages/OOQP/reference-manual/PetscLinearAlgebraPackage_8h_source.html
 prefix/share/doc/packages/OOQP/reference-manual/functions_func_o.html
 prefix/share/doc/packages/OOQP/reference-manual/functions_func_f.html
-prefix/share/doc/packages/OOQP/reference-manual/jquery.js
 prefix/share/doc/packages/OOQP/reference-manual/classResiduals.html
 prefix/share/doc/packages/OOQP/reference-manual/group__Svm.html
 prefix/share/doc/packages/OOQP/reference-manual/classData.html
@@ -595,7 +593,6 @@ prefix/share/doc/packages/OOQP/reference-manual/classHuberVars.html
 prefix/share/doc/packages/OOQP/reference-manual/dir_d2653df67fea485f1bf2e407794c9984.html
 prefix/share/doc/packages/OOQP/reference-manual/classProblemFormulation-members.html
 prefix/share/doc/packages/OOQP/reference-manual/classSvmLinsys-members.html
-prefix/share/doc/packages/OOQP/reference-manual/dynsections.js
 prefix/share/doc/packages/OOQP/reference-manual/classSparseStorage.png
 prefix/share/doc/packages/OOQP/reference-manual/functions_e.html
 prefix/share/doc/packages/OOQP/reference-manual/classCOoqpMonitor.html

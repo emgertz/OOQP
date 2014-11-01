@@ -40,6 +40,12 @@ class MpsReader {
   friend MpsReaderTester;
 #endif
 private:
+  enum { bufsz = 256, word_max = 31 };
+
+ public:
+  typedef char Word[word_max + 1];
+
+ private:
   void insertElt( int irow[], int len, int jcol[],
 		  double dval[], int& ne,
 		  int row, int col, double val, int& ier );
@@ -47,7 +53,7 @@ private:
 		    int irow[], int nnz, int jcol[], double dA[] );
   void stuffMatrix( SymMatrix& A,
 		    int irow[], int nnz, int jcol[], double dA[] );
-protected:
+
   /** root of the filename for input (and possibly output) files */
   char * infilename;
   /** Input file line number */
@@ -61,10 +67,6 @@ protected:
   /** the file to be read */
   FILE * file;
 
-  /** the type of bound on each variable, normal, free, upper, lower,
-   * upperlower, fix, minfty */
-  char    *boundType;
-
   MpsRowInfo * rowInfo;
   int * rowRemap;
   int totalRows;
@@ -74,11 +76,10 @@ protected:
   int firstColumnLine;
   int columnFilePosition;
 
-  char problemName[17];
-  char objectiveName[17];
-  char RHSName[17];
-  //  char rangeName[10];
-  char boundName[17];
+  Word problemName;
+  Word objectiveName;
+  Word RHSName;
+  Word boundName;
 
   /** hash tables containing row names */
   HashTable *rowTable;
@@ -87,11 +88,6 @@ protected:
   HashTable *colTable;
 
   double objminus;
-  /** protected constructor. Call the class method MpsReader::newReadingFile 
-   *  to obtain a new, initalized MpsReader. 
-   *  @see MpsReader::newReadingFile
-   */
-  MpsReader() {};
   
   /** protected constructor. Call the class method MpsReader::newReadingFile 
    *  to obtain a new, initalized MpsReader. 
@@ -111,58 +107,47 @@ protected:
    *  @see MpsReader::newReadingFile */
   virtual void scanFile( int& iErr );
 
-  virtual int GetLine_old(char * line );
   virtual int GetLine(char * line );
 
-  virtual int ParseHeaderLine( char line[], char entry1[] );
-  virtual int ParseHeaderLine2( char line[], char entry1[] );
-  virtual int ParseBoundsLine( char line[], int& code, char name1[],
-			       char name2[], double * val );
   virtual int ParseBoundsLine2( char line[], int& code, char name1[],
 			       char name2[], double * val );
-  virtual int ParseRowsLine( char line[], char code[], char name1[] );
   virtual int ParseRowsLine2( char line[], char code[], char name1[] );
-  virtual void expectHeader( int kindOfLine, const char expectName[],
-			    char line[], int& ierr );
+
   virtual void expectHeader2( int kindOfLine, const char expectName[],
 			    char line[], int& ierr );
   virtual void remapRows();
-  virtual int acceptHeader( int kindOfLine, const char expectName[],
-			    char line[], int& ierr );
+
   virtual int acceptHeader2( int kindOfLine, const char expectName[],
 			    char line[], int& ierr );
   virtual int ParseDataLine2( char line[], char code[], char name1[], 
                              char name2[], double * val1, int& hasSecondValue,
                              char name3[], double * val2);
 
-  virtual int ParseDataLine( char line[], char code[], char name1[], 
-                             char name2[], double * val1, int& hasSecondValue,
-                             char name3[], double * val2);
-
-  virtual int string_copy( char dest[], char string[], int max);
+  virtual int word_copy( char dest[], char string[]);
   
-  virtual void readProblemName( char line[], int& iErr, int kindOfLine );
+  virtual int parse_double(const char * token, double & value);
+
   virtual void readProblemName2( char line[], int& iErr, int kindOfLine );
 
   virtual void readObjectiveSense( char line[], int& iErr, int kindOfLine );
-  virtual void readRowsSection( char line[62], 
+  virtual void readRowsSection( char line[], 
                 int& iErr, int& return_getline );
-  virtual void scanColsSection( char line[62], 
+  virtual void scanColsSection( char line[], 
                 int& iErr, int& return_getline );
-  virtual void scanRangesSection( char line[62], 
+  virtual void scanRangesSection( char line[], 
                   int& iErr, int& return_getline );
   virtual void rowHasRange( int rownum, double val, int& iErr );
-  virtual void scanHessSection( char line[62], 
+  virtual void scanHessSection( char line[], 
                 int& iErr, int& return_getline );
 
   virtual void readColsSection( OoqpVector& c,
 				GenMatrix& A, GenMatrix& C,
-				char line[62], 
+				char line[], 
 				int& iErr, int& return_getline );
   virtual void readColsSection( double  c[],
 			        int irowA[], int jcolA[], double dA[],
 				int irowC[], int jcolC[], double dC[],
-				char line[62], 
+				char line[], 
 				int& iErr, int& return_getline );
   virtual void readRHSSection( OoqpVector&  b,
 			       SimpleVector& clow, OoqpVector& iclow,
@@ -191,20 +176,15 @@ protected:
   virtual void readHessSection( int irowQ[], int jcolQ[], double dQ[],
 				char line[], int& ierr, int& kindOfLine );
 
-public:
-  /**
-   * The scaling option allows solution of problems in which
-   * the variables or equations have a vast range of values.
-   * By default, we do not scale unless the user requests it
-   * via the commandline argument.
-   */
-  int scalingOption; 
+  enum { kMinimize = 0, kMaximize };
 
+  int objectiveSense; /* MAX or MIN */
+
+public:
   /**
    * Objective sense is either MAX or MIN 
    */
-  char objectiveSense[3]; /* MAX or MIN */
-
+  int doMinimize() { return objectiveSense == kMinimize; }
    
   /** Creates a new MpsReader that initializes itself from the data
    *  in a file.
@@ -229,7 +209,6 @@ public:
    * @param nnzC the number of non-zeros in C
    */
   void numberOfNonZeros( int& nnzQ, int& nnzA, int& nnzC );
-  void numbersOfNonZeros( int nnzQ[], int nnzA[], int nnzC[] );
   /**
    * Reads the various components of a QP in the "general" formulation
    * into their respective matrices and vectors, stored as objects

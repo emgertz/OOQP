@@ -155,13 +155,13 @@ double QpGenData::datanorm()
   return norm;
 }
 
-void QpGenData::datainput( MpsReader * reader, int& iErr ) 
+void QpGenData::datainput( MpsReader * reader, int scale, int& iErr )
 {
     reader->readQpGen( *g, *Q, *blx, *ixlow, *bux, *ixupp,
 		     *A, *bA,
 		     *C, *bl, *iclow, *bu, *icupp, iErr );
 
-    if( reader->scalingOption == 1){
+    if( scale ){
         // Create the scaling vector
         this->createScaleFromQ();
 
@@ -175,7 +175,7 @@ void QpGenData::datainput( MpsReader * reader, int& iErr )
         }
 
     /* If objective sense is "MAX", flip the C and Q matrices */
-    if( !strncmp( reader->objectiveSense, "MAX", 3)){
+    if( !reader->doMinimize() ) {
         this->flipg();
         this->flipQ();
         }  

@@ -11,7 +11,6 @@
 #include <cerrno>
 #include <cassert>
 #include <cstdlib>
-#include <cctype>
 #include <cmath>
 
 extern int gOoqpPrintLevel;
@@ -21,21 +20,32 @@ enum{ kBadRowType = -1, kFreeRow, kLessRow, kGreaterRow, kEqualRow,
         kLessRowWithRange, kGreaterRowWithRange };
 enum { kLowerBound, kUpperBound, kFixedBound, kFreeBound, kMInftyBound, kPInftyBound };
  
-const int READERROR = mpsioerr;
-
 struct MpsRowInfo {
-  char name[17];
+  MpsReader::Word name;
   int  kind;
   int  nnz;
 };
 
 struct MpsColInfo {
-  char name[17];
+  MpsReader::Word name;
   int  nnz;
 };
 
-int MpsRowTypeFromCode( char code[4] );
-int MpsRowTypeFromCode2( char code );
+
+int MpsRowTypeFromCode2( char * code )
+{
+  if (1 != strlen(code))
+      return kBadRowType;
+
+  switch ( code[0] ) {
+  case 'N' : case 'n' : return kFreeRow;    break;
+  case 'L' : case 'l' : return kLessRow;    break;
+  case 'G' : case 'g' : return kGreaterRow; break;
+  case 'E' : case 'e' : return kEqualRow;  break;
+  }
+  return kBadRowType;
+}
+
 
 void doubleLexSort( int first[], int n, int second[], double data[] );
 
@@ -49,74 +59,16 @@ MpsReader::MpsReader( FILE * file_ )
   rowTable    = 0;
   colTable    = 0;
   infilename  =  0;
+  columnFilePosition = 0;
+  firstColumnLine = 0;
   // -1 indicates that we have not yet determined these values
   nnzA = -1; nnzC = -1; nnzQ = -1;
   my   = -1; mz   = -1;
-  memcpy(this->objectiveSense, "MIN", 3);
+  totalRows = totalCols = 0;
+  this->objectiveSense = kMinimize;
+  objminus = 0.0;
 }
 
-int isOnlySpaces( char str[], int start, int finish )
-{
-  int i;
-  for( i = start; i <= finish; i++ ) {
-    if( str[i] != ' ' ) return 0;
-  }
-  return 1;
-}
-
-// isLJustOf - is str the left justification of prefix is a field of len?
-int isLJustOf( const char str[], const char prefix[], int len )
-{
-  int i;
-  int result = 1;
-  for( i = 0; i < len; i++ ) {
-    if( prefix[i] == '\0' ) break;
-    if( prefix[i] != str[i] ) {
-      result = 0;
-      break;
-    }
-  }
-  // Did we use all characters of the prefix?
-  if ( prefix[i] != '\0' ) {
-    // No we didn't, so str is not the ljust of prefix
-    result = 0;
-  }
-  if( result == 1 ) { 
-    // Ok so far. Make sure all remaining characters in str are ' '
-    for( ; i < len; i++ ) { // for all remaining characters in str
-      if( str[i] != ' ' ) {
-	result = 0;
-	break;
-      }
-    } // end for all remaining characters in str
-  } // end if Ok so far
-  return result;
-}
-
-double asDouble( char str[], int len, int& ierr )
-{
-  char * pstr = str;
-  int lpstr   = len;
-  char * endptr;
-  ierr = 0;
-
-  while( ' ' == *pstr && lpstr > 0 ) {
-    pstr++; lpstr--;
-  }
-  if( lpstr == 0 ) {
-    ierr = 1;
-    return 0.0;
-  }
-
-  double value = strtod( pstr, &endptr );
-  while( *endptr == ' ' ) endptr++;
-  if( endptr != pstr + lpstr ) {
-    ierr = 1;
-    return 0.0;
-  }
-  
-  return value;
-}
 
 void MpsReader::readColsSection( OoqpVector& c_,
 				 GenMatrix& A, GenMatrix& C,
@@ -163,7 +115,7 @@ void MpsReader::readColsSection( double c[],
 				 char line[],
                                  int& ierr, int& kindOfLine )
 {
-  char   blank[4], colname[16], row[2][16];
+  Word   blank, colname, row[2];
   double val[2];
   int    hasSecondValue;
 
@@ -198,7 +150,7 @@ void MpsReader::readColsSection( double c[],
 
     if (strcmp(oldColumnName, colname) != 0) {
       // we are not already working on this column
-      strncpy( oldColumnName, colname, 16 );
+      word_copy( oldColumnName, colname );
       colnum = GetIndex( colTable, colname );
       assert( colnum >= 0 );
     }
@@ -213,7 +165,7 @@ void MpsReader::readColsSection( double c[],
 	// on the kind of row
       case kFreeRow:
 	if( 0 == strcmp( objectiveName, row[i] ) ) {
-	  // T`his free row is the objective
+	  // This free row is the objective
 	  c[colnum] = val[i];
 	} // otherwise, skip it.
 	break;
@@ -333,31 +285,28 @@ void MpsReader::readRHSSection( double b[],
     }
   }
 
-  char currentRHS[16] = "";
-  char blank[4];
-  char rhsName[16]="";
-  char row[2][16];
+  Word currentRHS = "";
+  Word blank;
+  Word rhsName ="";
+  Word row[2];
   double val[2];
   int hasSecondValue;
   while( DATALINE == (kindOfLine = this->GetLine( line ) ) ) {
     ierr = this->ParseDataLine2( line, blank, rhsName, row[0], &val[0],
 				hasSecondValue, row[1], &val[1] ); 
-    if( ierr != mpsok ) return;
-    /* if( !isOnlySpaces( blank, 0, 1 ) ) {
-      fprintf( stderr, "A code field is unexpected on line %d.\n", iline );
-      ierr = mpssyntaxerr;
-      return;
-    } */
+    if( ierr != mpsok )
+      goto finished;
+
     if( 0 != strcmp( rhsName, currentRHS ) ) {
-      if( 0 == strcmp( currentRHS, "" ) ) {
-	strncpy( currentRHS, rhsName, 16 );
+      if( currentRHS[0] == '\0' ) {
+	word_copy( currentRHS, rhsName );
       } else { 
 	fprintf( stderr, "Multiple rhs were specified.\n"
 		 "The first rhs, \"%s\", will be used.\n",
 		 currentRHS );
 	// Skip the rest.
 	while( DATALINE == (kindOfLine = this->GetLine( line ) ) ) ;
-	return;
+	goto finished;
       }
     }
       
@@ -370,13 +319,13 @@ void MpsReader::readRHSSection( double b[],
 	fprintf( stderr, "Unrecognized row name, \"%s\", on line %d.\n",
 		 row[i], iline );
 	ierr = mpssyntaxerr;
-	return;
+	goto finished;
       }
       if( seenRow[rownum] ) {
 	fprintf( stderr, "Multiple rhs were specified for row %s, "
 		 "most recently at line %d.\n", rowInfo[i].name, iline );
 	ierr = mpssyntaxerr;
-	return;
+	goto finished;
       }
       seenRow[rownum] = 1;
       
@@ -385,8 +334,8 @@ void MpsReader::readRHSSection( double b[],
 	if( 0 == strcmp( objectiveName, rowInfo[rownum].name ) ) {
 	  objminus = val[i];
 
-        if( !strncmp( this->objectiveSense, "MAX", 3))
-		objminus *= -1.0;
+	  if( !this->doMinimize() )
+	      objminus *= -1.0;
 	}
 	break;
       case kLessRow: 
@@ -406,6 +355,7 @@ void MpsReader::readRHSSection( double b[],
       }
     } // end for all values specified.
   }
+ finished:
   delete [] seenRow;
 }
 
@@ -442,21 +392,17 @@ void MpsReader::readRHSSection( OoqpVector& b_,
 void MpsReader::readRangesSection( SimpleVector& clow, SimpleVector& cupp,
 				   char line[], int& iErr, int& kindOfLine )
 {
-  double *dclow = 0, *dcupp = 0;
-  
-  if( clow.n > 0 ) dclow = &clow[0];
-  if( cupp.n > 0 ) dcupp = &cupp[0];
-
-  this->readRangesSection( dclow, dcupp, line, iErr, kindOfLine );
+  this->readRangesSection( clow.elements(), cupp.elements(),
+			   line, iErr, kindOfLine );
 }
 
 void MpsReader::readRangesSection( double clow[], double cupp[],
 				   char line[], int& iErr, int& kindOfLine )
 {
-  char currentRange[16] = "";
+  Word currentRange = "";
   // The ranges section has already been scanned. Any syntax errors
   // left are programming errors
-  char blank[4], rangeName[16]="", row[2][16];
+  Word blank, rangeName="", row[2];
   double val[2];
   int hasSecondValue;
   while( DATALINE == (kindOfLine = this->GetLine( line ) ) ) {
@@ -469,9 +415,9 @@ void MpsReader::readRangesSection( double clow[], double cupp[],
 
     if( 0 != strcmp( rangeName, currentRange) ) {
       // This is a new section of range values
-      if( 0 == strcmp( currentRange, "" ) ) { 
+      if( currentRange[0] == '\0' ) {
 	// This is the first range
-	strncpy( currentRange, rangeName, 16 );
+	word_copy(currentRange, rangeName);
       } else {
 	// This is the second range we have seen. We support only
 	// one range, so skip the rest of the section
@@ -553,6 +499,7 @@ void MpsReader::defaultBounds( OoqpVector& xlow_, OoqpVector& ixlow_,
   delete [] ixupp;
 }
 
+
 void MpsReader::defaultBounds( double xlow[], char ixlow[],
 			      double xupp[], char ixupp[] )
 {
@@ -562,12 +509,14 @@ void MpsReader::defaultBounds( double xlow[], char ixlow[],
     xupp[i] = 0.0; ixupp[i] = 0; // but no upper bound
   }
 }
+
+
 void MpsReader::readBoundsSection( double xlow[], char ixlow[],
 				   double xupp[], char ixupp[],
 				   char line[], int& ierr, int& kindOfLine )
 {
   int code;
-  char bound[16], col[16];
+  Word bound, col;
   double val;
 
   char * lboundSpecified = new char[totalCols];
@@ -584,13 +533,14 @@ void MpsReader::readBoundsSection( double xlow[], char ixlow[],
     ierr = this->ParseBoundsLine2( line, code, bound, col, &val );
 
     // we are reading datalines
-    if( ierr != mpsok ) return;
+    if( ierr != mpsok ) 
+      goto finished;
 
     int colnum = GetIndex( colTable, col );
     if( colnum < 0 ) {
       fprintf( stderr, "Unrecognized column name on line %d.\n", iline );
       ierr = mpssyntaxerr;
-      return;
+      goto finished;
     }
     int conflictingBound = 0;
     switch( code ) {
@@ -651,7 +601,7 @@ void MpsReader::readBoundsSection( double xlow[], char ixlow[],
 	       "may conflict with some eariler bound on the same variable.\n",
 	       iline, col );
       ierr = mpssyntaxerr;
-      return;
+      goto finished;
     }
   } // end while we are reading datalines
 
@@ -660,10 +610,10 @@ void MpsReader::readBoundsSection( double xlow[], char ixlow[],
       fprintf( stderr, "The lower bound for variable \"%s\" is greater than\n"
 	       "its upper bound.\n", colInfo[i].name );
       ierr = mpssyntaxerr;
-      return;
+      goto finished;;
     }
   }
-
+ finished:
   delete [] lboundSpecified;
   delete [] uboundSpecified;
 }
@@ -696,9 +646,9 @@ void MpsReader::readHessSection( SymMatrix& Q,
 void MpsReader::readHessSection( int irowQ[], int jcolQ[], double dQ[],
 				 char line[], int& ierr, int& kindOfLine )
 {
-  char colname[16];
-  char name[2][16];
-  char code[4];
+  Word colname;
+  Word name[2];
+  Word code;
   double val[2];
   int hasSecondValue;
   
@@ -713,7 +663,7 @@ void MpsReader::readHessSection( int irowQ[], int jcolQ[], double dQ[],
   }
 
   int neq     = 0; // nothing in there yet.
-  char oldColName[16] = "";
+  Word oldColName = "";
 
   int colnum = -1;
   while( DATALINE == (kindOfLine = this->GetLine( line ) ) ) {
@@ -744,21 +694,18 @@ void MpsReader::readHessSection( int irowQ[], int jcolQ[], double dQ[],
   doubleLexSort( irowQ, nnzQ, jcolQ, dQ );
 }
 
-void MpsReader::scanRangesSection( char line[200], 
+void MpsReader::scanRangesSection( char line[], 
                                    int& iErr, int& kindOfLine )
 {
   // currentRange holds the name of the current range. There is no
   // current range at this point, so set it to empty.
-  char currentRange[16] = "";
-  char blank[4];
-  char rangeName[16]="", row[2][16];
+  Word currentRange = "";
+  Word blank;
+  Word rangeName ="", row[2];
   int hasSecondValue;
   double val[2];
-  int nvals;
-
   
   char * seenRow = new char[totalRows];
-  if( !seenRow ) { iErr = mpsmemoryerr; return; };
 
   int i;
   for( i = 0; i < totalRows; i++ ) seenRow[i] = 0;
@@ -775,7 +722,7 @@ void MpsReader::scanRangesSection( char line[200],
       // This is a new section of range values
       if( 0 == strcmp( currentRange, "" ) ) { 
 	// This is the first range
-	strncpy( currentRange, rangeName, 16 );
+	word_copy( currentRange, rangeName );
       } else {
 	// This is the second range we have seen. We support only
 	// one range, so skip the rest of the section
@@ -785,7 +732,7 @@ void MpsReader::scanRangesSection( char line[200],
 	break;
       } // end else this is the second range we have seen
     } // end if this is a new section of range values
-    nvals = (hasSecondValue) ? 2 : 1;
+    int nvals = (hasSecondValue) ? 2 : 1;
     for( i = 0; i < nvals; i++ ) {
       // all rows specified
       int rownum = GetIndex( rowTable, row[i] );
@@ -849,102 +796,67 @@ void MpsReader::rowHasRange( int rownum, double val, int& iErr )
   rowInfo[rownum].kind = kind;
 }
 
-void MpsReader::expectHeader( int lineType, const char expectName[],
-			     char line[], int& ierr )
+
+int startsWithWord( const char word[], const char s[] )
 {
-  ierr = 0;
-  if( lineType == HEADERLINE ) {
-    char name[16];
-    ierr = this->ParseHeaderLine( line, name ); 
-    if( ierr == mpsok ) {
-      if( !isLJustOf( name, expectName, 16 ) ) {
-	ierr = mpssyntaxerr;
-	fprintf( stderr, "Expected %s at line %d, got %s.\n",
-		 expectName, iline, name );
-      }
-    }
-  } else {
+  int n = strlen(word);
+  
+  return 0 == strncmp(word, s, n) && 
+    (s[n] == '\0' || s[n] == ' ' || s[n] == '\t');
+} 
+
+ 
+void MpsReader::expectHeader2( int lineType, const char expectName[],
+			       char line[], int& ierr )
+{
+  if( lineType == DATALINE) {
+    fprintf( stderr, "Expected a new section to start at line %d.\n", iline );
+    ierr = mpssyntaxerr;
+  } else if (!startsWithWord( expectName, line )) {
     ierr = mpssyntaxerr;
     fprintf( stderr, "Expected %s at line %d.\n", expectName, iline );
   }
-}
-
-void MpsReader::expectHeader2( int lineType, const char expectName[],
-			     char line[], int& ierr )
-{
   ierr = 0;
-  if( lineType == HEADERLINE ) {
-    char name[16];
-    ierr = this->ParseHeaderLine2( line, name ); 
-    if( ierr != mpsok ) {
-        ierr = mpssyntaxerr;
-        fprintf( stderr, "Expected %s at line %d.\n", expectName, iline );
-        }
-  }
 }
 
-int MpsReader::acceptHeader( int lineType, const char acceptName[],
-			     char line[], int& ierr )
-{
-  if( lineType == HEADERLINE ) {
-    char name[16];
-    ierr = this->ParseHeaderLine( line, name );
-    if( ierr != mpsok ) return 0;
-    if( isLJustOf( name, acceptName, 16 ) ) {
-      return 1;
-    } else {
-      return 0;
-    }
-  } else {
-    fprintf( stderr, "Expected a new section to start at line %d.\n", iline );
-    ierr = mpssyntaxerr;
-    return 0;
-  }
-}
 
 int MpsReader::acceptHeader2( int lineType, const char acceptName[],
 			     char line[], int& ierr )
-    {
-    if( lineType == HEADERLINE ){
-        char name[16];
-        ierr = this->ParseHeaderLine2( line, name );
+{
+  ierr = 0;
+  if( lineType == DATALINE) {
+    fprintf( stderr, "Expected a new section to start at line %d.\n", iline );
+    ierr = mpssyntaxerr;
+    return 0;
+  } else {
+    return startsWithWord(acceptName, line);
+  }
+}
 
-        if( ierr == mpsok && !strcmp( name, acceptName))
-            return 1;
-        else
-            return 0;
-        }
-    else{
-        fprintf( stderr, "Expected a new section to start at line %d.\n", iline );
-        ierr = mpssyntaxerr;
-        return 0;
-        }
-    }
 
-void MpsReader::scanHessSection( char line[200], 
+void MpsReader::scanHessSection( char line[], 
                                  int& iErr, int& linetype )
 {
-  char code[4], name[2][16], colname[16];
-  double val[2];
-  int hasSecondValue;
-  char oldColName[16] = "";
-  int colnum = -1;
-
   int  * lastSeenRow = 0;
   linetype = mpssyntaxerr; // If this doesn't get set to something else,
   // it is an error
-  
-  int i, nvals;
   iErr = mpsok;
 
   lastSeenRow  = new int[totalCols];
   if( !lastSeenRow ) {
     iErr = mpsmemoryerr;
   } else {
-    for( i = 0; i < totalCols; i++ ) {
+    for( int i = 0; i < totalCols; i++ ) {
       lastSeenRow[i] = -1;
     }
     while((linetype = this->GetLine(line)) == DATALINE ) {
+      Word code, name[2], colname;
+      double val[2];
+
+      int hasSecondValue, nvals;
+      Word oldColName = "";
+      int colnum = -1;
+
       // we are reading data lines
       iErr = this->ParseDataLine2(line, code, colname, name[0], &val[0],
                                  hasSecondValue, name[1], &val[1] );
@@ -964,10 +876,10 @@ void MpsReader::scanHessSection( char line[200],
 	  iErr = mpssyntaxerr; break;
         }
         // Mark this column as seen
-        strncpy( oldColName, colname, 16 );
+        word_copy( oldColName, colname );
       }
       nvals = (hasSecondValue) ? 2 : 1;
-      for( i = 0; i < nvals; i++ ) {
+      for( int i = 0; i < nvals; i++ ) {
         int rownum = GetIndex( colTable, name[i] );
         if( rownum < 0 ) {
           fprintf( stderr, 
@@ -1056,155 +968,75 @@ void MpsReader::findFile( FILE*& file, char*& resolvedName,
     strcpy( resolvedName, filename );
     return;
   }
-  // Otherwise try with an .mps suffix
-
-  if( lfilename < 4 || 0 != strcmp( &filename[lfilename-4], ".mps") ) {
-    // the file doesn't already have an .mps suffix
-    // append one
-    resolvedName = new char[lfilename + 4];
-    strcat(resolvedName, ".mps");
-    file = fopen( resolvedName, "r" );
-    if( !file ) {
-      delete [] resolvedName; resolvedName = 0;
-    }
-  } // end if we didn't find the file.
 }
 
-void MpsReader::readProblemName( char line[], int& iErr, int kindOfLine )
-{
-  int extra_crud;
-  char tag[6];
-
-  if( HEADERLINE == kindOfLine ) {
-    this->string_copy( tag, &line[0], 4 );  /* characters  1 - 4 to name */
-    if( !isLJustOf( "NAME", tag, 4 ) ) {
-      fprintf( stderr, "Expected NAME on line %d, got %s.\n",
-	       iline, tag );
-      iErr = mpssyntaxerr;
-      return;
-    }
-    extra_crud = !isOnlySpaces( line, 4, 13 );
-    if( !extra_crud ) {
-      this->string_copy( problemName, &line[14], 8 );
-    }
-    extra_crud = extra_crud || !isOnlySpaces( line, 22, 60 );
-    if( extra_crud ) {
-      fprintf( stderr, "Extra characters in NAME field on line %d.\n",
-	       iline );
-      fprintf( stderr, "These will be ignored. Only the first 8 characters are significant: '%s'.\n", problemName);
-      // iErr = mpssyntaxerr;
-      // return;
-    }
-  } else {
-    fprintf( stderr, "Expected NAME on line %d.\n", iline );
-    iErr = mpssyntaxerr;
-    return;
-  }
-  iErr = mpsok;
-  return;
-}
 
 void MpsReader::readProblemName2( char line[], int& iErr, int kindOfLine )
 {
-    char *token;
-    char *arrayOfTokens[2];
-    char tempLine[200];
-    char tag[6];
+  char *fname, *endptr;
+  
+  expectHeader2(kindOfLine, "NAME", line, iErr );
+  if (iErr != mpsok) {
+    fprintf( stderr, "Expected tag NAME on line %d.\n", iline );
+    iErr = mpssyntaxerr;
+    return;
+  }
+  
+  (void) strtok_r( line, " \t", &endptr);
 
-    if( HEADERLINE == kindOfLine ) {
-        strncpy( tempLine, line, 200);
-        token = strtok( tempLine, " ");
+  // Field 2: Problem Name
+  fname = strtok_r( NULL, " \t", &endptr);
 
-        // Split the extracted line into tokens delimited by space...
-        arrayOfTokens[0] = token;
-        arrayOfTokens[1] = strtok( NULL, " ");
+  if (fname == NULL) {
+    fprintf( stderr, "Empty problem name on line %d.\n", iline );
+    iErr = mpssyntaxerr;
+    return;
+  }
 
-        // Field 1: Tag "Name"
-        if( arrayOfTokens[0] != NULL){
-            strcpy(tag, arrayOfTokens[0]);
-            
-            if( strncmp( "NAME", tag, 4 ) ) {
-                fprintf( stderr, "Expected NAME on line %d, got %s.\n",
-                   iline, tag );
-                iErr = mpssyntaxerr;
-                return;
-                }
-            }
-        else{
-            fprintf( stderr, "Empty tag NAME on line %d.\n", iline );
-            iErr = mpssyntaxerr;
-            return;
-            }
-
-        // Field 2: Problem Name
-        if( arrayOfTokens[1] != NULL){
-            this->string_copy(problemName, arrayOfTokens[1], 16);
-            
-            if( strlen( arrayOfTokens[1]) > 16){
-                fprintf( stderr, "Extra characters in NAME field on line %d.\n",
-                   iline );
-                fprintf( stderr, "These will be ignored. Only the first 16 characters are significant: '%s'.\n", problemName);
-                }
-            }
-        else{
-            fprintf( stderr, "Empty problem name on line %d.\n", iline );
-            iErr = mpssyntaxerr;
-            return;
-            }
-        }
-    else {
-        fprintf( stderr, "Expected tag NAME on line %d.\n", iline );
-        iErr = mpssyntaxerr;
-        return;
-        }
+  int len = strlen(fname);
+  if (len > word_max) {
+    fprintf( stderr, "Extra characters in NAME field on line %d.\n",
+	     iline );
+    fprintf( stderr, "These will be ignored. "
+	     "Only the first %d characters are significant: "
+	     "'%s'.\n", word_max, problemName);
+  
+    len = word_max;
+  }
+  memcpy(problemName, fname, len);
+  problemName[len] = '\0';
 
   iErr = mpsok;
-  return;
 }
+
 
 void MpsReader::readObjectiveSense( char line[], int& iErr, int kindOfLine )
 {
-    char *token;
-    char *arrayOfTokens[1];
-    char tempLine[200];
+  char * endptr;
 
-    if( DATALINE == kindOfLine ) {
-        strncpy( tempLine, line, 200);
-        token = strtok( tempLine, " ");
+  iErr = mpssyntaxerr;
 
-        // Split the extracted line into tokens delimited by space...
-        arrayOfTokens[0] = token;
-
-        // Field 1: "MAX" or "MIN"
-        if( arrayOfTokens[0] != NULL){
-            strncpy( objectiveSense, arrayOfTokens[0], 3);
-
-            if( strncmp( "MAX", objectiveSense, 3 ) && strncmp( "MIN", objectiveSense, 3) ) {
-                fprintf( stderr, "Expected objective sense MAX or MIN on line %d, got %s.\n",
-                   iline, objectiveSense );
-                iErr = mpssyntaxerr;
-                return;
-                }
-            }
-        else{
-            fprintf( stderr, "Empty objective sense on line %d.\n", iline );
-            iErr = mpssyntaxerr;
-            return;
-            }
-        }
-    else {
-        fprintf( stderr, "Expected objective sense MAX or MIN on line %d.\n", iline );
-        iErr = mpssyntaxerr;
-        return;
-        }
-
-  iErr = mpsok;
-  return;
+  if (DATALINE == kindOfLine) {
+    char * token = strtok_r(line, " \t", &endptr);
+    if (token) {
+      if (0 == strcmp("MAX", token)) {
+	objectiveSense = kMaximize;
+	iErr = mpsok;
+      } else if (0 == strcmp("MIN", token)) {
+	objectiveSense = kMinimize;
+	iErr = mpsok;
+      }
+    }
+  }
+  if (iErr != mpsok) {
+    fprintf( stderr, "Expected objective sense MAX or MIN on line %d.\n",
+	     iline );
+  }
 }
 
 void MpsReader::scanFile( int& iErr )
 {
-  char line[200];
+  char line[bufsz];
   int kindOfLine;
 
   // Problem name
@@ -1268,33 +1100,26 @@ void MpsReader::scanFile( int& iErr )
 }
 
 
-void MpsReader::readRowsSection( char line[200], 
+void MpsReader::readRowsSection( char line[], 
 				 int& iErr, int& linetype )
 {
-  char rname[16], code[4];
-  const int rowsGuess          = 1000;
+  Word rname, code;
   const double rowsBlockFactor = 1.5;
+  int foundObjective = 0;
 
-  int lrowInfo   = rowsGuess;
+  int lrowInfo   = 1000; 	// Initial guess
   totalRows      = 0;
-  rowInfo        = 0;
   rowTable       = 0;
 
   // Remember code for rhs and bound
-  rowInfo = new MpsRowInfo[rowsGuess];
-  if( rowInfo == 0 ) {
-    fprintf( stderr, "Out of memory\n" );
-    iErr = mpsmemoryerr; return;
-  }
-
-  int foundObjective = 0;
+  rowInfo = new MpsRowInfo[lrowInfo];
 
   while ((linetype = this->GetLine(line)) == DATALINE) {
     // we are reading datalines
     iErr = this->ParseRowsLine2(line, code, rname );
     if( iErr != mpsok ) break;
 
-    int rowType = MpsRowTypeFromCode2( code[0] );
+    int rowType = MpsRowTypeFromCode2( code );
     if( rowType == kBadRowType ) {
       fprintf( stderr, "Unrecognized row type\n"); 
       iErr = mpssyntaxerr;
@@ -1310,7 +1135,7 @@ void MpsReader::readRowsSection( char line[200],
 		   objectiveName );
 	}
       } else {
-	this->string_copy( objectiveName, rname, 16 );
+	this->word_copy( objectiveName, rname); // Know to be < word_max
       }
       foundObjective++;
     }
@@ -1320,13 +1145,8 @@ void MpsReader::readRowsSection( char line[200],
       int lNewRowInfo = (int) (lrowInfo * rowsBlockFactor);
       MpsRowInfo * newRowInfo;
 
-      try {
-	newRowInfo = new MpsRowInfo[lNewRowInfo];
-      } catch(...) {
-	cerr << "Out of memory in MpsReader.\n";
-	iErr = mpsmemoryerr;
-        break;
-      }
+      newRowInfo = new MpsRowInfo[lNewRowInfo];
+
       for( int k = 0; k < lrowInfo; k++ ) {
 	newRowInfo[k] = rowInfo[k];
       }
@@ -1334,18 +1154,14 @@ void MpsReader::readRowsSection( char line[200],
       rowInfo = newRowInfo;
       lrowInfo = lNewRowInfo;
     }
-    this->string_copy( rowInfo[totalRows].name, rname, 16 );
+    this->word_copy( rowInfo[totalRows].name, rname ); // Know to be Ok
     rowInfo[totalRows].kind    = rowType;
     rowInfo[totalRows].nnz     = 0;
-    
     
     totalRows++;
   } // end while we are reading data lines
 
   if( iErr == 0 ) {
-//      rowInfo = 
-//        (MpsRowInfo *) realloc( rowInfo, totalRows * sizeof( MpsRowInfo ) );
-    // This is smaller, so it shouldn't fail.
     rowTable = NewHashTable( 2 * totalRows );
     if ( rowTable ) {
       int i;
@@ -1372,23 +1188,25 @@ void MpsReader::readRowsSection( char line[200],
   }
   if( iErr != 0 ) {
     delete [] rowInfo;
+    rowInfo = 0;
     if( rowTable ) DeleteHashTable( rowTable );
+    rowTable = 0;
   }
 }
 
-void MpsReader::scanColsSection( char line[200], 
+void MpsReader::scanColsSection( char line[], 
 				 int& iErr, int& linetype )
 {
-  char colname[16], code[4], name[2][16];
+  Word colname, code, name[2];
   int hasSecondValue;
   double val[2];
   int * lastSeen;
 
-  int colsGuess = 1000;
+  int lcolnames = 1000;		// Initial guess
   const double colsBlockFactor = 1.5;
-  char oldColumnName[17] = "";
+  Word oldColumnName = "";
   int nvals;
-  int colnum = -1;
+  int colnum;
   iErr       = mpsok;
 
   int i;
@@ -1408,79 +1226,71 @@ void MpsReader::scanColsSection( char line[200],
   colTable  = 0; totalCols = 0; colnum = 0;
   lastSeen  = new int[totalRows];
 
-  if(2*totalRows >  colsGuess) colsGuess = 2*totalRows;
-  int lcolnames = colsGuess;
-  colInfo   = new MpsColInfo[colsGuess];
+  if(2*totalRows >  lcolnames) lcolnames = 2*totalRows;
+  colInfo   = new MpsColInfo[lcolnames];
 
-  if( !colInfo || !lastSeen ) {
-    iErr = mpsmemoryerr;
-  } else { // memory was allocated sucessfully
-    // Nothing has yet been seen
-    for( i = 0; i < totalRows; i++ ) {
-      lastSeen[i] = -1;
-    }
-
-    while ((linetype = this->GetLine(line)) == DATALINE) {
-      // we are reading datalines
-      iErr = this->ParseDataLine2(line, code, colname, name[0], &val[0],
-                                 hasSecondValue, name[1], &val[1]);
-      if( iErr != mpsok ) break;
+  // Nothing has yet been seen
+  for( i = 0; i < totalRows; i++ ) {
+    lastSeen[i] = -1;
+  }
+  
+  while ((linetype = this->GetLine(line)) == DATALINE) {
+    // we are reading datalines
+    iErr = this->ParseDataLine2(line, code, colname, name[0], &val[0],
+				hasSecondValue, name[1], &val[1]);
+    if( iErr != mpsok ) break;
       // are we already working on this column?
-      if (strcmp(oldColumnName, colname) != 0) {
-        /* it's a new column */
-        colnum = totalCols++;
-        
-        this->string_copy( oldColumnName, colname, 16);
-        /* register its name */
-        this->string_copy( colInfo[colnum].name, colname, 16 );
-        colInfo[colnum].nnz  = 0;
-        
-        if( totalCols>= lcolnames ) {
-          // We must reallocate
-	  int lNewColInfo = (int) (lcolnames * colsBlockFactor) ;
-	  MpsColInfo * newColInfo;
-	  try {
-	    newColInfo = new MpsColInfo[lNewColInfo];
-	  } catch( ... ) {
-	    iErr = mpsmemoryerr;
-	    break;
-	  }
-	  for( int k = 0; k < lcolnames; k++ ) {
-	    newColInfo[k] = colInfo[k];
-	  }
-	  delete [] colInfo;
-
-          colInfo = newColInfo;
-	  lcolnames = lNewColInfo;
-        } // end if we must reallocate
-      }  // end if it's a new column
+    if (strcmp(oldColumnName, colname) != 0) {
+      /* it's a new column */
+      colnum = totalCols++;
       
-      nvals = hasSecondValue ? 2 : 1;
-      for( i = 0; i < nvals; i++ ) {
-        // What row is the value in?
-        int rownum = GetIndex( rowTable, name[i] );
-        if( rownum < 0 ) {
-          iErr = mpssyntaxerr;
+      this->word_copy( oldColumnName, colname );
+      /* register its name */
+      this->word_copy( colInfo[colnum].name, colname );
+      colInfo[colnum].nnz  = 0;
+      
+      if( totalCols>= lcolnames ) {
+	// We must reallocate
+	int lNewColInfo = (int) (lcolnames * colsBlockFactor) ;
+	MpsColInfo * newColInfo;
+	newColInfo = new MpsColInfo[lNewColInfo];
+
+	for( int k = 0; k < lcolnames; k++ ) {
+	  newColInfo[k] = colInfo[k];
+	}
+	delete [] colInfo;
+	
+	colInfo = newColInfo;
+	lcolnames = lNewColInfo;
+      } // end if we must reallocate
+    }  // end if it's a new column
+    
+    nvals = hasSecondValue ? 2 : 1;
+    for( i = 0; i < nvals; i++ ) {
+      // What row is the value in?
+      int rownum = GetIndex( rowTable, name[i] );
+      if( rownum < 0 ) {
+	iErr = mpssyntaxerr;
           fprintf( stderr, "Unrecognized row name" );
           break;
-        }
-        if( lastSeen[rownum] == colnum ) {
-          iErr = mpssyntaxerr;
-          fprintf( stderr,
-                   "Error on line %d: "
-                   "row %s was already specified for column %s.\n",
-                   iline, name[i], colname );
-          break;
-        }
-        rowInfo[rownum].nnz++;
-        lastSeen[rownum] = colnum;
       }
-      if( iErr != mpsok ) break;
-    } // end while we are reading datalines.
-  }
-
+      if( lastSeen[rownum] == colnum ) {
+	iErr = mpssyntaxerr;
+	fprintf( stderr,
+		 "Error on line %d: "
+		 "row %s was already specified for column %s.\n",
+		 iline, name[i], colname );
+	break;
+      }
+      rowInfo[rownum].nnz++;
+      lastSeen[rownum] = colnum;
+    }
+    if( iErr != mpsok ) break;
+  } // end while we are reading datalines.
+  
+  
   delete [] lastSeen;
-
+  
   if( iErr == mpsok ) {
     // No error yet.
     // Shrink the colInfo to actual size
@@ -1490,16 +1300,16 @@ void MpsReader::scanColsSection( char line[200],
     colTable = NewHashTable( 2 * totalCols );
     if( !colTable ) { 
       iErr = mpsmemoryerr;
-    } else { // The column table was successfully allocated.
+    } else {
       for( i = 0; i < totalCols; i++ ) { // loop over all columns
-        if (Insert( colTable, colInfo[i].name, i) == 1) {
-          // This column name was already found in the hash table.
-          fprintf( stderr, "Column %s was specified twice.\n",
-                   colInfo[i].name );
-          iErr = mpssyntaxerr; break;
-        }
-      } // end loop over all columns
-    } // end else the column table was allocated
+	if (Insert( colTable, colInfo[i].name, i) == 1) {
+	  // This column name was already found in the hash table.
+	  fprintf( stderr, "Column %s was specified twice.\n",
+		   colInfo[i].name );
+	  iErr = mpssyntaxerr; break;
+	}
+      }
+    } // end loop over all columns
   } // end if no error yet
   if( iErr == mpsok ) {
     // There isn't already an error.
@@ -1512,21 +1322,41 @@ void MpsReader::scanColsSection( char line[200],
   }
   if( iErr != 0 ) {
     delete [] rowInfo;
+    rowInfo = 0;
     if( rowTable) { DeleteHashTable( rowTable ); rowTable = 0; }
   }
 }
 
 
-int MpsReader::string_copy( char dest[], char str[], int max)
+int MpsReader::word_copy( char dest[], char str[])
 {
-  /* Copy string to dest converting non-printable characters to spaces.
-   * Null-terminate dest at max+1 */
-  
-  strncpy( dest, str, max );
-  dest[max] = '\0';
+  int len = strlen(str);
+  if (len > word_max) {
+    dest[0] = '\0';
+    fprintf(stderr, "Word too long on line %d\n", iline);
+    return -1;
+  }
+
+  memcpy(dest, str, len + 1);
 
   return 0;
 }
+
+
+int MpsReader::parse_double(const char * word, double & value)
+{
+  char * endptr;
+  errno = 0;
+  value = strtod(word, &endptr);
+  if (0 != errno || endptr[0] != '\0') {
+    fprintf( stderr, 
+	     "Value doesn't parse as number on line %d.\n", iline );
+    return mpssyntaxerr;
+  } else {
+    return mpsok;
+  }
+}
+
 
 void MpsReader::getSizes( int& nx_, int& my_, int& mz_ )
 {
@@ -1548,22 +1378,6 @@ void MpsReader::getSizes( int& nx_, int& my_, int& mz_ )
   mz_ = mz;
 }
 
-void MpsReader::numbersOfNonZeros( int lnnzQ[], int lnnzA[], int lnnzC[] )
-{
-    int i;
-    for( i = 0; i < totalRows; i++ ) {
-      if( rowInfo[i].kind == kEqualRow ) {
-	lnnzA[ rowRemap[i] ] = rowInfo[i].nnz;
-      } else if ( rowInfo[i].kind == kFreeRow ) {
-	// Do nothing
-      } else {
-	lnnzC[ rowRemap[i] ] = rowInfo[i].nnz;
-      }
-    }
-    for( i = 0; i < totalCols; i++ ) {
-      lnnzQ[i] = colInfo[i].nnz;
-    }
-}
 
 void MpsReader::numberOfNonZeros( int& nnzQ_, int& nnzA_, int& nnzC_ )
 {
@@ -1601,7 +1415,7 @@ void MpsReader::readQpGen( double     c[],
 			   double  cupp[],  char icupp[],
 			   int&    ierr )
 {
-  char line[200];
+  char line[bufsz];
   int  kindOfLine;
   this->readColsSection( c,
 			 irowA, jcolA, dA,
@@ -1650,7 +1464,7 @@ void MpsReader::readQpBound( OoqpVector& c, SymMatrix& Q,
 			     int& iErr )
 {
   if( my > 0 || mz > 0 ) { iErr = 1024; return; }
-    char line[200];
+  char line[bufsz];
   int  kindOfLine;
 
   {
@@ -1700,7 +1514,7 @@ void MpsReader::readQpGen( OoqpVector& c, SymMatrix& Q,
 			   OoqpVector& cupp_, OoqpVector& icupp,
                            int& iErr )
 {
-  char line[200];
+  char line[bufsz];
   int  kindOfLine;
 
   this->readColsSection( c, A, C, line, iErr,  kindOfLine );
@@ -1779,811 +1593,230 @@ MpsReader::~MpsReader()
   delete [] rowRemap;
 }
 
-// Universal end-of-line
-inline int isEndOfLine( char c, FILE * file )
-{
-  if( '\n' == c ) return 1;
-  if( '\r' == c ) {
-    int newChar = getc( file );
-    if( newChar != '\n' ) {
-      ungetc( newChar, file );
-    }
-    return 1;
-  }
-  return 0;
-}
-
-int MpsReader::GetLine_old(char * line )
-{
-  int             i, j, terminated;
-  const int length = 61;
-
-  do {
-    int c;
-
-    iline++;
- 
-    i = 0; terminated = 0;
-    while( i < length && EOF != ( c = getc( file ) ) ) {
-      if( isEndOfLine( c, file ) ) {
-	terminated = 1;
-	break;
-      }
-      if( !isprint( c ) ) c = ' '; // Eliminate non-printing characters
-      line[i] = c;
-      
-      i++;
-    }
-    if( !terminated ) {
-      // The line wasn't terminated, or was possibly just terminated
-      // after the 61st character.
-      if( i == 0 ) {
-	// Nothing was read. This is an error.
-        fprintf( stderr, "Unexpected end-of-file at line %d.\n", iline );
-        return READERROR;
-      } else if( i == length ) { 
-	// We read 61 characters without an error or a '\n'
-	if( line[0] == '*' ) { 
-	  // This is a comment line. There is no restriction on length.
-	  // Just throw away characters til the end of line
-          while( EOF != ( c = getc( file ) ) && c != '\n' ) ;
-	} else {
-	  // This is not a comment line. The only characters
-	  // beyond the 61st column should be ' '
-	  int extracrud = 0;
-	  while( EOF != ( c = getc( file ) ) ) {
-	    if( isEndOfLine( c, file ) ) break;
-	    if( c != ' ' ) extracrud = 1;
-	  }
-	  if(  extracrud ) {
-	    fprintf( stderr,
-		     "Extra characters beyond column 61 in line %d.\n",
-		     iline );
-	    return mpssyntaxerr;
-	  }
-	} // end else this is not a comment line
-      } // end else we read 61 characters
-      // Otherwise, the file just doesn't have a terminating newline,
-      // which is acceptable.
-    }
-    
-    // Fill in the rest of line with spaces
-    for( j = i; j < length; j++ ) line[j] = ' ';
-    // Terminate the line
-    line[length] = '\0';
-  } while ( line[0] == '*' ); // Disgard comment lines
-  
-  if(line[0] == ' ') return DATALINE;
-  else return HEADERLINE;
-}
 
 int MpsReader::GetLine(char * line )
 {
-  int i, j, terminated;
-
-  /* 
-   * This has been arbitrarily increased by 90 characters to allow 
-   * for the increase in length of names from 8 to 16 characters,
-   * the increase in length of numbers from 12 to 25 characters,
-   * and possibility of having extra spaces between fields. 
-   */
-  const int length = 150;
-
   do {
-    int c;
-
+    int i, c;
+    
     iline++;
- 
-    i = 0; terminated = 0;
-    while( i < length && EOF != ( c = getc( file ) ) ) {
-      if( isEndOfLine( c, file ) ) {
-	terminated = 1;
+    
+    i = 0;
+    while( EOF != ( c = getc( file ) ) ) {
+      if(c == '\n' || i == bufsz - 1)
 	break;
-      }
-      if( !isprint( c ) ) c = ' '; // Eliminate non-printing characters
-      line[i] = c;
       
-      i++;
+      if( !isprint( c ) )
+	continue;
+      
+      line[i++] = c;
     }
-    if( !terminated ) {
-      // The line wasn't terminated, or was possibly just terminated
-      // after the 150th character.
-      if( i == 0 ) {
-	// Nothing was read. This is an error.
-        fprintf( stderr, "Unexpected end-of-file at line %d.\n", iline );
-        return READERROR;
-      } else if( i == length ) { 
-	// We read 150 characters without an error or a '\n'
-	if( line[0] == '*' ) { 
-	  // This is a comment line. There is no restriction on length.
-	  // Just throw away characters til the end of line
-          while( EOF != ( c = getc( file ) ) && c != '\n' ) ;
-	} else {
-	  // This is not a comment line. The only characters
-	  // beyond the 150th column should be ' '
-	  int extracrud = 0;
-	  while( EOF != ( c = getc( file ) ) ) {
-	    if( isEndOfLine( c, file ) ) break;
-	    if( c != ' ' ) extracrud = 1;
-	  }
-	  if(  extracrud ) {
-	    fprintf( stderr,
-		     "Line %d has exceeded the maximum permissible characters.\n",
-		     iline );
-	    return mpssyntaxerr;
-	  }
-	} // end else this is not a comment line
-      } // end else we read 150 characters
-      // Otherwise, the file just doesn't have a terminating newline,
-      // which is acceptable.
+    line[i] = '\0';
+    
+    // Line too long; Ok if EOF
+    if ( c != '\n' && (i != bufsz - 1 || !feof(file)) ) {
+      return mpsioerr;
     }
     
-    // Fill in the rest of line with spaces
-    for( j = i; j < length; j++ ) line[j] = ' ';
-    // Terminate the line
-    line[length] = '\0';
+    if (i == 0) 		// Empty line is an error
+      return mpsioerr;
   } while ( line[0] == '*' ); // Disgard comment lines
   
-  if(line[0] == ' ') return DATALINE;
-  else return HEADERLINE;
-}
-
-
-int MpsReader::ParseHeaderLine(char line[], char entry[] )
-{
-  // the comments in this function are 1-indexed. I.e. line[0] is
-  // character one.
-  int extra_crud = 0;
-
-  this->string_copy(entry, &line[0],  16);  // characters  1 - 16 to entry1 
-  extra_crud = !isOnlySpaces( line, 8, 60 );
-
-  if( extra_crud ) {
-    fprintf( stderr,
-             "Extra characters outside prescribed fields at line %d.\n",
-             iline );
-    return mpssyntaxerr;
-  }
-  
-  return mpsok;
-}
-
-
-int MpsReader::ParseHeaderLine2(char line[], char entry[] )
-{
-    char *token;
-    char tempLine[200];
-
-    strncpy( tempLine, line, 200);
-
-    /* Split the line delimited by space */
-    token = strtok( tempLine, " ");
-
-    /* Copy the token into the input argument */
-    strcpy( entry, token);
-
-    if( strlen( token) > 16 ) {
-        fprintf( stderr,
-                "Extra characters outside prescribed fields at line %d.\n",
-                iline );
-    return mpssyntaxerr;
-  }
-  
-  return mpsok;
+  return line[0] == ' ' ? DATALINE : HEADERLINE;
 }
 
 
 int MpsReader::ParseRowsLine2( char line[],  char code[], char name1[] )
 {
-    char *token;
-    char *arrayOfTokens[2];
-    char tempLine[200];
+  char *codef, *namef, *endp;
 
-    strncpy( tempLine, line, 200);
-
-    token = strtok( tempLine, " ");
-
-    // Split the extracted line into tokens delimited by space...
-    arrayOfTokens[0] = token;
-    arrayOfTokens[1] = strtok( NULL, " ");
-
-    // Field 1: Row type
-    if( arrayOfTokens[0] != NULL){
-        strcpy(code, arrayOfTokens[0]);         
-        }
-    else{
-        fprintf( stderr, "Empty row type field on line %d.\n", iline );
-        return mpssyntaxerr;
-        }
-
-    // Field 2: Row name
-    if( arrayOfTokens[1] != NULL){
-        strcpy(name1, arrayOfTokens[1]);         
-        }
-    else{
-        fprintf( stderr, "Empty row name field on line %d.\n", iline );
-        return mpssyntaxerr;
-        }
-    
-  return mpsok;
-}
-
-
-int MpsReader::ParseRowsLine( char line[],  char code[], char name1[] )
-{
-  int extra_crud = 0;
-  assert( line[0] == ' ' );
-
-  this->string_copy(code, &line[1], 2); // characters  2 -  3 to code  
-  extra_crud = extra_crud || ' ' != line[3];
-
-  this->string_copy(name1, &line[4], 8);    // characters  5 - 12 to name1 
-  extra_crud = extra_crud || ' ' != line[12] || ' ' != line[13];
-  if( isOnlySpaces( name1, 0, 7 ) ) { // name1 cannot be empty
+  codef = strtok_r( line, " \t", &endp);
+  if (!codef) { 
+    fprintf( stderr, "Empty row type field on line %d.\n", iline );
+    return mpssyntaxerr;
+  } else if ( 0 != word_copy(code, codef) ) {
+    return mpssyntaxerr;
+  }
+  
+  namef = strtok_r( NULL, " \t", &endp);
+  if (!namef) {
     fprintf( stderr, "Empty row name field on line %d.\n", iline );
     return mpssyntaxerr;
-  }
-  
-  extra_crud = extra_crud || !isOnlySpaces( line, 12, 60 );
-  if( extra_crud ) {
-    fprintf( stderr,
-             "Extra characters outside prescribed fields at line %d.\n",
-             iline );
+  } else if ( 0 != word_copy(name1, namef) ) {
     return mpssyntaxerr;
   }
-  
-  return mpsok;
-}
-
-
-
-int MpsReader::ParseBoundsLine( char line[], int& code, char name1[],
-				char name2[], double * val )
-{
-  int extra_crud = 0;
-  char codeStr[4];
-  char valstr[16];
-  int ierr;
-
-  assert( line[0] == ' ' );
-  this->string_copy(codeStr, &line[1], 2); // characters  2 -  3 to codeStr
-  codeStr[0] = toupper( codeStr[0] ); codeStr[1] = toupper( codeStr[1] );
-  extra_crud = extra_crud || ' ' != line[3];
-    if( 0 == strcmp( codeStr, "LO" ) ) {
-      code = kLowerBound;
-    } else if ( 0 == strcmp( codeStr, "UP" ) ) {
-      code = kUpperBound;
-    } else if ( 0 == strcmp( codeStr, "FX" ) ) {
-      code = kFixedBound;
-      // fprintf( stderr, "This code does not support fixed variables.\n" );
-      // return mpssyntaxerr;
-    } else if ( 0 == strcmp( codeStr, "FR" ) ) {
-      code = kFreeBound;
-    } else if ( 0 == strcmp( codeStr, "MI" ) ) {
-      code = kMInftyBound;
-    } else if ( 0 == strcmp( codeStr, "PL" ) ) {
-      code = kPInftyBound;
-    } else {
-      fprintf( stderr, "Bad type of bound specified on line %d.\n", iline );
-      return mpssyntaxerr;
-    }
-
-  this->string_copy(name1, &line[4], 8);    // characters  5 - 12 to name1 
-  // name1 is allowed to be empty.
-  extra_crud = extra_crud || ' ' != line[12] || ' ' != line[13];
-
-  this->string_copy(name2, &line[14], 8);   // characters 15 - 22 to name2 
-  extra_crud = extra_crud || ' ' != line[22] || ' ' != line[23];
-  if( isOnlySpaces( name2, 0, 7 ) ) { // name2 cannot be empty
-    fprintf( stderr, "Empty second name field on line %d.\n", iline );
-    return mpssyntaxerr;
-  }
-  switch( code ) {
-  case kFreeBound:
-  case kMInftyBound:
-  case kPInftyBound:
-    // this is it, nothing else may be specified
-    extra_crud = extra_crud || !isOnlySpaces( line, 22, 60 );
-    break;
-  default:
-    // A value must be specified.
-    this->string_copy(valstr, &line[24], 12); 
-    // characters 25 - 36 to valstr
-    *val = asDouble( valstr, 12, ierr );
-
-    if( 0 != ierr ) {
-      fprintf( stderr, "Value doesn't parse as number on line %d.\n", iline );
-      return mpssyntaxerr;
-    }
-	
-    extra_crud = extra_crud || !isOnlySpaces( line, 36, 60 );
-
-    break;
-  }
-  if( extra_crud ) {
-    fprintf( stderr,
-             "Extra characters outside prescribed fields at line %d.\n",
-             iline );
-    return mpssyntaxerr;
-  }
-  
+    
   return mpsok;
 }
 
 
 int MpsReader::ParseBoundsLine2( char line[], int& code, char name1[],
 				char name2[], double * val )
-    {
-    int i = 0;
-    char *token;
-    char *arrayOfTokens[4];
-    int ierr =0;
-    char tempLine[200];
-    char *endptr;
-    char codeStr[4];
-    bool boundsLabelPresent = false;
+{
+  int ntokens = 0;
+  char *token;
+  char *arrayOfTokens[4] = { NULL };
+  
+  *val = 0.0;
 
-    *val = 0.0;
+  // Split the extracted line into tokens delimited by space...
+  token = strtok( line, " \t");
+  ntokens = 0;
+  do {
+    if (token == NULL)
+      break;
+    arrayOfTokens[ntokens++] = token;
+    token = strtok( NULL, " \t");
+  } while (ntokens < 4);
+    
+  // Field 1: Specifies the types of bound
+  if( ntokens == 0){
+    fprintf( stderr, "Empty bound type on line %d.\n", iline );
+    return mpssyntaxerr;
+  }
+  
+  /* Convert the code to upper case if needed */
+  char * codeStr = arrayOfTokens[0];
+  codeStr[0] = toupper( codeStr[0] );
+  codeStr[1] = toupper( codeStr[1] );
+  
+  if( 0 == strcmp( codeStr, "LO" ) ) {
+    code = kLowerBound;
+  } else if ( 0 == strcmp( codeStr, "UP" ) ) {
+    code = kUpperBound;
+  } else if ( 0 == strcmp( codeStr, "FX" ) ) {
+    code = kFixedBound;
+  } else if ( 0 == strcmp( codeStr, "FR" ) ) {
+    code = kFreeBound;
+  } else if ( 0 == strcmp( codeStr, "MI" ) ) {
+    code = kMInftyBound;
+  } else if ( 0 == strcmp( codeStr, "PL" ) ) {
+    code = kPInftyBound;
+  } else {
+    fprintf( stderr, "Bad type of bound specified on line %d.\n", iline );
+    return mpssyntaxerr;
+  }
 
-    strncpy( tempLine, line, 200);
-
-    token = strtok( tempLine, " ");
-    arrayOfTokens[0] = token;
-
-    // Split the extracted line into tokens delimited by space...
-    for( i = 1; i < 4; i++){       
-        arrayOfTokens[i] = strtok( NULL, " ");
-        }
-
-    // Field 1: Specifies the types of bound
-    if( arrayOfTokens[0] != NULL){
-        strcpy(codeStr, arrayOfTokens[0]);         
-        }
-    else{
-        fprintf( stderr, "Empty bound type on line %d.\n", iline );
-        return mpssyntaxerr;
-        }
-
-    /* Convert the code to upper case if needed */
-    codeStr[0] = toupper( codeStr[0] );
-    codeStr[1] = toupper( codeStr[1] );
-
-    if( 0 == strcmp( codeStr, "LO" ) ) {
-      code = kLowerBound;
-    } else if ( 0 == strcmp( codeStr, "UP" ) ) {
-      code = kUpperBound;
-    } else if ( 0 == strcmp( codeStr, "FX" ) ) {
-      code = kFixedBound;
-    } else if ( 0 == strcmp( codeStr, "FR" ) ) {
-      code = kFreeBound;
-    } else if ( 0 == strcmp( codeStr, "MI" ) ) {
-      code = kMInftyBound;
-    } else if ( 0 == strcmp( codeStr, "PL" ) ) {
-      code = kPInftyBound;
-    } else {
-      fprintf( stderr, "Bad type of bound specified on line %d.\n", iline );
+  int tokIndex = 1;
+  // Field 2: Optional bounds Label
+  // The presence of kFreeBound, kMInftyBound or kPInftyBound and 3
+  // tokens indicates that a bounds label is present.
+  if( (code == kFreeBound) || (code == kMInftyBound) || 
+      (code == kPInftyBound) ){
+    if( ntokens == 3 ) {
+      word_copy(name1, arrayOfTokens[tokIndex++]);
+    } else if (ntokens != 2) {
+      fprintf( stderr, 
+	       "Bad bounds line %d, expected 2 or 3 tokens, got %d.\n", 
+	       iline, ntokens);
       return mpssyntaxerr;
     }
-
-	// The presence of kFreeBound, kMInftyBound or kPInftyBound and 3 tokens indicates
-	// that a bounds label is present.
-	if( (code == kFreeBound) || (code == kMInftyBound) || (code == kPInftyBound)){
-		if( arrayOfTokens[2] != NULL)
-			boundsLabelPresent = true;
-		}
-	// The presence of kLowerBound, kUpperBound or kFixedBound and 4 tokens indicates 
-	// that a bounds label is present
-	else if( (code == kLowerBound) || (code == kUpperBound) || (code == kFixedBound)){
-		if( arrayOfTokens[3] != NULL)
-			boundsLabelPresent = true;
-		}
-
-    // Field 2: Bounds Label
-    if( boundsLabelPresent){
-	if( arrayOfTokens[1] != NULL){
-		strcpy(name1, arrayOfTokens[1]);        
-		}
-	else{
-		fprintf( stderr, "Empty first name field on line %d.\n", iline );
-		return mpssyntaxerr;
-		}
-	}
-
-	// Set the token index dynamically depending on whether or not the Bounds label is present
-	int tokIndex = 1;
-	if( boundsLabelPresent){
-		tokIndex = 2;
-		}
-
-    // Field 3: Column Label
-    if( arrayOfTokens[tokIndex] != NULL){
-        strcpy(name2, arrayOfTokens[tokIndex]); 
-		tokIndex++;
-        }
-    else{
-        fprintf( stderr, "Empty second name field on line %d.\n", iline );
-        return mpssyntaxerr;
-        }
-
+  }
+  // The presence of kLowerBound, kUpperBound or kFixedBound and 4
+  // tokens indicates that a bounds label is present
+  else if( (code == kLowerBound) || 
+	   (code == kUpperBound) || (code == kFixedBound)){
+    if( ntokens == 4 ) {
+      word_copy(name1, arrayOfTokens[tokIndex++]);        
+    } else if (ntokens != 3) {
+      fprintf( stderr, 
+	       "Bad bounds line %d, expected 3 or 4 tokens, got %d.\n", 
+	       iline, ntokens);
+      return mpssyntaxerr;
+    }
+  }
+  
+  word_copy(name2, arrayOfTokens[tokIndex++]); 
+  
   switch( code ) {
   case kFreeBound:
   case kMInftyBound:
   case kPInftyBound:
     // this is it, nothing else may be specified
     break;
-
+   
   default:
 
     // Field 4 (Optional): Bound value
-    if( arrayOfTokens[tokIndex] != NULL){
-        *val = strtod( arrayOfTokens[tokIndex], &endptr );
-
-        if( endptr[0] != ' ' && endptr[0] != '\0')
-            ierr = 1; // This works because we have already tokenized based on space delimiters
-
-		if( 0 != ierr ){
-            fprintf( stderr, "Value doesn't parse as number on line %d.\n", iline );
-            return mpssyntaxerr;
-            }
-        }
-    break;
-  }
-
-return mpsok;
-}
-
-/*
-//szhu - extend to character 60
-int MpsReader::ParseBoundsLine( char line[], int& code, char name1[],
-				char name2[], double * val )
-{
-  int extra_crud = 0;
-  char codeStr[4];
-  char valstr[36];  //extend to character 60
-  int ierr;
-
-  assert( line[0] == ' ' );
-  this->string_copy(codeStr, &line[1], 2); // characters  2 -  3 to codeStr
-  codeStr[0] = toupper( codeStr[0] ); codeStr[1] = toupper( codeStr[1] );
-  extra_crud = extra_crud || ' ' != line[3];
-    if( 0 == strcmp( codeStr, "LO" ) ) {
-      code = kLowerBound;
-    } else if ( 0 == strcmp( codeStr, "UP" ) ) {
-      code = kUpperBound;
-    } else if ( 0 == strcmp( codeStr, "FX" ) ) {
-      code = kFixedBound;
-      // fprintf( stderr, "This code does not support fixed variables.\n" );
-      // return mpssyntaxerr;
-    } else if ( 0 == strcmp( codeStr, "FR" ) ) {
-      code = kFreeBound;
-    } else if ( 0 == strcmp( codeStr, "MI" ) ) {
-      code = kMInftyBound;
-    } else if ( 0 == strcmp( codeStr, "PL" ) ) {
-      code = kPInftyBound;
-    } else {
-      fprintf( stderr, "Bad type of bound specified on line %d.\n", iline );
-      return mpssyntaxerr;
+    if( arrayOfTokens[tokIndex] != NULL) {
+      if (0 != parse_double(arrayOfTokens[tokIndex], *val) ) {
+	fprintf( stderr, "Value doesn't parse as number on line %d.\n", iline );
+	return mpssyntaxerr;
+      }
     }
-
-  this->string_copy(name1, &line[4], 8);    // characters  5 - 12 to name1 
-  // name1 is allowed to be empty.
-  extra_crud = extra_crud || ' ' != line[12] || ' ' != line[13];
-
-  this->string_copy(name2, &line[14], 8);   // characters 15 - 22 to name2 
-  extra_crud = extra_crud || ' ' != line[22] || ' ' != line[23];
-  if( isOnlySpaces( name2, 0, 7 ) ) { // name2 cannot be empty
-    fprintf( stderr, "Empty second name field on line %d.\n", iline );
-    return mpssyntaxerr;
-  }
-  switch( code ) {
-  case kFreeBound:
-  case kMInftyBound:
-  case kPInftyBound:
-    // this is it, nothing else may be specified
-    extra_crud = extra_crud || !isOnlySpaces( line, 22, 60 );
-    break;
-  default:
-    // A value must be specified.
-	this->string_copy(valstr, &line[24], 36); 
-    // characters 25 - 60 to valstr
-    *val = asDouble( valstr, 36, ierr );
-
-    if( 0 != ierr ) {
-      fprintf( stderr, "Value doesn't parse as number on line %d.\n", iline );
-      return mpssyntaxerr;
-    }
-
     break;
   }
-  if( extra_crud ) {
-    fprintf( stderr,
-             "Extra characters outside prescribed fields at line %d.\n",
-             iline );
-    return mpssyntaxerr;
-  }
-  
   return mpsok;
 }
 
-*/
-
-
-int MpsReader::ParseDataLine( char line[],  char code[],
-                              char name1[], char name2[], double * val1,
-                              int& hasSecondValue,
-                              char name3[], double * val2)
-{
-  char            valstr1[16], valstr2[16];
-  
-  int extra_crud = 0, ierr;
-  *val1 = 0.0;
-  *val2 = 0.0;
-  
-  assert( line[0] == ' ' );
-  this->string_copy(code, &line[1], 2); // characters  2 -  3 to code 
-  extra_crud = extra_crud || ' ' != line[3];
-
-  this->string_copy(name1, &line[4], 8);    // characters  5 - 12 to name1
-  extra_crud = extra_crud || ' ' != line[12] || ' ' != line[13];
-  // name1 is allowed to be empty.
-
-  this->string_copy(name2, &line[14], 8);   // characters 15 - 22 to name2
-  extra_crud = extra_crud || ' ' != line[22] || ' ' != line[23];
-  if( isOnlySpaces( name2, 0, 7 ) ) { // name2 cannot be empty
-    fprintf( stderr, "Empty second name field on line %d.\n", iline );
-    return mpssyntaxerr;
-  }
-
-  this->string_copy(valstr1, &line[24], 12); // characters 25 - 36 to valstr 
-  extra_crud = extra_crud ||
-    ' ' != line[36] || ' ' != line[37] || ' ' != line[38];
-  *val1 = asDouble( valstr1, 12, ierr );
-
-  if( 0 != ierr ) {
-    fprintf( stderr, "Value doesn't parse as number on line %d.\n", iline );
-    return mpssyntaxerr;
-  }
-
-  if( !isOnlySpaces( line, 39, 46 ) ) {
-    hasSecondValue = 1;
-    this->string_copy(name3, &line[39], 8); 
-    // characters 40 - 47 to name3 
-    extra_crud = extra_crud || ' ' != line[47] || ' ' != line[48];
-    
-    this->string_copy(valstr2, &line[49], 12); 
-    // characters 50 - 61 to valstr 
-    
-    *val2 = asDouble( valstr2, 12, ierr );
-    if( 0 != ierr ) {
-      fprintf( stderr, "Value doesn't parse as number on line %d.\n", iline );
-      return mpssyntaxerr;
-    }
-  } else {
-    hasSecondValue = 0;
-    extra_crud = extra_crud || !isOnlySpaces( line, 47, 60 );
-  }
-  if( extra_crud ) {
-    fprintf( stderr,
-             "Extra characters outside prescribed fields at line %d.\n",
-             iline );
-    return mpssyntaxerr;
-  }
-  
-  return mpsok;
-}
 
 int MpsReader::ParseDataLine2( char line[],  char /* code */[],
-                              char name1[], char name2[], double * val1,
-                              int& hasSecondValue,
-                              char name3[], double * val2)
-    {
-    int i = 0;
-    char *token;
-    char *arrayOfTokens[5];
-    int ierr =0;
-    char tempLine[200];
-    char *endptr;
+			       char name1[], char name2[], double * val1,
+			       int& hasSecondValue,
+			       char name3[], double * val2)
+{
+    char *token, *endptr;
+    char *arrayOfTokens[5] = {NULL,};
 
     *val1 = 0.0;
     *val2 = 0.0;
     hasSecondValue = 0;
-
+    
     //Name1 is optional
-    bool hasName1 = true;
     int numberOfTokens = 0;
-    int tokIndex = 0;
-
-    strncpy( tempLine, line, 200);
-
-    token = strtok( tempLine, " ");
-    arrayOfTokens[0] = token;
-    if( arrayOfTokens[0] != NULL) 
-    	numberOfTokens++;
 
     // Split the extracted line into tokens delimited by space...
-    for( i = 1; i < 5; i++){       
-        arrayOfTokens[i] = strtok( NULL, " ");
-
-	if( arrayOfTokens[i] != NULL)
-		numberOfTokens++;
-        }
-
+    token = strtok_r( line, " \t", &endptr);
+    while (token != NULL && numberOfTokens < 5) {
+      arrayOfTokens[numberOfTokens++] = token;
+      token = strtok_r( NULL, " \t", &endptr);
+    } 
+    
     // An even number of tokens indicates that name1 is missing
-    if( (numberOfTokens % 2) == 0){
-    	hasName1 = false;
-	}
-
-    // Field 2: Column/RHS/Right-hand side range vector Identifier
-    if( hasName1 && arrayOfTokens[tokIndex] != NULL){
-        strcpy(name1, arrayOfTokens[tokIndex]);         
-        tokIndex++;
-	}
-
-    // Field 3: Row identifier
-    if( arrayOfTokens[tokIndex] != NULL){
-        strcpy(name2, arrayOfTokens[tokIndex]);
-	tokIndex++;
-        }
-    else{
-        fprintf( stderr, "Empty second name field on line %d.\n", iline );
-        return mpssyntaxerr;
-        }
-
-    // Field 4: Value of matrix coefficient specified by fields 2 and 3
-    if( arrayOfTokens[tokIndex] != NULL){
-
-        *val1 = strtod( arrayOfTokens[tokIndex], &endptr );
-	tokIndex++;
-
-        if( endptr[0] != ' ' && endptr[0] != '\0')
-            ierr = 1; // This works because we have already tokenized based on space delimiters
-
-		if( 0 != ierr ){
-            fprintf( stderr, "Value doesn't parse as number on line %d.\n", iline );
-            return mpssyntaxerr;
-            }
-        }
-
-    // Field 5 (Optional): Row identifier
-    if( arrayOfTokens[tokIndex] != NULL){
-		hasSecondValue = 1;
-		strcpy(name3, arrayOfTokens[tokIndex]);
-		tokIndex++;
-        }
-
-    // Field 6 (Optional): Value of matrix coefficient specified by fields 2 and 5
-    if( arrayOfTokens[tokIndex] != NULL){
-        *val2 = strtod( arrayOfTokens[tokIndex], &endptr );
-	tokIndex++;
-
-        if( endptr[0] != ' ' && endptr[0] != '\0')
-            ierr = 1; // This works because we have already tokenized based on space delimiters
-
-		if( 0 != ierr ){
-            fprintf( stderr, "Value doesn't parse as number on line %d.\n", iline );
-            return mpssyntaxerr;
-            }
-        }
-    return ierr;
+    if (numberOfTokens % 2 == 0) {
+      for (int i = numberOfTokens;  i > 0;  i--)
+	arrayOfTokens[i] = arrayOfTokens[i-1];
+      arrayOfTokens[0] = NULL;
+      numberOfTokens++;
+    }
+    
+    if (numberOfTokens != 3 && numberOfTokens != 5) {
+      fprintf(stderr, "Wrong number of fields on line %d\n", iline);
+      return mpssyntaxerr;
     }
 
-/*
-//szhu - extend to character 60
-int MpsReader::ParseDataLine( char line[],  char code[],
-                              char name1[], char name2[], double * val1,
-                              int& hasSecondValue,
-                              char name3[], double * val2)
-{
-  char            valstr1[36], valstr2[36];
-  
-  int extra_crud = 0, ierr;
-  *val1 = 0.0;
-  *val2 = 0.0;
-  
-  assert( line[0] == ' ' );
-  this->string_copy(code, &line[1], 2); // characters  2 -  3 to code 
-  extra_crud = extra_crud || ' ' != line[3];
+    // Field 1: Column/RHS/Right-hand side range vector Identifier
+    if( arrayOfTokens[0] == NULL) {
+      name1[0] = '\0';
+    } else if(0 != word_copy(name1, arrayOfTokens[0])) {
+      return mpssyntaxerr;
+    }
 
-  this->string_copy(name1, &line[4], 8);    // characters  5 - 12 to name1
-  extra_crud = extra_crud || ' ' != line[12] || ' ' != line[13];
-  // name1 is allowed to be empty.
+    // Field 2: Row identifier
+    if (0 != word_copy(name2, arrayOfTokens[1]))
+      return mpssyntaxerr;
 
-  this->string_copy(name2, &line[14], 8);   // characters 15 - 22 to name2
-  extra_crud = extra_crud || ' ' != line[22] || ' ' != line[23];
-  if( isOnlySpaces( name2, 0, 7 ) ) { // name2 cannot be empty
-    fprintf( stderr, "Empty second name field on line %d.\n", iline );
-    return mpssyntaxerr;
-  }
+    // Field 3: Value of matrix coefficient specified by fields 1 and 2
+    if (0 != parse_double(arrayOfTokens[2], *val1)) {
+      return mpssyntaxerr;
+    }
 
-  //first check if there is second value
-  this->string_copy(valstr1, &line[24], 12); // characters 25 - 36 to valstr 
-  extra_crud = extra_crud ||
-    ' ' != line[36] || ' ' != line[37] || ' ' != line[38];
-  *val1 = asDouble( valstr1, 12, ierr );
+    if (numberOfTokens == 5) {
+	hasSecondValue = 1;
 
-  if( !extra_crud ) //may have second value or follows strict character position rule
-  {
-	  if( !isOnlySpaces( line, 39, 46 ) ) {  //has second value
-		hasSecondValue = 1;
-		this->string_copy(name3, &line[39], 8); 
-		// characters 40 - 47 to name3 
-		extra_crud = extra_crud || ' ' != line[47] || ' ' != line[48];
-    
-		this->string_copy(valstr2, &line[49], 12); 
-		// characters 50 - 61 to valstr 
-    
-		*val2 = asDouble( valstr2, 12, ierr );
-		if( 0 != ierr ) {
-		  fprintf( stderr, "Value doesn't parse as number on line %d.\n", iline );
-		  return mpssyntaxerr;
-		}
-	  } else {  //no second value, users follow strict character position rule
-		hasSecondValue = 0;
-		extra_crud = extra_crud || !isOnlySpaces( line, 47, 60 );
-		if( 0 != ierr ) {
-		  fprintf( stderr, "Value doesn't parse as number on line %d.\n", iline );
-		  return mpssyntaxerr;
-		}
-	  }
-  }
-  else  //no second value, the ending character position could be extened to 60
-  {
-    hasSecondValue = 0;
-	extra_crud = 0;
-	this->string_copy(valstr1, &line[24], 36); // characters 25 - 60 to valstr 
-	*val1 = asDouble( valstr1, 36, ierr );
-  }
+	// Field 4 (Optional): Row identifier
+	if (0 != word_copy(name3, arrayOfTokens[3]))
+	  return mpssyntaxerr; 
 
-  if( extra_crud ) {
-    fprintf( stderr,
-             "Extra characters outside prescribed fields at line %d.\n",
-             iline );
-    return mpssyntaxerr;
-  }
-  
-  return mpsok;
+
+	// Field 5 (Optional): Value of matrix coefficient specified 
+	// by fields 1 and 4
+	if (0 != parse_double(arrayOfTokens[4], *val2))
+	  return mpssyntaxerr;
+    }
+    return mpsok;
 }
 
-*/
-
-int MpsRowTypeFromCode2( char code )
-{
-
-  switch ( code ) {
-  case 'N' : case 'n' : return kFreeRow;    break;
-  case 'L' : case 'l' : return kLessRow;    break;
-  case 'G' : case 'g' : return kGreaterRow; break;
-  case 'E' : case 'e' : return kEqualRow;  break;
-  default: return kBadRowType; break;
-  }
-}
-
-/*
-int MpsRowTypeFromCode( char code[2] )
-{
-  char c;
-
-  if ( code[0] != ' ' ) {
-    // the first character is not a space. The second
-    // character must be.
-    c = code[0];
-    if ( code[1] != ' ' ) return kBadRowType;
-  } else {
-    // The first character is a space. The second character must
-    // not be.
-    c = code[1];
-    if ( code[0] != ' ' ) return kBadRowType;
-  }
-  switch ( c ) {
-  case 'N' : case 'n' : return kFreeRow;    break;
-  case 'L' : case 'l' : return kLessRow;    break;
-  case 'G' : case 'g' : return kGreaterRow; break;
-  case 'E' : case 'e' : return kEqualRow;  break;
-  default: return kBadRowType; break;
-  }
-}
-
-  */
 
 /////////////////
 // Output section
@@ -2609,7 +1842,7 @@ char * MpsReader::defaultOutputFilename( int& iErr )
     // apparently there is a suffix; strip it off
     int len = strlen(infilename) - strlen(suffix);
     outfilename = new char[ len + 5 ];
-    strncpy(outfilename, infilename, len);
+    memcpy(outfilename, infilename, len);
     outfilename[len] = '\0';
   } else {
     int len = strlen(infilename);
@@ -2690,13 +1923,14 @@ void MpsReader::printSolution( double x[],      int     nx,
   
   // print column information for equality constrained rows first,
   // then for the rows with upper and lower bounds
-  int i_equalities=0, i_inequalities=0;
   
   fprintf(outfile, "\n\n CONSTRAINTS\n\n");
 
   // first the equality constraints 
     
   if(mA >0) {
+    int i_equalities=0;
+
     fprintf(outfile, " Equality Constraints: %d\n\n", mA);
     fprintf(outfile, "        Name      Multiplier\n");
     for(int i=0; i<mA; i++) {
@@ -2715,6 +1949,8 @@ void MpsReader::printSolution( double x[],      int     nx,
   // now the inequality constraints
 
   if(mC >0) {
+    int i_inequalities=0;
+
     fprintf(outfile, " Inequality Constraints: %d\n\n", mC);
     fprintf(outfile, "       Name      Value "
 	    "            Lower Bound      Upper Bound      Multiplier\n\n");
@@ -2752,4 +1988,3 @@ void MpsReader::printSolution( double x[],      int     nx,
   iErr = mpsok;
   return;
 }
-

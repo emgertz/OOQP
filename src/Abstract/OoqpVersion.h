@@ -7,14 +7,14 @@
 
 #define OOQPVERSIONMAJOR 0
 #define OOQPVERSIONMINOR 99
-#define OOQPVERSIONPATCHLEVEL 25
+#define OOQPVERSIONPATCHLEVEL 26
 
-#define OOQPVERSIONDATE "August 30, 2014"
+#define OOQPVERSIONDATE "November 1, 2014"
 
 /* Define OOQPVERSIONEXACT to indicate a build that should be officially
    tagged by the version number -- others are development or patched builds */
 #ifndef OOQPVERSIONEXACT
-#define OOQPVERSIONEXACT 0
+#define OOQPVERSIONEXACT 1
 #endif
 
 #ifdef __cplusplus

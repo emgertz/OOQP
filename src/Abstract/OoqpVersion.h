@@ -11,6 +11,12 @@
 
 #define OOQPVERSIONDATE "August 30, 2014"
 
+/* Define OOQPVERSIONEXACT to indicate a build that should be officially
+   tagged by the version number -- others are development or patched builds */
+#ifndef OOQPVERSIONEXACT
+#define OOQPVERSIONEXACT 0
+#endif
+
 #ifdef __cplusplus
 extern "C"
 {

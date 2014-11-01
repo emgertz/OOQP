@@ -6,7 +6,6 @@
 #define QPGENLINSYS
 
 #include "LinearSystem.h"
-#include "DoubleMatrixHandle.h"
 #include "OoqpVectorHandle.h"
 #include "OoqpVector.h"
 
@@ -42,8 +41,6 @@ protected:
   OoqpVectorHandle rhs;
 
   QpGen * factory;
-
-  QpGenLinsys() {};
 
   /** dimensions of the vectors in the general QP formulation */
   int nx, my, mz;

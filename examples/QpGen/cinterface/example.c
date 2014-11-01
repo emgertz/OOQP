@@ -20,6 +20,9 @@
 // c, xlow, ixlow, xupp, ixupp, x, gamma, and phi.
 const int nx   = 2;
 
+// objconst is to be added to the objective value
+const double objconst = 4;
+
 // c is the linear term in the objective function, a vector of length nx
 double    c[]  = { 1.5,  -2 };
 
@@ -78,7 +81,6 @@ double   dC[]  = { 2,   1,  -1,   2};
 int main()
 {
   int ierr;
-  int i;
 
   /* x, y and z are vectors of Lagrange multipliers */ 
 
@@ -86,7 +88,7 @@ int main()
    * gamma and phi contain the multipliers for the lower and upper bounds 
    * x >= l and x <= u, respectively.
    */   
-  double x[2], gamma[2], phi[2], ObjVal;
+  double x[2], gamma[2], phi[2], objval;
 
   /* double y[my]; 
    * y contains the multipliers for the equality constraints Ax = b. 
@@ -105,13 +107,15 @@ int main()
 	         clow,  mz,   iclow, cupp, icupp,
 	         x, gamma, phi,
 	         y, 
-	         z, lambda, pi, &ObjVal, PRINT_LEVEL, &ierr );
+	         z, lambda, pi, &objval, PRINT_LEVEL, &ierr );
 
   if( ierr != 0 ) {
     fprintf( stderr, "Couldn't solve it.\n" );
     return 1;
   } else {
-    printf(" Final Objective: %g\n\n", ObjVal);
+    int i;
+
+    printf(" Final Objective: %g\n\n", objval + objconst);
     printf( "Solution:...\n" );
     for( i = 0; i < nx; i++ ) {
       printf( "x[%2d] = %g\n", i, x[i] );

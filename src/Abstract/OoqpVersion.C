@@ -22,9 +22,21 @@ void printOoqpVersionString()
 extern "C"
 void getOoqpVersionString( char buff[], int lbuff)
 {
-  snprintf( buff, lbuff, "OOQP Version %d.%02d.%02d - %s",
-	   OOQPVERSIONMAJOR,
-	   OOQPVERSIONMINOR,
-	   OOQPVERSIONPATCHLEVEL,
-	   OOQPVERSIONDATE );
+  // One of these will be dead-code eliminated.  Do *not* convert
+  // to ifdefs (so that the compiler continues to check syntax).
+  if (OOQPVERSIONEXACT) {
+    snprintf( buff, lbuff,
+	      "OOQP Version %d.%02d.%02d - %s",
+	      OOQPVERSIONMAJOR,
+	      OOQPVERSIONMINOR,
+	      OOQPVERSIONPATCHLEVEL,
+	      OOQPVERSIONDATE );
+  } else {
+    snprintf( buff, lbuff,
+	      "OOQP Inexact Version (based on %d.%02d.%02d - %s)",
+	      OOQPVERSIONMAJOR,
+	      OOQPVERSIONMINOR,
+	      OOQPVERSIONPATCHLEVEL,
+	      OOQPVERSIONDATE );
+  }
 }

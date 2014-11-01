@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstring>
 #include <cassert>
+#include <ostream>
 
 #include "SparseStorage.h"
 #include "OoqpVector.h"
@@ -110,26 +111,6 @@ void SparseStorage::ColumnScale( OoqpVector& scale_in )
 
 }
 
-void SparseStorage::RowScale( OoqpVector& scale_in )
-{
-  SimpleVector & scale = dynamic_cast<SimpleVector &>(scale_in);
-  int extent = scale.length();
-
-  assert( extent == m );
-
-  int i, j, k;
-
-  for ( i = 0; i < m; i++ ) {
-    // Loop over all rows in the sparse matrix
-    for( k = krowM[i]; k < krowM[i+1]; k++ ) {
-      // Loop over the elements of the sparse row
-      j = jcolM[k];
-      M[k] = M[k] * scale[i];
-    } // End loop over the elements of the sparse row
-  } // End loop over all rows in the sparse matrix
-
-}
-
 void SparseStorage::SymmetricScale( OoqpVector& scale_in )
 {
   SimpleVector & scale = dynamic_cast<SimpleVector &>(scale_in);
@@ -154,13 +135,12 @@ void SparseStorage::SymmetricScale( OoqpVector& scale_in )
 
 void SparseStorage::scalarMult( double num )
 {
-  int i, j, k;
+  int i, k;
 
   for ( i = 0; i < m; i++ ) {
     // Loop over all rows in the sparse matrix
     for( k = krowM[i]; k < krowM[i+1]; k++ ) {
       // Loop over the elements of the sparse row
-      j = jcolM[k];
       M[k] = M[k] * num;
     } // End loop over the elements of the sparse row
   } // End loop over all rows in the sparse matrix
@@ -197,14 +177,14 @@ void SparseStorage::setToDiagonal( OoqpVector& vec_in )
 void SparseStorage::fromGetDense( int row, int col, double * A, int lda,
 				      int rowExtent, int colExtent )
 {
-  int i, j, k, jcurrent;
+  int i, j, k;
   
   assert( row >= 0 && row + rowExtent <= m );
   assert( col >= 0 && col + colExtent <= n );
   
   for ( i = row; i < row + rowExtent; i++ ) {
     // Loop over all rows in range
-    jcurrent = col - 1;
+    int jcurrent = col - 1;
     for( k = krowM[i]; k < krowM[i+1]; k++ ) {
       // Loop over the elements of the sparse row
       j = jcolM[k];
@@ -231,9 +211,8 @@ void SparseStorage::fromGetDense( int row, int col, double * A, int lda,
 
 
 void SparseStorage::atPutSpRow( int row, double A[], int lenA,
-				    int jcolA[], int& info )
+				int jcolA[], int& info )
 {
-  int ik;
   int ka    = lenA - 1;
   int km_f  = krowM[row + 1] - 1;
   int km    = km_f;
@@ -272,7 +251,7 @@ void SparseStorage::atPutSpRow( int row, double A[], int lenA,
   if ( 0 == info ) {
     ka    = lenA - 1;
     km    = km_f;
-    ik    = krowM[row + 1] - 1;
+    int ik    = krowM[row + 1] - 1;
 
     while ( ka >= 0 ) {
       if ( km < km_s ) {
@@ -309,18 +288,18 @@ void SparseStorage::atPutSpRow( int row, double A[], int lenA,
 void SparseStorage:: atPutDense( int row, int col, double * A, int lda,
 				     int rowExtent, int colExtent )
 { 
-  int info, count;
-  int i, km_f, km, ka, k;
+  int info;
+  int i;
 
   assert( row >= 0 && row + rowExtent <= m );
   assert( col >= 0 && col + colExtent <= n );
 
   for ( i = row; i < row + rowExtent; i++) {
     // Loop over all rows in range.
-    km_f = krowM[i + 1] - 1;
-    km   = km_f;
-    ka   = colExtent - 1;
-    count = 0;
+    int km_f = krowM[i + 1] - 1;
+    int km   = km_f;
+    int ka   = colExtent - 1;
+    int count = 0;
     while( km >= krowM[i] || ka >= 0 ) {
       // The current row in M and the current row in A are not
       // both empty
@@ -361,7 +340,7 @@ void SparseStorage:: atPutDense( int row, int col, double * A, int lda,
     }
 	
     km = km_f;
-    k  = krowM[i + 1] - 1;
+    int k  = krowM[i + 1] - 1;
     ka = colExtent - 1;
 
     while( km >= krowM[i] || ka >= 0 ) {
@@ -474,14 +453,14 @@ void SparseStorage::fromGetSpRow( int row, int col,
   assert( col >= 0 && col < n );
   assert( row >= 0 && row < m );
   assert( col + colExtent <= n );
-  int km, colm;
+  int km;
   int ka = 0;
   int lastCol = col + colExtent - 1;
 
   info = 0;
   
   for ( km = krowM[row]; km < krowM[row+1]; km++ ) {
-    colm = jcolM[km];
+    int colm = jcolM[km];
     if ( colm >= col ) {
       if ( colm <= lastCol ) {
 	if( ka < lenA ) {
@@ -500,13 +479,13 @@ void SparseStorage::fromGetSpRow( int row, int col,
   nnz = ka;
 }
 
-void SparseStorage::writeToStream(ostream& out) const
+void SparseStorage::writeToStream(std::ostream& out) const
 {
   int i, k;
 
   for( i = 0; i < m; i++ ) {
     for ( k = krowM[i]; k < krowM[i+1]; k++ ) {
-      out << i << '\t' << jcolM[k] << '\t' << M[k] << endl;
+      out << i << '\t' << jcolM[k] << '\t' << M[k] << std::endl;
     }
   }
 }
@@ -514,7 +493,7 @@ void SparseStorage::writeToStream(ostream& out) const
 void indexedLexSort( int first[], int n, int swapFirst,
 		     int second[], int swapSecond, int index[] )
 {
-  int fi, se, j, k, kinc, inc, ktemp;
+  int fi, se, j, k, kinc, ktemp;
   const int nincs = 12;
   const int incs[]  = {1, 5, 19, 41, 109, 209, 505,
 		       929, 2161, 3905, 8929, 16001};
@@ -534,7 +513,7 @@ void indexedLexSort( int first[], int n, int swapFirst,
 
   for( ; kinc >= 0; kinc-- ) {
     // Loop over all increments
-    inc = incs[kinc];
+    int inc = incs[kinc];
 
     if ( !swapFirst && !swapSecond ) {
       for ( k = inc; k < n; k++ ) {
@@ -628,13 +607,46 @@ void SparseStorage::mult( double beta,  double y[], int incy,
 {
   int i, j, k;
   double temp;
-  for( i = 0; i < m; i++ ) {
-    temp = 0;
-    for( k = krowM[i]; k < krowM[i+1]; k++ ) {
-      j = jcolM[k];
-      temp += M[k] * x[j * incx];
+  if (beta == 0) {
+    if (incx == 1) {
+      for( i = 0; i < m; i++ ) {
+	temp = 0;
+	for( k = krowM[i]; k < krowM[i+1]; k++ ) {
+	  j = jcolM[k];
+	  temp += M[k] * x[j];
+	}
+	y[i * incy] = alpha * temp;
+      }
+    } else {
+      for( i = 0; i < m; i++ ) {
+	temp = 0;
+	for( k = krowM[i]; k < krowM[i+1]; k++ ) {
+	  j = jcolM[k];
+	  temp += M[k] * x[j * incx];
+	}
+	y[i * incy] = alpha * temp;
+      }
     }
-    y[i * incy] = beta * y[i * incy] + alpha * temp;
+  } else {
+    if (incx == 1) {
+      for( i = 0; i < m; i++ ) {
+	temp = 0;
+	for( k = krowM[i]; k < krowM[i+1]; k++ ) {
+	  j = jcolM[k];
+	  temp += M[k] * x[j];
+	}
+	y[i * incy] = beta * y[i * incy] + alpha * temp;
+      }
+    } else {
+      for( i = 0; i < m; i++ ) {
+	temp = 0;
+	for( k = krowM[i]; k < krowM[i+1]; k++ ) {
+	  j = jcolM[k];
+	  temp += M[k] * x[j * incx];
+	}
+	y[i * incy] = beta * y[i * incy] + alpha * temp;
+      }
+    }
   }
 }
 
@@ -642,13 +654,30 @@ void SparseStorage::transMult( double beta,  double y[], int incy,
 				   double alpha, double x[], int incx )
 {
   int i, j, k;
-  for( j = 0; j < n; j++ ) {
-    y[j * incy] *= beta;
+  if (beta == 0) {
+    for( j = 0; j < n; j++ ) {
+      y[j * incy] = 0;
+    }
+  } else {
+    for( j = 0; j < n; j++ ) {
+      y[j * incy] *= beta;
+    }
   }
-  for( i = 0; i < m; i++ ) {
-    for( k = krowM[i]; k < krowM[i+1]; k++ ) {
-      j = jcolM[k];
-      y[j * incy] += alpha * M[k] * x[i * incx];
+  if (incy == 1) {
+    for( i = 0; i < m; i++ ) {
+      double axi = alpha * x[i * incx];
+      for( k = krowM[i]; k < krowM[i+1]; k++ ) {
+	j = jcolM[k];
+	y[j] += M[k] * axi;
+      }
+    }
+  } else {
+    for( i = 0; i < m; i++ ) {
+      double axi = alpha * x[i * incx];
+      for( k = krowM[i]; k < krowM[i+1]; k++ ) {
+	j = jcolM[k];
+	y[j * incy] += M[k] * axi;
+      }
     }
   }
 }
@@ -685,7 +714,10 @@ void SparseStorage::symmetrize( int& info)
       } // End not a diagonal element
     } // End loop over elements of column j
   } // End for all columns
-  if( info != 0 ) return;
+  if( info != 0 ) {
+    delete [] irowM;
+    return;
+  }
   nnz = ku;
 
   doubleLexSort( irowM, nnz, jcolM, M );
@@ -706,12 +738,12 @@ void SparseStorage::getTransposePat( int row, int col,
 					 int rowExtent, int colExtent,
 					 int kpat[], int kcolM[], int irowM[] )
 {
-  int i, j, k, kin, kout;
+  int i, j, k, kout;
   const int dontPermuteCols = 0, doPermuteRows = 1;
   
   kout = 0;
   for( i = row; i < row + rowExtent; i++ ) {
-    kin = krowM[i];
+    int kin = krowM[i];
     while( kin < krowM[i+1] && jcolM[kin] < col ) {
       kin++;
     }
@@ -750,7 +782,6 @@ void SparseStorage::getFromPat( double data[], int ldata, int kpat[] )
 void SparseStorage::randomize( double alpha, double beta, double * seed )
 {
   int  i, k, NN, chosen, icurrent;
-  double r;
 
   double scale = beta - alpha;
   double shift = alpha/scale;
@@ -764,7 +795,7 @@ void SparseStorage::randomize( double alpha, double beta, double * seed )
   icurrent  = 0;
   krowM[0]  = 0;
   for ( k = 0; k < NN; k++ ) {
-    r = drand( seed );
+    double r = drand( seed );
 	
     if( (NN - k) * r < length - chosen ) {
       jcolM[chosen] = k % n;
@@ -793,9 +824,8 @@ double SparseStorage::abmaxnorm()
   int nnz = this->numberOfNonZeros();
   
   int i;
-  double fabsMi;
   for( i = 0; i < nnz; i++ ) {
-    fabsMi = fabs( M[i] );
+    double fabsMi = fabs( M[i] );
     if ( fabsMi > norm ) norm = fabsMi;
   }
   return norm;
@@ -805,7 +835,7 @@ double SparseStorage::abmaxnorm()
 void SparseStorage::atPutDiagonal( int idiag, OoqpVector& vvec )
 {
   SimpleVector & v = dynamic_cast<SimpleVector &>(vvec);
-  this->atPutDiagonal( idiag, &v[0], 1, v.n );
+  this->atPutDiagonal( idiag, v.elements(), 1, v.n );
 }
 
 void SparseStorage::atPutDiagonal( int idiag,

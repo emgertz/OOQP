@@ -39,8 +39,11 @@ Ma27Solver::Ma27Solver( SparseSymMatrix * sgm ) :
 }
 
 Ma27SolverBase::Ma27SolverBase( int n_in, int nnz_in ) :
+  icntl(), info(), cntl(),
   precision(kInitPrecision), irowM(0), jcolM(0), fact(0),
-  n(n_in), nnz(nnz_in), ipessimism(1.2), rpessimism(1.2) 
+  n(n_in), nnz(nnz_in), la(0), 
+  ikeep(0), iw(0), liw(0), iw1(0), iw2(0), nsteps(0), maxfrt(0),
+  w(0), ipessimism(1.2), rpessimism(1.2)
 {
   ma27id_(icntl, cntl);
   // set initial value of "Treat As Zero" parameter
@@ -128,6 +131,7 @@ void Ma27SolverBase::diagonalChanged( int /* idiag */, int /* extent */ )
 void Ma27SolverBase::matrixChanged()
 {
   // if fact has not been allocated, this must be the first call.
+  int print_level = gOoqpPrintLevel;
   if( !fact ) this->firstCall();  
   int done = 0, tries = 0;
   do {
@@ -136,7 +140,7 @@ void Ma27SolverBase::matrixChanged()
 
 #ifdef HAVE_GETRUSAGE
     rusage before;
-    if( gOoqpPrintLevel >= 100 ) {
+    if( print_level >= 100 ) {
       getrusage( RUSAGE_SELF, &before );
     }
 #endif
@@ -148,7 +152,7 @@ void Ma27SolverBase::matrixChanged()
 	     iw1,      icntl,   cntl,  info );
 #ifdef HAVE_GETRUSAGE
     rusage  after;
-    if( gOoqpPrintLevel >= 100 ) {
+    if( print_level >= 100 ) {
       getrusage( RUSAGE_SELF, &after );
       cout << "For try " << tries + 1 
 	   << " the factorization took " 
@@ -168,30 +172,30 @@ void Ma27SolverBase::matrixChanged()
       cerr << "nnz out of range: " << nnz << endl; assert(0);
     }; break;
     case -3 : {
-      if ( gOoqpPrintLevel >= 100 )
+      if ( print_level >= 100 )
 	cout << "insufficient space in iw: " << liw;
       delete [] iw;
       liw = (this->ierror() > ipessimism * liw) ? 
 	this->ierror() : (int)(ipessimism * liw);
       iw = new int[liw]();
-      if( gOoqpPrintLevel >= 100 )
+      if( print_level >= 100 )
 	cout << " resetting to " << liw << endl;
 
       ipessimism *= 1.1;
     }; break;
     case -4 : {
-      if( gOoqpPrintLevel >= 100 )
+      if( print_level >= 100 )
 	cout << "insufficient factorization space: " << la;
       delete [] fact;
       la = (this->ierror() > rpessimism * la)  ?
 	this->ierror() : (int) (rpessimism * la);
       fact = new double [la]();
       this->copyMatrixElements( fact, la );
-      if( gOoqpPrintLevel >= 100 ) cout << " resetting to " << la << endl;
+      if( print_level >= 100 ) cout << " resetting to " << la << endl;
       rpessimism *= 1.1;
     }; break;
     case -5 : {
-      if( gOoqpPrintLevel >= 100 ) {
+      if( print_level >= 100 ) {
 	cout << "matrix apparently numerically singular, detected at stage " 
 	     << this->ierror() << endl;
 	cout << "accept this factorization and hope for the best.." << endl;
@@ -199,7 +203,7 @@ void Ma27SolverBase::matrixChanged()
       done = 1;
     }; break;
     case -6 : {
-      if( gOoqpPrintLevel >= 100 ) {
+      if( print_level >= 100 ) {
 	cout << "change of sign of pivots detected at stage " 
 	     << this->ierror() << endl;
 	cout << "but who cares " << endl;
@@ -211,7 +215,7 @@ void Ma27SolverBase::matrixChanged()
       assert(0);
     }; break;
     case 1 : {
-      if( gOoqpPrintLevel >= 100 ) {
+      if( print_level >= 100 ) {
 	cout << "detected " << this->ierror() 
 	     << " entries out of range in irowM and jcolM; ignored" 
 	     << endl;
@@ -219,7 +223,7 @@ void Ma27SolverBase::matrixChanged()
       done = 1;
     }; break;
     case 3 : {
-      if( gOoqpPrintLevel >= 100 ) {
+      if( print_level >= 100 ) {
 	cout << "rank deficient matrix detected; apparent rank is " 
 	     << this->ierror() << endl;
       }
@@ -232,7 +236,7 @@ void Ma27SolverBase::matrixChanged()
   } while( !done && tries < 10);
 
   if ( !done && tries >= 10) {
-    if( gOoqpPrintLevel >= 100 ) {
+    if( print_level >= 100 ) {
       cout << "we are screwed; did not get a factorization after 10 tries " 
 	   << endl;
     }
@@ -247,8 +251,9 @@ void Ma27SolverBase::matrixChanged()
 void Ma27SolverBase::basicSolve( double * drhs, int nn )
 {
 #ifdef HAVE_GETRUSAGE
+  int print_level = gOoqpPrintLevel;
   rusage before;
-  if( gOoqpPrintLevel >= 100 ) {
+  if( print_level >= 100 ) {
     getrusage( RUSAGE_SELF, &before );
   }
 #endif
@@ -260,7 +265,7 @@ void Ma27SolverBase::basicSolve( double * drhs, int nn )
 	   icntl, info );
 #ifdef HAVE_GETRUSAGE
   rusage after;
-  if( gOoqpPrintLevel >= 100 ) {
+  if( print_level >= 100 ) {
     getrusage( RUSAGE_SELF, &after );
     cout << "Solution with the factored matrix took "
 	 << (double) (after.ru_utime.tv_sec - before.ru_utime.tv_sec)
@@ -281,11 +286,10 @@ void Ma27Solver::solve( OoqpVector& rhs_in )
 
   double * drhs = rhs.elements();
   double * dresid = resid->elements();
-  double rhsnorm=0.0, rnorm=0.0;
 
   rhsSave->copyFrom(rhs);
   resid->copyFrom(rhs);
-  rhsnorm = rhs.infnorm();
+  double rhsnorm = rhs.infnorm();
 
   // compute norm of rhs, and save it
   //  double * resids_ma27 = new double[n];
@@ -307,7 +311,7 @@ void Ma27Solver::solve( OoqpVector& rhs_in )
     //    for(ii=0, rnorm=0.0; ii<n; ii++) 
     //        rnorm += resids_ma27[ii] * resids_ma27[ii]; 
     //    rnorm = sqrt(rnorm);
-    rnorm = resid->infnorm();
+    double rnorm = resid->infnorm();
     //    cout << "relative norm of residuals for linear system: " 
     //	 << rnorm/rhsnorm << endl;
     

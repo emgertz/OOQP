@@ -43,9 +43,6 @@ public:
 
   virtual void atPutDiagonal( int idiag, OoqpVector& x ) = 0;
   virtual void fromGetDiagonal( int idiag, OoqpVector& x ) = 0;
-  virtual void SymmetricScale ( OoqpVector& vec ) = 0;
-  virtual void ColumnScale ( OoqpVector& vec ) = 0;
-  virtual void RowScale ( OoqpVector& vec ) = 0;
   virtual void scalarMult( double num) = 0;
   virtual ~DoubleStorage() {};
 };
@@ -143,9 +140,6 @@ public:
    * @param n the number of columns
    */
 
-  virtual void SymmetricScale ( OoqpVector& vec ) = 0;
-  virtual void ColumnScale ( OoqpVector& vec ) = 0;
-  virtual void RowScale ( OoqpVector& vec ) = 0;
   virtual void scalarMult( double num) = 0;
 
   virtual void getSize( int& m, int& n )  = 0;
@@ -196,6 +190,8 @@ public:
 			      int& info ) = 0;
   /** the size of this square matrix */
   virtual int size() = 0;
+
+  virtual void SymmetricScale ( OoqpVector& vec ) = 0;
 };
 
 /** Parent of all non-symmetric, possibly non-square, matrices.
@@ -240,6 +236,8 @@ public:
    *             generator.
    */
   virtual void randomize(double alpha, double beta, double * seed) = 0;
+
+  virtual void ColumnScale ( OoqpVector& vec ) = 0;
 };
 
 #endif

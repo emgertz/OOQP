@@ -10,7 +10,7 @@ This page is part of the <A HREF=../index.html> OOQP documentation </A>.
 OOQP may be invoked from within the Matlab environment. Instructions
 for installing this feature are given here. (This feature is not
 installed by the standard installation process described in the
-L<INSTALL|INSTALL> file of the OOQP distribution.)
+L<INSTALL|distribution-docs::INSTALL> file of the OOQP distribution.)
 
 =head1 BEFORE YOU BUILD THE OOQP-MATLAB INTERFACE
 
@@ -24,7 +24,7 @@ systems are simply not compatible with the Matlab executable, and
 little can be done to fix this other than upgrading some of your
 software. On other systems, the mex files may be built, but it may
 require a specific combination of compiler flags and options. See the
-L<TROUBLESHOOTING|troubleshooting> section below for more info.
+L</"TROUBLESHOOTING"> section below for more info.
 
 
 =head1 BUILDING THE OOQP-MATLAB INTERFACE
@@ -32,7 +32,7 @@ L<TROUBLESHOOTING|troubleshooting> section below for more info.
 The Matlab interface requires two types of files: compiled ("Mex")
 files and Matlab function (".m") files. To compile the required files,
 first configure and install the OOQP package. Detailed instructions
-for this procedure are given in the L<INSTALL|INSTALL> file of the
+for this procedure are given in the L<INSTALL|distribution-docs::INSTALL> file of the
 OOQP distribution. Briefly, one must invoke the configure script like
 so.
 
@@ -87,7 +87,7 @@ environment variable can be set to the name of an alternate C++
 compiler.  The names of these variables loosely follow the naming
 conventions used by GNU make. See the "Variables Used by Implicit
 Rules" section of the online manual for GNU make that
-may be found at http://www.gnu.org/manual/.
+may be found at L<http://www.gnu.org/manual/>.
 
 If you have already run C<configure> delete the F<config.cache>
 file. It is never harmful to remove this file, but is only necessary
@@ -116,7 +116,7 @@ If you are running under Solaris and are getting the message
     mex:  -xlic_lib=sunperf not a valid option.
 
 then you will need to compile a copy of the BLAS and use the compiled
-version rather than sunperf. See the L<INSTALL|INSTALL> file for
+version rather than sunperf. See the L<INSTALL|distribution-docs::INSTALL> file for
 information on how to do so.
 
 =item * 

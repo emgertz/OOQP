@@ -53,7 +53,6 @@ public:
 
   virtual void componentMult( OoqpVector& v );
   virtual void scalarMult( double num);
-  virtual void printSolutionToStdErr( OoqpVector& v );
   virtual void componentDiv ( OoqpVector& v );
   virtual void writeToStream(ostream& out) const;
   virtual void writefToStream( ostream& out,

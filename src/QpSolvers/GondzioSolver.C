@@ -24,7 +24,8 @@ double gmu;
 // double grnorm;
 extern int gOoqpPrintLevel;
 
-GondzioSolver::GondzioSolver( ProblemFormulation * of, Data * prob )
+GondzioSolver::GondzioSolver( ProblemFormulation * of, Data * prob ) :
+    NumberGondzioCorrections(0)
 {
   factory              = of;
   step                 = factory->makeVariables( prob );
@@ -64,9 +65,8 @@ GondzioSolver::GondzioSolver( ProblemFormulation * of, Data * prob )
 int GondzioSolver::solve(Data *prob, Variables *iterate, Residuals * resid )
 {
   int done;
-  double mu, muaff;
-  int StopCorrections;
-  double alpha_target, alpha_enhanced, rmin, rmax;
+  double mu;
+  double alpha_target, alpha_enhanced;
   int status_code;
   double alpha = 1, sigma = 1;
 
@@ -107,7 +107,7 @@ int GondzioSolver::solve(Data *prob, Variables *iterate, Residuals * resid )
       alpha = iterate->stepbound(step);
 
       // calculate centering parameter 
-      muaff = iterate->mustep(step, alpha);
+      double muaff = iterate->mustep(step, alpha);
       sigma = pow(muaff/mu, tsig);
       
       if( gOoqpPrintLevel >= 10 ) {
@@ -132,10 +132,11 @@ int GondzioSolver::solve(Data *prob, Variables *iterate, Residuals * resid )
       corrector_resid->clear_r1r2();
 
       // calculate the target box:
-      rmin = sigma * mu * beta_min;
-      rmax = sigma * mu * beta_max;
+      double rmin = sigma * mu * beta_min;
+      double rmax = sigma * mu * beta_max;
 
-      StopCorrections = 0; NumberGondzioCorrections = 0;
+      int StopCorrections = 0; 
+      NumberGondzioCorrections = 0;
 
       // enter the Gondzio correction loop:
       while (NumberGondzioCorrections < maximum_correctors 

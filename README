@@ -30,8 +30,8 @@ SYNOPSIS
     specific structured QPs and their specific computational environments.
 
 OBTAINING OOQP
-    Visit http://www.cs.wisc.edu/~swright/ooqp to obtain the latest version
-    of OOQP.
+    Visit <http://www.cs.wisc.edu/~swright/ooqp> to obtain the latest
+    version of OOQP.
 
 GETTING STARTED
     The file INSTALL, included in this directory, is the installation guide
@@ -39,7 +39,7 @@ GETTING STARTED
 
     Further documentation is available in the doc/ directory. For an index
     of the available documentation, point your favorite html viewer (e.g.
-    Netscape) at the file doc/index.html. On many systems, this can be done
+    Firefox) at the file doc/index.html. On many systems, this can be done
     by entering a string of the following form into the location window on
     the browser:
 
@@ -178,5 +178,5 @@ CREDITS
 
     Stephen Wright
         Computer Sciences Department, University of Wisconsin, Madison.
-        http://www.cs.wisc.edu/~swright/
+        <http://www.cs.wisc.edu/~swright/>
 

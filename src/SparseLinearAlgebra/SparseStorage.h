@@ -55,7 +55,6 @@ public:
   virtual void setToDiagonal( OoqpVector& vec );
 
   virtual void ColumnScale( OoqpVector& vec );
-  virtual void RowScale( OoqpVector& vec );
   virtual void SymmetricScale( OoqpVector& vec );
   virtual void scalarMult( double num);
 

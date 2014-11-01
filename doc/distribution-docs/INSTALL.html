@@ -119,7 +119,7 @@ This page is part of the <A HREF=../index.html> OOQP documentation </A>.
 
 <pre><code>    gnumake --version</code></pre>
 
-<p>If none of these succeed, then GNU make probably is not installed on your system. You may obtain a copy at http://www.gnu.org. Although our makefiles are not too elaborate, we do use some features of GNU make.</p>
+<p>If none of these succeed, then GNU make probably is not installed on your system. You may obtain a copy at <a href="http://www.gnu.org">http://www.gnu.org</a>. Although our makefiles are not too elaborate, we do use some features of GNU make.</p>
 
 <h2 id="BLAS-and-LAPACK">BLAS and LAPACK</h2>
 
@@ -146,7 +146,7 @@ This page is part of the <A HREF=../index.html> OOQP documentation </A>.
 
 <p>To obtain MA27, go to</p>
 
-<pre><code>    http://hsl.rl.ac.uk/archive/hslarchive.html</code></pre>
+<pre><code>    L&lt;http://hsl.rl.ac.uk/archive/hslarchive.html&gt;</code></pre>
 
 <p>You will need the double precision versions of MA27. Unpack the MA27 source archive and follow the instructions therein to build the MA27 library. Move the compiled library to the OOQP directory.</p>
 
@@ -154,7 +154,7 @@ This page is part of the <A HREF=../index.html> OOQP documentation </A>.
 
 <p>If you prefer to use MA57, obtain a copy of the MA57 source from the HSL collection. See</p>
 
-<pre><code>    http://www.hsl.rl.ac.uk/</code></pre>
+<pre><code>    L&lt;http://www.hsl.rl.ac.uk/&gt;</code></pre>
 
 <p>for details on obtaining MA57 and other HSL codes. Unpack the MA57 source archive and follow the instructions therein to build the MA57 library. Set the MA57LIB environment variable to refer to the newly-built libraries (see <a href="#ENVIRONMENT-VARIABLES-AND-configure">&quot;ENVIRONMENT VARIABLES AND configure&quot;</a>). Note that newer versions of MA57 require the MeTiS library. If you are using a newer version of MA57, list both the MA57 library and the MeTiS library in the MA57LIB environment variable. By default OOQP looks for libma57.a and libfakemetis.a in the OOQP directory.</p>
 
@@ -164,7 +164,7 @@ This page is part of the <A HREF=../index.html> OOQP documentation </A>.
 
 <pre><code>    make</code></pre>
 
-<p>will build several executables in the current directory along with libraries containing the OOQP development framework in lib/. It will also copy the OOQP header files into include/. See the <a href="../examples/README.html">README</a> file for a description of the conventions used to name the executables. One of the executables created will be</p>
+<p>will build several executables in the current directory along with libraries containing the OOQP development framework in lib/. It will also copy the OOQP header files into include/. See the <a href="../distribution-docs/README.html">README</a> file for a description of the conventions used to name the executables. One of the executables created will be</p>
 
 <pre><code>     qpgen-sparse-gondzio.exe</code></pre>
 
@@ -190,7 +190,7 @@ This page is part of the <A HREF=../index.html> OOQP documentation </A>.
 
 <h2 id="Ampl">Ampl</h2>
 
-<p>OOQP may be invoked to solve convex QPs from within the modeling language Ampl. To use the OOQP Ampl interface, you must install the Ampl solver library and library headers. There are links to the required code on the official site http://www.ampl.com/hooking.html. The code may also be found at the Netlib repository at the URL http://www.netlib.org/ampl/solvers/.</p>
+<p>OOQP may be invoked to solve convex QPs from within the modeling language Ampl. To use the OOQP Ampl interface, you must install the Ampl solver library and library headers. There are links to the required code on the official site <a href="http://www.ampl.com/hooking.html">http://www.ampl.com/hooking.html</a>. The code may also be found at the Netlib repository at the URL <a href="http://www.netlib.org/ampl/solvers/">http://www.netlib.org/ampl/solvers/</a>.</p>
 
 <p>The Ampl solvers source distribution contains a README that describes how to build the Ampl solvers library. These instructions have changed from time to time, so we are unable to give specific instructions here. Follow the directions in README and build the library. Find the directory containing the file amplsolvers.a. Set the environment variable AMPL_SOLVERS to the full path of the directory containing amplsolvers.a. See <a href="#ENVIRONMENT-VARIABLES-AND-configure">&quot;ENVIRONMENT VARIABLES AND configure&quot;</a> for information on how to do so.</p>
 
@@ -204,7 +204,7 @@ This page is part of the <A HREF=../index.html> OOQP documentation </A>.
 
 <h2 id="PETSc">PETSc</h2>
 
-<p>Some solvers in OOQP use the PETSc package from Argonne National Laboratory to perform linear algebra operations. Before the OOQP-PETSc interface can be build, you must install PETSc on your system. See the PETSc home page at http://www.mcs.anl.gov/petsc/index.html for information.</p>
+<p>Some solvers in OOQP use the PETSc package from Argonne National Laboratory to perform linear algebra operations. Before the OOQP-PETSc interface can be build, you must install PETSc on your system. See the PETSc home page at <a href="http://www.mcs.anl.gov/petsc/index.html">http://www.mcs.anl.gov/petsc/index.html</a> for information.</p>
 
 <p>Once PETSc has been installed, run the OOQP configure script, as usual. Then type</p>
 
@@ -214,7 +214,7 @@ This page is part of the <A HREF=../index.html> OOQP documentation </A>.
 
 <h1 id="USING-F2C">USING F2C</h1>
 
-<p>F2C is a FORTRAN to C translator that may be obtained from http://www.netlib.org/f2c. We have had no difficulty compiling OOQP using the output from this translator.</p>
+<p>F2C is a FORTRAN to C translator that may be obtained from <a href="http://www.netlib.org/f2c">http://www.netlib.org/f2c</a>. We have had no difficulty compiling OOQP using the output from this translator.</p>
 
 <p>If you are using f2c instead of a FORTRAN compiler, be sure to set the FLIBS environment to point to the F2C library, which is typically named libf2c.a. Then run configure like this</p>
 
@@ -241,7 +241,7 @@ This page is part of the <A HREF=../index.html> OOQP documentation </A>.
 </li>
 </ul>
 
-<p>The libraries and executables will be built using those flags. Of particular importance are the flags used to compile <a>MA27 or MA57</a>. Also, the quality of the <a>BLAS</a> library can affect performance greatly, so use an optimized version where possible.</p>
+<p>The libraries and executables will be built using those flags. Of particular importance are the flags used to compile <a href="#MA27-or-MA57">MA27 or MA57</a>. Also, the quality of the <a href="#BLAS-and-LAPACK">BLAS</a> library can affect performance greatly, so use an optimized version where possible.</p>
 
 <h1 id="INSTALLATION-LOCATION">INSTALLATION LOCATION</h1>
 

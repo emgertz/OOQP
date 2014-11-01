@@ -453,7 +453,7 @@ void MpsReader::readRangesSection( SimpleVector& clow, SimpleVector& cupp,
 void MpsReader::readRangesSection( double clow[], double cupp[],
 				   char line[], int& iErr, int& kindOfLine )
 {
-  char currentRange[10] = "";
+  char currentRange[16] = "";
   // The ranges section has already been scanned. Any syntax errors
   // left are programming errors
   char blank[4], rangeName[16]="", row[2][16];
@@ -1106,10 +1106,8 @@ void MpsReader::readProblemName( char line[], int& iErr, int kindOfLine )
 
 void MpsReader::readProblemName2( char line[], int& iErr, int kindOfLine )
 {
-    int i = 0;
     char *token;
     char *arrayOfTokens[2];
-    int ierr =0;
     char tempLine[200];
     char tag[6];
 
@@ -1166,10 +1164,8 @@ void MpsReader::readProblemName2( char line[], int& iErr, int kindOfLine )
 
 void MpsReader::readObjectiveSense( char line[], int& iErr, int kindOfLine )
 {
-    int i = 0;
     char *token;
     char *arrayOfTokens[1];
-    int ierr =0;
     char tempLine[200];
 
     if( DATALINE == kindOfLine ) {
@@ -1955,9 +1951,7 @@ int MpsReader::ParseHeaderLine(char line[], char entry[] )
 
 int MpsReader::ParseHeaderLine2(char line[], char entry[] )
 {
-    int i = 0;
     char *token;
-    int ierr =0;
     char tempLine[200];
 
     strncpy( tempLine, line, 200);
@@ -1981,10 +1975,8 @@ int MpsReader::ParseHeaderLine2(char line[], char entry[] )
 
 int MpsReader::ParseRowsLine2( char line[],  char code[], char name1[] )
 {
-    int i = 0;
     char *token;
     char *arrayOfTokens[2];
-    int ierr =0;
     char tempLine[200];
 
     strncpy( tempLine, line, 200);
@@ -2380,7 +2372,7 @@ int MpsReader::ParseDataLine( char line[],  char code[],
   return mpsok;
 }
 
-int MpsReader::ParseDataLine2( char line[],  char code[],
+int MpsReader::ParseDataLine2( char line[],  char /* code */[],
                               char name1[], char name2[], double * val1,
                               int& hasSecondValue,
                               char name3[], double * val2)

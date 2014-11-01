@@ -14,8 +14,6 @@ extern int DenseStorageInstances;
  *  @ingroup DenseLinearAlgebra
  */
 class DenseStorage : public DoubleStorage {
-private:
-  DenseStorage() {};
 protected:
   int neverDeleteElts;
 public:
@@ -55,7 +53,6 @@ public:
 			     int rowExtent, int& info );
 
   virtual void ColumnScale( OoqpVector& vec );
-  virtual void RowScale( OoqpVector& vec );
   virtual void SymmetricScale( OoqpVector& vec );
   virtual void scalarMult( double num);
 

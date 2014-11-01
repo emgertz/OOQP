@@ -17,7 +17,10 @@
 int gOoqpPrintLevel = 10;
 
 Solver::Solver() : itsMonitors(0), status(0), startStrategy(0),
-		   mutol(1e-8), artol(1e-8), sys(0)
+		   dnorm(0), mutol(1e-8), artol(1e-8),
+		   phi(0), maxit(0), mu_history(0), rnorm_history(0),
+		   phi_history(0), phi_min_history(0), iter(0),
+		   sys(0)
 {
   // define parameters associated with the step length heuristic
   gamma_f = 0.99;
@@ -95,8 +98,7 @@ void Solver::stevestart(  ProblemFormulation * /* formulation */,
   // do Mehrotra-type adjustment
 
   double mutemp = iterate->mu();
-  double xsnorm = 0.0;
-  xsnorm = iterate->onenorm();
+  double xsnorm =  iterate->onenorm();
   double delta = 0.5 * iterate->nComplementaryVariables * mutemp / xsnorm;
   iterate->shiftBoundVariables( delta, delta );
 }

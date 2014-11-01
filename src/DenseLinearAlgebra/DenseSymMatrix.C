@@ -294,16 +294,6 @@ void DenseSymMatrix::SymmetricScale( OoqpVector& vec )
   mStorage->SymmetricScale( vec );
 }
 
-void DenseSymMatrix::ColumnScale( OoqpVector& vec )
-{
-  mStorage->ColumnScale( vec );
-}
-
-void DenseSymMatrix::RowScale( OoqpVector& vec )
-{
-  mStorage->RowScale( vec );
-}
-
 void DenseSymMatrix::scalarMult( double num )
 {
   mStorage->scalarMult( num );

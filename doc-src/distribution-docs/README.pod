@@ -39,17 +39,17 @@ computational environments.
 
 =head1 OBTAINING OOQP
 
-Visit http://www.cs.wisc.edu/~swright/ooqp to obtain the latest
+Visit L<http://www.cs.wisc.edu/~swright/ooqp> to obtain the latest
 version of OOQP.
 
 =head1 GETTING STARTED
 
-The file L<INSTALL|INSTALL>, included in this directory, is the
+The file L<INSTALL|distribution-docs::INSTALL>, included in this directory, is the
 installation guide for the OOQP package.
 
 Further documentation is available in the doc/ directory. For an index
 of the available documentation, point your favorite html viewer
-(e.g. Netscape) at the file doc/index.html. On many systems, this can
+(e.g. Firefox) at the file doc/index.html. On many systems, this can
 be done by entering a string of the following form into the location
 window on the browser:
 
@@ -82,7 +82,7 @@ doc/formulations directory. The modules are as follows.
 This module solves general convex quadratic programs with sparse
 data. This problem is discussed at length in the Users Guide.
 
-=item L<QpBound|QpBound>
+=item L<QpBound|formulations::QpBound>
 
 This module solves bound-constrained quadratic programs, in which the
  only constraints are bounds on the variables. The formulation is as
@@ -91,17 +91,17 @@ follows.
     minimize   (1/2) * x' * Q * x + c' * x
     subject to                      l <= x <= u
 
-See L<QpBound> for more information.
+See L<QpBound|formulations::QpBound> for more information.
 
-=item L<Svm|Svm> 
+=item L<Svm|formulations::Svm> 
 
 This module creates a support vector machine classifier for solving
-the pattern classification problem in machine learning. See the L<Svm>
+the pattern classification problem in machine learning. See the L<Svm|formulations::Svm>
 for more information.
 
-=item L<Huber|Huber>
+=item L<Huber|formulations::Huber>
 
-Solves the Huber regression problem. See L<Huber>.
+Solves the Huber regression problem. See L<Huber|formulations::Huber>.
 
 =back
 
@@ -142,7 +142,7 @@ used to represent the larger, structured matrices that appear in the
 QP formulation.)
 
 Not all combinations of formulations, algorithms, and linear algebra
-packages are supported or provided. See the L<INSTALL|INSTALL> file
+packages are supported or provided. See the L<INSTALL|distribution-docs::INSTALL> file
 for information on how to build all supported executables.  A users
 guide for executables based on the QpGen formulation may be found in
 doc/ooqp-userguide.pdf. For other executables, see the man page of
@@ -152,8 +152,8 @@ their respective formulation in doc/formulations.
 
 Some QP solvers supplied with OOQP may be invoked within the Matlab
 environment. Installation instructions, in addition to the general
-instructions found in L<INSTALL|INSTALL>, have been supplied in the
-L<README_Matlab|README_Matlab> file. Once the Matlab interface has
+instructions found in L<INSTALL|distribution-docs::INSTALL>, have been supplied in the
+L<README_Matlab|distribution-docs::README_Matlab> file. Once the Matlab interface has
 been properly installed, documentation is available from within
 Matlab, as described in the README_Matlab file.
 
@@ -228,7 +228,7 @@ emgertz@mac.com
 =item Stephen Wright
 
 Computer Sciences Department, University of Wisconsin, Madison.
-http://www.cs.wisc.edu/~swright/
+L<http://www.cs.wisc.edu/~swright/>
 
 =back
 

@@ -7,7 +7,7 @@
 #include "QpGenVars.h"
 #include "QpGenResiduals.h"
 
-QpGen::QpGen( int nx_, int my_, int mz_ )
+QpGen::QpGen( int nx_, int my_, int mz_ ) : la(0)
 {
   nx = nx_;
   my = my_;

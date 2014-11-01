@@ -45,8 +45,6 @@ public:
 			     int rowExtent, int& info );
 
   virtual void SymmetricScale ( OoqpVector& vec );
-  virtual void ColumnScale ( OoqpVector& vec );
-  virtual void RowScale ( OoqpVector& vec );
   virtual void scalarMult( double num);
 
   virtual void symAtPutSpRow( int col, double A[], int lenA, int irowA[],

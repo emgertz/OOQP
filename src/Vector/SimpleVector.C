@@ -110,10 +110,10 @@ void SimpleVector::copyFrom( OoqpVector& vec )
 
 double SimpleVector::infnorm()
 {
-  double temp, norm = 0;
+  double norm = 0;
   int i;
   for( i = 0; i < n; i++ ) {
-    temp = fabs( v[i] );
+    double temp = fabs( v[i] );
     // Subtle reversal of the logic to handle NaNs
     if( ! ( temp <=  norm ) ) norm = temp;
   }
@@ -132,10 +132,10 @@ double SimpleVector::infnorm()
 
 double SimpleVector::onenorm()
 {
-  double temp, norm = 0;
+  double norm = 0;
   int i;
   for( i = 0; i < n; i++ ) {
-    temp = fabs( v[i] );
+    double temp = fabs( v[i] );
     norm += temp;
   }
   return norm;
@@ -154,20 +154,6 @@ void SimpleVector::scalarMult( double num)
 {
 int i;
 for( i = 0; i < n; i++) v[i] *= num;
-}
-
-// Print first 10 entries of solution vector to stderr.
-// Useful for debugging purposes...
-void SimpleVector::printSolutionToStdErr( OoqpVector &vec)
-{
-  SimpleVector & sv = dynamic_cast<SimpleVector &>(vec);
-  double * y = sv.v;
-  int i;
-  for( i = 0; i < 10; i++ )
-    {
-    fprintf( stderr, "%f", v[i]);
-    }
-  fprintf( stderr, "******");
 }
 
 void SimpleVector::componentDiv ( OoqpVector& vec )
@@ -359,9 +345,9 @@ double SimpleVector::dotProductWith( OoqpVector& vec )
   int kmax       = n / size;
   int i          = 0;
 
-  int k, imax;
+  int k;
   for( k = 0; k < kmax; k++ ) {
-    imax = (k + 1) * 8196;
+    int imax = (k + 1) * 8196;
     for( ; i < imax; i++ ) {
       dot1 += v[i] * vvec[i];
     }
@@ -400,9 +386,9 @@ SimpleVector::shiftedDotProductWith( double alpha, OoqpVector& mystep,
   int kmax       = n / size;
   int i          = 0;
 
-  int k, imax;
+  int k;
   for( k = 0; k < kmax; k++ ) {
-    imax = (k + 1) * 8196;
+    int imax = (k + 1) * 8196;
     for( ; i < imax; i++ ) {
       dot1 += (v[i] + alpha * p[i]) * (y[i] + beta * q[i] );
     }

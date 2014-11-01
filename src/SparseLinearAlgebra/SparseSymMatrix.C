@@ -95,7 +95,6 @@ void SparseSymMatrix::randomizePSD(double * seed)
   jcolM[0] = 0;
   M[0]     = 1e-8 + drand( seed );
   krowM[1] = 1;
-  nnz      = 1;
 
   // Knuth's algorithm for choosing len elements out of NN elts.
   // NN here is the number of elements in the strict lower triangle.
@@ -296,16 +295,6 @@ void SparseSymMatrix::fromGetDiagonal( int idiag, OoqpVector& v )
 void SparseSymMatrix::SymmetricScale( OoqpVector& vec )
 {
   mStorage->SymmetricScale( vec );
-}
-
-void SparseSymMatrix::ColumnScale( OoqpVector& vec )
-{
-  mStorage->ColumnScale( vec );
-}
-
-void SparseSymMatrix::RowScale( OoqpVector& vec )
-{
-  mStorage->RowScale( vec );
 }
 
 void SparseSymMatrix::scalarMult( double num )

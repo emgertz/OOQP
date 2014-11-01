@@ -17,7 +17,6 @@
 class SparseGenMatrix : public GenMatrix {
 protected:
   SparseStorageHandle mStorage;
-  int size;
 
 public:
   SparseGenMatrix( int rows, int cols, int nnz );
@@ -36,11 +35,10 @@ public:
 
   virtual void atPutDense( int row, int col, double * A, int lda,
 			   int rowExtent, int colExtent );
+
   virtual void fromGetDense( int row, int col, double * A, int lda,
 			     int rowExtent, int colExtent );
   virtual void ColumnScale( OoqpVector& vec );
-  virtual void RowScale( OoqpVector& vec );
-  virtual void SymmetricScale( OoqpVector &vec);
   virtual void scalarMult( double num);
   virtual void fromGetSpRow( int row, int col,
 			     double A[], int lenA, int jcolA[], int& nnz,

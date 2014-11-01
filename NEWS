@@ -1,3 +1,21 @@
+Major Changes in OOQP 0.99.26 (November 1, 2014)
+
+- Perform a great deal of code maintenance.  Occasionally, this
+  maintence changed the ABI, which means that any program created
+  using a previous version of OOQP must be recompiled *from scratch*
+  to use the new version.
+
+- Use the system BLAS and LAPACK implementions, rather than providing
+  them.  BLAS and LAPACK are universilly available on Linux
+  distributions and on MacOS (as --framework vecLib).
+  
+- No longer make the 'depend' target by default.  The 'depend' target
+  requires that makedepend be installed, which it no longer is by
+  default on many Linux distributions.  The 'depend' target is still
+  available, but must be explicitly requested, e.g. 'make depend'.
+
+- Tidy up the implemention of the MPS reader.  It should work as before.
+
 Major Changes in OOQP 0.99.25 (August 30, 2014)
 
 - Throw an exception if MA27 cannot factor a matrix.  Previously,

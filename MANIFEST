@@ -5,6 +5,14 @@ configure
 configure.ac
 COPYRIGHT
 doc/ooqp-userguide.pdf
+doc/reference-manual/doc.png
+doc/reference-manual/folderclosed.png
+doc/reference-manual/folderopen.png
+doc/reference-manual/functions_0x7e.html
+doc/reference-manual/functions_func_0x7e.html
+doc/reference-manual/menu.js
+doc/reference-manual/menudata.js
+doc/reference-manual/splitbar.png
 doc/reference-manual/QpGenLinsys_8h_source.html
 doc/reference-manual/structnode.html
 doc/reference-manual/group__ReferenceCounting.html
@@ -18,7 +26,6 @@ doc/reference-manual/cQpBound_8h_source.html
 doc/reference-manual/classMa27SolverBase.html
 doc/reference-manual/functions_func_l.html
 doc/reference-manual/classOoqpStartStrategy-members.html
-doc/reference-manual/functions_~.html
 doc/reference-manual/classQpExampleData.html
 doc/reference-manual/functions_n.html
 doc/reference-manual/group__SparseLinearAlgebra.html
@@ -57,7 +64,6 @@ doc/reference-manual/classDeSymIndefSolver.png
 doc/reference-manual/classDenseLinearAlgebraPackage.html
 doc/reference-manual/PetscSparseStorage_8h_source.html
 doc/reference-manual/tabs.css
-doc/reference-manual/ftv2mlastnode.png
 doc/reference-manual/classQpGenData.png
 doc/reference-manual/structQpBoundPetscContext.html
 doc/reference-manual/PetscSparseStorageHandle_8h_source.html
@@ -73,7 +79,6 @@ doc/reference-manual/QpGenResiduals_8h_source.html
 doc/reference-manual/classQpGenData.html
 doc/reference-manual/classPetscLinearAlgebraPackage.html
 doc/reference-manual/classMa57Solver.png
-doc/reference-manual/ftv2folderclosed.png
 doc/reference-manual/Residuals_8h_source.html
 doc/reference-manual/classQpGenResiduals.png
 doc/reference-manual/functions_func_x.html
@@ -91,8 +96,6 @@ doc/reference-manual/classQpGen.png
 doc/reference-manual/classGenMatrix.png
 doc/reference-manual/classQpGenSparseSeq.html
 doc/reference-manual/classHuberData.html
-doc/reference-manual/ftv2splitbar.png
-doc/reference-manual/ftv2blank.png
 doc/reference-manual/classQpBoundDenseLinsys.html
 doc/reference-manual/classQpBoundResiduals-members.html
 doc/reference-manual/OoqpPetscMonitor_8h_source.html
@@ -129,7 +132,6 @@ doc/reference-manual/dir_9da5f94fcc9d4e5040a9266e92c49aed.html
 doc/reference-manual/Variables_8h.html
 doc/reference-manual/classQpGenSparseMa57-members.html
 doc/reference-manual/classDoubleStorage.html
-doc/reference-manual/ftv2vertline.png
 doc/reference-manual/classSvmVars.html
 doc/reference-manual/functions_p.html
 doc/reference-manual/classSolver-members.html
@@ -162,7 +164,6 @@ doc/reference-manual/functions_z.html
 doc/reference-manual/classQpGenVars.png
 doc/reference-manual/classSvmLinsys.html
 doc/reference-manual/functions_f.html
-doc/reference-manual/functions_func_~.html
 doc/reference-manual/classPetscIterativeSolver-members.html
 doc/reference-manual/classQpExampleDenseLinsys.html
 doc/reference-manual/SparseStorage_8h_source.html
@@ -216,8 +217,6 @@ doc/reference-manual/functions_c.html
 doc/reference-manual/PetscIterativeSolver_8h_source.html
 doc/reference-manual/classQpBoundDenseLinsys-members.html
 doc/reference-manual/functions_func_u.html
-doc/reference-manual/ftv2link.png
-doc/reference-manual/ftv2plastnode.png
 doc/reference-manual/mexUtility_8h_source.html
 doc/reference-manual/DoubleMatrix_8h.html
 doc/reference-manual/classLinearSystem.html
@@ -234,7 +233,6 @@ doc/reference-manual/classHuberData.png
 doc/reference-manual/functions_func_s.html
 doc/reference-manual/group__QpBound.html
 doc/reference-manual/IotrRefCount_8h.html
-doc/reference-manual/ftv2lastnode.png
 doc/reference-manual/classQpExampleDense.html
 doc/reference-manual/DoubleMatrixTypes_8h_source.html
 doc/reference-manual/structOoqpMonitorData-members.html
@@ -321,7 +319,6 @@ doc/reference-manual/structQpGenContext.html
 doc/reference-manual/classHuberVars-members.html
 doc/reference-manual/functions_x.html
 doc/reference-manual/classOoqpSelfMonitor.html
-doc/reference-manual/ftv2mnode.png
 doc/reference-manual/QpGenSparseLinsys_8h_source.html
 doc/reference-manual/functions_d.html
 doc/reference-manual/classQpExampleResids.png
@@ -381,7 +378,6 @@ doc/reference-manual/bc_s.png
 doc/reference-manual/QpGenDriver_8h_source.html
 doc/reference-manual/classSymMatrix-members.html
 doc/reference-manual/closed.png
-doc/reference-manual/ftv2pnode.png
 doc/reference-manual/classGenMatrix-members.html
 doc/reference-manual/Svm_8h_source.html
 doc/reference-manual/PetscSpSymMatrix_8h_source.html
@@ -389,8 +385,6 @@ doc/reference-manual/dir_5dff2372ba4ec0965ebd7e52a3cb0bb9.html
 doc/reference-manual/doxygen.png
 doc/reference-manual/classSparseSymMatrix.png
 doc/reference-manual/classQpGenSparseMa27-members.html
-doc/reference-manual/ftv2doc.png
-doc/reference-manual/ftv2folderopen.png
 doc/reference-manual/classSymMatrix.html
 doc/reference-manual/classQpGenSparseLinsys.png
 doc/reference-manual/DenseStorageHandle_8h_source.html
@@ -418,7 +412,6 @@ doc/reference-manual/classQpBoundDenseLinsys.png
 doc/reference-manual/classQpGenSparseMa27.html
 doc/reference-manual/classSparseLinearAlgebraPackage.html
 doc/reference-manual/Huber_8h_source.html
-doc/reference-manual/ftv2node.png
 doc/reference-manual/structHashTable-members.html
 doc/reference-manual/functions_func_c.html
 doc/reference-manual/classQpBoundPetsc-members.html

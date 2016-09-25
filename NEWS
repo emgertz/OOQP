@@ -1,3 +1,10 @@
+Major Changes in OOQP 0.99.27 (October 2, 2016)
+
+Update OOQP to compile on more modern C++ compilers.  The word 'hash' has
+become part of the STL, and so is now semi-reserved, but is only used in
+one file in OOQP. Don't use namespace 'stl' in this file. (Thanks to Kibaek
+Kim).
+
 Major Changes in OOQP 0.99.26 (November 1, 2014)
 
 - Perform a great deal of code maintenance.  Occasionally, this
